@@ -86,7 +86,7 @@ describe WorksController do
         }
       }.must_change 'Work.count', 0
 
-        must_respond_with :bad_request
+      must_respond_with :bad_request
     end
 
     it "renders 400 bad_request for bogus categories" do
@@ -102,7 +102,7 @@ describe WorksController do
         }
       }.must_change 'Work.count', 0
 
-        must_respond_with :bad_request
+      must_respond_with :bad_request
     end
 
   end
@@ -191,22 +191,35 @@ describe WorksController do
     end
 
     it "redirects to the work page after the user has logged out" do
-    skip
+      skip
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      get login_path
-      Vote.count.must_equal 3
-      post upvote_path(Work.find(works(:movie).id))
+
+        post login_path, params: {
+          username: users(:dan)
+        }
+
+      proc {
+        post upvote_path(works(:movie).id)
+      }.must_change "Vote.count", 1
+
       must_respond_with :redirect
       must_redirect_to work_path(Work.find(works(:movie).id))
 
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      get login_path
-      post upvote_path(Work.find(works(:movie).id))
-      post upvote_path(Work.find(works(:movie).id))
+      post login_path, params: {
+        username: users(:dan)
+      }
+      proc {
+      post upvote_path(works(:movie).id)
+    }.must_change "Vote.count", 1
+
+      proc {
+      post upvote_path(works(:movie).id)
+    }.must_change "Vote.count", 0
       must_redirect_to work_path(Work.find(works(:movie).id))
 
     end
