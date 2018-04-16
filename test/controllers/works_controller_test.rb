@@ -1,4 +1,5 @@
 require 'test_helper'
+
 describe WorksController do
   let(:album) { works(:album) }
   let(:another_album) { works(:another_album) }
@@ -69,7 +70,7 @@ describe WorksController do
 
       end
 
-      it "renders bad_request and does not update the DB for bogus data" do
+      it "renders not_found and does not update the DB for bogus data" do
 
       end
 
