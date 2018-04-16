@@ -201,15 +201,53 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      work = Work.first
 
+      work_data = work.attributes
+      work_data[:title] = "Updated Title"
+
+      work.assign_attributes(work_data)
+      work.must_be :valid?
+
+      patch work_path(work), params: {work: work_data}
+
+      must_respond_with :redirect
+      must_redirect_to work_path(work)
+      work.reload
+
+      work.title.must_equal work_data[:title]
     end
 
     it "renders bad_request for bogus data" do
 
+      work = Work.first
+
+      work_data = work.attributes
+      work_data[:category] = INVALID_CATEGORIES.sample.singularize
+      work_data[:title] = "An updated title"
+
+      work.assign_attributes(work_data)
+      work.wont_be :valid?
+
+      patch work_path(work), params: {work: work_data}
+
+      must_respond_with :missing
+      work.reload
+
+      work.title.wont_equal work_data[:title]
+
+
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      work_id = Work.first.id + 1
+      work_data = {
+        title: "Updated Book Title"
+      }
 
+      patch work_path(work_id), params: {work: work_data}
+
+      must_respond_with :missing
     end
   end
 
