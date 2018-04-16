@@ -194,10 +194,32 @@ describe WorksController do
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
+      User.count.must_be :>, 0
+      user = User.first
+
+      post login_path, params: { session: {user_id: user.id}}
+
+      new_work = Work.create!(title: "Best New Work", category: "album")
+
+      post upvote_path(new_work.id)
 
     end
 
     it "redirects to the work page if the user has already voted for that work" do
+      User.count.must_be :>, 0
+      user = User.first
+
+      post login_path, params: { session: {user_id: user.id}}
+
+      Work.count.must_be :>, 0
+      work = Work.first
+
+      first_vote = Vote.create(user_id: session[:user_id], work_id: work.id)
+      post upvote_path(work.id)
+      second_vote = Vote.create(user_id: session[:user_id], work_id: work.id)
+      post upvote_path(work.id)
+      second_vote.wont_be :valid?
+      must_redirect_to work_path(work.id)
 
     end
   end
