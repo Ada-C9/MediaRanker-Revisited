@@ -4,16 +4,30 @@ describe WorksController do
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
-
+      ["album", "book", "movie"].each do |category|
+        Work.by_category(category).length.must_be :>, 0, "No #{category.pluralize} in the test fixtures"
+      end
+      get root_path
+      must_respond_with :success
     end
 
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
+      ["album", "book", "movie"].each do |category|
+        Work.by_category(category).length.must_be :>, 0, "No #{category.pluralize} in the test fixtures"
+      end
+
+      Work.by_category("book").destroy_all
+
+      get root_path
+      must_respond_with :success
 
     end
 
     it "succeeds with no media" do
-
+      Work.destroy_all
+      get root_path
+      must_respond_with :success
     end
   end
 
