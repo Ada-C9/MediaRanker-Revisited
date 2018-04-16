@@ -51,9 +51,10 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
-      skip
+
       # Assumptions
       Work.count.must_be :>, 0
+
       #Act
       get works_path
 
@@ -63,7 +64,7 @@ describe WorksController do
     end
 
     it "succeeds when there are no works" do
-      skip
+    
       # Assumptions
       Work.destroy_all
 
