@@ -64,7 +64,7 @@ describe WorksController do
     end
 
     it "succeeds when there are no works" do
-    
+
       # Assumptions
       Work.destroy_all
 
@@ -78,25 +78,74 @@ describe WorksController do
 
   describe "new" do
     it "succeeds" do
-      skip
-      # Act
 
+      # Act
+      get new_work_path
       # Assert
+      must_respond_with :success
     end
   end
 
   describe "create" do
     it "creates a work with valid data for a real category" do
-      skip
+      # Arrange
+      work_data = {
+        title:  'new movie',
+        category: 'movie'
+
+      }
+      previous_count = Work.count
+
+      # Assumptions
+      Work.new(work_data).must_be :valid?
+
+      # Act
+      post works_path, params: { work: work_data }
+
+      # Assert
+      must_respond_with :redirect
+      # must_redirect_to works_path
+
+      Work.count.must_equal previous_count + 1
+      Work.last.title.must_equal work_data[:title]
+
 
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
-      skip
+      # Arrange
+      work_data = {
+        category: 'movie'
+      }
+      previous_count = Work.count
+
+      # Assumptions
+      Work.new(work_data).wont_be :valid?
+
+      # Act
+      post works_path, params: { work: work_data }
+
+      # Assert
+      must_respond_with :bad_request
+      Work.count.must_equal previous_count
     end
 
     it "renders 400 bad_request for bogus categories" do
-      skip
+      # Arrange
+      work_data = {
+        category: 'film'
+      }
+      previous_count = Work.count
+
+      # Assumptions
+      Work.new(work_data).wont_be :valid?
+
+      # Act
+      post works_path, params: { work: work_data }
+
+      # Assert
+      must_respond_with :bad_request
+      Work.count.must_equal previous_count
     end
 
   end
