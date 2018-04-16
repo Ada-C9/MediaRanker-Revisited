@@ -17,7 +17,7 @@ describe WorksController do
 
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
-      #Arrange
+      # Arrange
       Work.where(category: 'movie').destroy_all
 
       Work.where(category: 'album').count.must_be :>=, 1
@@ -31,8 +31,11 @@ describe WorksController do
     end
 
     it "succeeds with no media" do
-      #Arrange
+      # Arrange
       Work.destroy_all
+
+      # Assumptions
+      Work.count.must_equal 0
 
       # Act
       get root_path
@@ -47,10 +50,28 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      # Assumptions
+      Work.count.must_be :>, 0
 
+      # Act
+      get works_path
+
+      # Assert
+      must_respond_with :success
     end
 
     it "succeeds when there are no works" do
+      # Arrange
+      Work.destroy_all
+
+      # Assumptions
+      Work.count.must_equal 0
+
+      # Act
+      get works_path
+
+      # Assert
+      must_respond_with :success
 
     end
   end
