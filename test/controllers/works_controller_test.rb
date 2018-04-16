@@ -190,6 +190,11 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      work = Work.first.id + 1
+
+      get edit_work_path(work)
+
+      must_respond_with :missing
 
     end
   end
