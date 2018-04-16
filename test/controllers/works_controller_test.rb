@@ -5,6 +5,23 @@ describe WorksController do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
 
+      #check precondition
+      categories = %w(book album movie)
+      check = []
+
+      categories.each do |category|
+        work = Work.find_by(category: category)
+        check << work
+      end
+
+      check.each do |work|
+        work.must_be :valid?
+      end
+
+      get root_path
+
+      must_respond_with :success
+
     end
 
     it "succeeds with one media type absent" do
