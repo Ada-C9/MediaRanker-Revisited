@@ -27,6 +27,15 @@ describe WorksController do
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
 
+      works_to_delete = Work.where(category: "album")
+
+      works_to_delete.destroy
+
+      #check precondition
+
+      work.find_by(category: "album").must_be_nil
+
+
     end
 
     it "succeeds with no media" do
