@@ -11,7 +11,7 @@ describe WorksController do
       Work.best_movies.count.must_be :>, 0
 
       # Act
-      get works_path
+      get root_path
 
       # Assert
       must_respond_with :success
@@ -28,7 +28,7 @@ describe WorksController do
       Work.best_movies.count.must_be :<=, 0
 
       # Act
-      get works_path
+      get root_path
 
       # Assert
       must_respond_with :success
@@ -42,7 +42,7 @@ describe WorksController do
       Work.best_movies.count.must_be :<=, 0
 
       # Act
-      get works_path
+      get root_path
 
       # Assert
       must_respond_with :success
@@ -54,10 +54,27 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      # Assumption
+      Work.count.must_be :>, 0
+
+      # Act
+      get works_path
+
+      # Assert
+      must_respond_with :success
 
     end
 
     it "succeeds when there are no works" do
+      # Assumption
+      Work.destroy_all
+      Work.count.must_be :<=, 0
+
+      # Act
+      get works_path
+
+      # Assert
+      must_respond_with :success
 
     end
   end
