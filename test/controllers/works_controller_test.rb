@@ -5,15 +5,47 @@ describe WorksController do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
 
+      # Assumption
+      Work.best_albums.count.must_be :>, 0
+      Work.best_books.count.must_be :>, 0
+      Work.best_movies.count.must_be :>, 0
+
+      # Act
+      get works_path
+
+      # Assert
+      must_respond_with :success
+
     end
 
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
 
+      # Assumption
+      Work.best_albums.count.must_be :>, 0
+      Work.best_books.count.must_be :>, 0
+      Work.where(category: "movie").destroy_all
+      Work.best_movies.count.must_be :<=, 0
+
+      # Act
+      get works_path
+
+      # Assert
+      must_respond_with :success
+
     end
 
     it "succeeds with no media" do
+      Work.destroy_all
+      Work.best_albums.count.must_be :<=, 0
+      Work.best_books.count.must_be :<=, 0
+      Work.best_movies.count.must_be :<=, 0
 
+      # Act
+      get works_path
+
+      # Assert
+      must_respond_with :success
     end
   end
 
