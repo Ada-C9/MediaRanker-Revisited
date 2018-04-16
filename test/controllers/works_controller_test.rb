@@ -68,7 +68,7 @@ describe WorksController do
     it "renders bad_request and does not update the DB for bogus data" do
       old_work_count = Work.count
 
-      work_data = { title: "Bad Title", category: "not a category" }
+      work_data = { title: "", category: "not a category" }
       Work.new(work_data).wont_be :valid?
 
       post works_path, params: { work: work_data }
@@ -77,7 +77,15 @@ describe WorksController do
     end
 
     it "renders 400 bad_request for bogus categories" do
+      old_work_count = Work.count
 
+      work_data = { title: "A Title", category: "not a category" }
+      Work.new(work_data).wont_be :valid?
+
+      post works_path, params: { work: work_data }
+      must_respond_with :bad_request
+      must_respond_with 400
+      Work.count.must_equal old_work_count
     end
 
   end
