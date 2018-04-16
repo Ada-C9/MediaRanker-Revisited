@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.4.0'
+ruby '2.5.1'
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
@@ -49,6 +49,7 @@ group :development, :test do
 
   # Use pry for rails console
   gem 'pry-rails'
+  gem 'pry'
 end
 
 group :test do
