@@ -1,19 +1,34 @@
 require 'test_helper'
 
 describe WorksController do
+  let(:album) { works(:album) }
+  let(:another_album) { works(:another_album) }
+  let(:book) { works(:poodr) }
+  let(:movie) { works(:movie) }
+
+
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
-
+      puts "Work.count"
+      get root_path
+      must_respond_with :success
     end
 
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
-
+      proc {
+        book.destroy
+      }.must_change 'Work.count', -1
+      get root_path
+      must_respond_with :success
     end
 
     it "succeeds with no media" do
+      self.use_transactional_fixtures = false
 
+      get root_path
+      must_respond_with :success
     end
   end
 
