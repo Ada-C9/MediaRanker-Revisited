@@ -200,8 +200,9 @@ describe WorksController do
       post login_path, params: { session: {user_id: user.id}}
 
       new_work = Work.create!(title: "Best New Work", category: "album")
+      new_vote = Vote.create(work_id: new_work.id, user_id: session[:user_id])
 
-      post upvote_path(new_work.id)
+      flash[:result_text].must_equal "Successfully upvotes!"
 
     end
 
@@ -219,6 +220,7 @@ describe WorksController do
       second_vote = Vote.create(user_id: session[:user_id], work_id: work.id)
       post upvote_path(work.id)
       second_vote.wont_be :valid?
+
       must_redirect_to work_path(work.id)
 
     end
