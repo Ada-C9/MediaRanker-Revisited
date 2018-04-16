@@ -44,7 +44,7 @@ describe WorksController do
     end
 
     it "succeeds with no media" do
-      old_work_count = Work.count
+
       works = Work.all
       works.each { |work| work.destroy }
 
@@ -63,10 +63,24 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      Work.any?.must_equal true
 
+      get works_path
+
+      must_respond_with :success
     end
 
     it "succeeds when there are no works" do
+
+      works = Work.all
+      works.each { |work| work.destroy }
+
+      #test precondition
+      Work.count.must_equal 0
+
+      get works_path
+
+      must_respond_with :success
 
     end
   end
