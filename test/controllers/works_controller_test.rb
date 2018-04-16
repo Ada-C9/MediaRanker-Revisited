@@ -162,9 +162,20 @@ describe WorksController do
   describe "show" do
     it "succeeds for an extant work ID" do
 
+      work = Work.first
+
+      get work_path(work)
+
+      must_respond_with :success
+
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      work = Work.last.id + 1
+
+      get work_path(work)
+
+      must_respond_with :missing
 
     end
   end
