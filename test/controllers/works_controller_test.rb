@@ -157,7 +157,7 @@ describe WorksController do
           title: ""
         }
       }
-      
+
       must_respond_with :not_found
     end
 
@@ -207,8 +207,11 @@ describe WorksController do
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
       proc {
+        post login_path, params: {
+          username: "dan"
+        }
+
         post upvote_path(works(:poodr).id), params: {
           user: users(:dan),
           work: works(:poodr)
