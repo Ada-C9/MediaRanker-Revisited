@@ -5,15 +5,39 @@ describe WorksController do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
 
+      albums = Work.where(category: 'album')
+      books = Work.where(category: 'book')
+      movies = Work.where(category: 'movie')
+
+      albums.count.must_be :>, 0
+      books.count.must_be :>, 0
+      movies.count.must_be :>, 0
+
+      get root_path
+
+      must_respond_with :success
+
     end
 
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
+      albums = Work.where(category: 'album')
+      albums.destroy_all
+
+      albums.count.must_equal 0
+
+      get root_path
+
+      must_respond_with :success
 
     end
 
     it "succeeds with no media" do
+      Work.destroy_all
 
+      get root_path
+
+      must_respond_with :success
     end
   end
 
@@ -22,11 +46,21 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      Work.count.must_be :>, 0
 
+      get works_path
+
+      must_respond_with :success
     end
 
     it "succeeds when there are no works" do
+      Work.destroy_all
 
+      Work.count.must_equal 0
+
+      get works_path
+
+      must_respond_with :success
     end
   end
 
