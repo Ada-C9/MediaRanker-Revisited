@@ -273,17 +273,71 @@ describe WorksController do
 
     it "redirects to the work page if no user is logged in" do
 
+      work = Work.first
+
+      post upvote_path(work)
+
+      must_redirect_to work_path(work)
     end
 
     it "redirects to the work page after the user has logged out" do
 
+      work = Work.first
+      user = User.first
+
+      post logout_path, params: { username: user.username }
+      must_respond_with :found
+
+      post upvote_path(work)
+
+      must_redirect_to work_path(work)
+
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
+      user = User.first
+      work = Work.first
+
+      post login_path, params: { username: user.username }
+      must_respond_with :found
+
+      old_vote_count = work.vote_count
+
+      post upvote_path(work), params: {user_id: user.id}
+
+      must_respond_with :found
+      work.reload
+
+      work.ranking_users.must_include user
+      work.vote_count.must_equal old_vote_count + 1
+
 
     end
 
     it "redirects to the work page if the user has already voted for that work" do
+      user = User.first
+      work = Work.first
+
+      post login_path, params: { username: user.username }
+      must_respond_with :found
+
+      old_vote_count = work.vote_count
+
+      post upvote_path(work), params: {user_id: user.id}
+      
+      work.reload
+      new_vote_count = work.vote_count
+
+      must_respond_with :found
+      work.ranking_users.must_include user
+
+
+      post upvote_path(work), params: {user_id: user.id}
+      must_redirect_to work_path(work)
+
+      work.reload
+      work.vote_count.must_equal new_vote_count
+
 
     end
   end
