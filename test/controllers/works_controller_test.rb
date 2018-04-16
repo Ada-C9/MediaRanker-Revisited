@@ -1,6 +1,7 @@
 require 'test_helper'
 
 describe WorksController do
+  let(:poodruby) { works(:poodr) }
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
@@ -11,7 +12,7 @@ describe WorksController do
 
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
-      works(:poodr).destroy
+      poodruby.destroy
 
       get root_path
 
@@ -20,9 +21,6 @@ describe WorksController do
 
     it "succeeds with no media" do
       Work.all do |work|
-        if !work.votes.nil?
-          work.votes.each {|vote| vote.destroy}
-        end
         work.destroy
       end
 
@@ -44,9 +42,6 @@ describe WorksController do
 
     it "succeeds when there are no works" do
       Work.all do |work|
-        if !work.votes.nil?
-          work.votes.each {|vote| vote.destroy}
-        end
         work.destroy
       end
 
@@ -58,42 +53,81 @@ describe WorksController do
 
   describe "new" do
     it "succeeds" do
+      get new_work_path
 
+      must_respond_with :success
     end
   end
 
   describe "create" do
     it "creates a work with valid data for a real category" do
+      new_work = {work: {title: 'Throne of Glass', category: 'book'}}
 
+      proc { post works_path, params: new_work }.must_change 'Work.count', 1
+
+      new_work_id = Work.find_by(title: 'Throne of Glass').id
+
+      must_respond_with :redirect
+      must_redirect_to work_path(new_work_id)
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
+      new_work = {work: {title: 'Throne of Glass'}}
 
+      proc { post works_path, params: new_work }.wont_change 'Work.count'
+
+      Work.find_by(title: 'Throne of Glass').must_be_nil
+      must_respond_with :error
+
+      # can you test that a controller renders instead of redirects the view?
     end
 
     it "renders 400 bad_request for bogus categories" do
+      counter = 1
+      INVALID_CATEGORIES.each do |category|
+        invalid_work = {work: {title: 'Bad Title #{counter}', category: category}}
 
+        proc { post works_path, params: invalid_work }.wont_change 'Work.count'
+        Work.find_by(title: 'Bad Title #{counter}').must_be_nil
+        must_respond_with 400
+
+        counter+=1
+      end
     end
 
   end
 
   describe "show" do
     it "succeeds for an extant work ID" do
+      get work_path(poodruby.id)
 
+      must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      destroyed_id = poodruby.id
+      poodruby.destroy
 
+      get work_path(destroyed_id)
+
+      must_respond_with 404
     end
   end
 
   describe "edit" do
     it "succeeds for an extant work ID" do
+      get edit_work_path(poodruby.id)
 
+      must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      destroyed_id = poodruby.id
+      poodruby.destroy
 
+      get edit_work_path(destroyed_id)
+
+      must_respond_with 404
     end
   end
 
