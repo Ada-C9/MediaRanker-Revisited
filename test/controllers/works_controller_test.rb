@@ -72,12 +72,10 @@ describe WorksController do
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
-      new_work = {work: {title: 'Throne of Glass'}}
+      bad_work = {work: {title: nil, category: 'book'}}
 
-      proc { post works_path, params: new_work }.wont_change 'Work.count'
-
-      Work.find_by(title: 'Throne of Glass').must_be_nil
-      must_respond_with :error
+      proc { post works_path, params: bad_work }.wont_change 'Work.count'
+      must_respond_with 400
 
       # can you test that a controller renders instead of redirects the view?
     end
