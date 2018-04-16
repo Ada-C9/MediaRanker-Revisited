@@ -23,7 +23,8 @@ class Work < ApplicationRecord
   end
 
   def self.by_category(category)
-    category = category.singularize.downcase
+    # TODO: 
+    category = category.to_s.singularize.downcase
     self.where(category: category).order(vote_count: :desc)
   end
 
