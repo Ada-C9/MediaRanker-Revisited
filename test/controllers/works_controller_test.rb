@@ -144,30 +144,53 @@ describe WorksController do
       must_respond_with :not_found
     end
   end
-  #
-  # describe "edit" do
-  #   it "succeeds for an extant work ID" do
-  #
-  #   end
-  #
-  #   it "renders 404 not_found for a bogus work ID" do
-  #
-  #   end
-  # end
-  #
-  # describe "update" do
-  #   it "succeeds for valid data and an extant work ID" do
-  #
-  #   end
-  #
-  #   it "renders bad_request for bogus data" do
-  #
-  #   end
-  #
-  #   it "renders 404 not_found for a bogus work ID" do
-  #
-  #   end
-  # end
+
+  describe "edit" do
+    it "succeeds for an extant work ID" do
+      get edit_work_path(Work.first)
+      must_respond_with :success
+    end
+
+    it "renders 404 not_found for a bogus work ID" do
+      get edit_work_path(Work.last.id + 1)
+      must_respond_with :not_found
+    end
+  end
+
+  describe "update" do
+    it "succeeds for valid data and an extant work ID" do
+
+      work = Work.first
+      work_data = work.attributes
+      work_data[:title] = "So Updated, Much Change"
+      work.assign_attributes(work_data)
+      work.must_be :valid?
+
+      patch work_path(work), params: { work: work_data}
+
+      work.reload
+      work.title.must_equal work_data[:title]
+
+    end
+
+    it "renders 404 not_found for bogus data" do
+      work = Work.first
+      work_data = work.attributes
+      work_data[:title] = nil
+      work.assign_attributes(work_data)
+      work.wont_be :valid?
+
+      patch work_path(work), params: { work: work_data}
+
+      must_respond_with :not_found
+    end
+
+    it "renders 404 not_found for a bogus work ID" do
+      work_id = Work.last.id + 1
+      patch work_path(work_id)
+      must_respond_with :not_found
+    end
+  end
   #
   # describe "destroy" do
   #   it "succeeds for an extant work ID" do
