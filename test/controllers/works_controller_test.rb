@@ -4,16 +4,31 @@ describe WorksController do
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
+      get root_path
 
+      must_respond_with :success
     end
 
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
+      works(:poodr).destroy
 
+      get root_path
+
+      must_respond_with :success
     end
 
     it "succeeds with no media" do
+      Work.all do |work|
+        if !work.votes.nil?
+          work.votes.each {|vote| vote.destroy}
+        end
+        work.destroy
+      end
 
+      get root_path
+
+      must_respond_with :success
     end
   end
 
@@ -22,11 +37,22 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      get works_path
 
+      must_respond_with :success
     end
 
     it "succeeds when there are no works" do
+      Work.all do |work|
+        if !work.votes.nil?
+          work.votes.each {|vote| vote.destroy}
+        end
+        work.destroy
+      end
 
+      get works_path
+
+      must_respond_with :success
     end
   end
 
