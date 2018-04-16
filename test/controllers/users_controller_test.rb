@@ -34,5 +34,14 @@ describe UsersController do
 
       must_respond_with :not_found
     end
+
+    it "renders 404 if user's id doesn't exist" do
+      current_user_id = User.first.id
+      User.first.votes.destroy_all
+      User.first.delete
+
+      get user_path(current_user_id)
+      must_respond_with :not_found
+    end
   end
 end
