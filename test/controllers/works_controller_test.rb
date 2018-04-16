@@ -131,21 +131,41 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      updates = {work: {title: "Another Bicycle", category: "book"}}
 
+      put work_path(poodruby), params: updates
+      updated_poodr = Work.find_by(id: poodruby.id)
+
+      updated_poodr.title.must_equal "Another Bicycle"
+      must_respond_with :redirect
+      must_redirect_to work_path(poodruby.id)
     end
 
-    it "renders bad_request for bogus data" do
+    it "renders not_found for bogus data" do
+      updates = {work: {title: nil, category: "book"}}
 
+      put work_path(poodruby), params: updates
+      updated_poodr = Work.find_by(id: poodruby.id)
+
+      must_respond_with 404
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      ids = []
+      Work.all.each { |work| ids << work.id }
+      id = rand(1..400)
+      until !ids.include?(id)
+        id = rand(1..400)
+      end
+      put work_path(id), params: {work: {title: "blah", category: "album"}}
 
+      must_respond_with 404
     end
   end
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
-
+      
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
