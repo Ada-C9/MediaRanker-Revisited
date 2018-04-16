@@ -4,16 +4,32 @@ describe WorksController do
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
+      works = Work.to_category_hash
+      ["album", "book", "movie"].each do |cat|
+        works[cat].length.must_be :>, 0
+      end
 
+      get root_path
+      must_respond_with :success
     end
 
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
+      Work.where(category: :movie).each do |movie|
+        movie.destroy
+      end
+      Work.where(category: :movie).must_be_empty
 
+      get root_path
+      must_respond_with :success
     end
 
     it "succeeds with no media" do
+      Work.destroy_all
+      Work.count.must_equal 0
 
+      get root_path
+      must_respond_with :success
     end
   end
 
