@@ -14,7 +14,7 @@ describe WorksController do
       @movie = works(:movie)
 
       get root_path
-      must_respond_with :error
+      must_respond_with :success
 
     end
 
@@ -42,10 +42,18 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      @book = works(:poodr)
+      @movie = works(:movie)
+
+      get works_path
+      must_respond_with :success
 
     end
 
     it "succeeds when there are no works" do
+
+      get works_path
+      must_respond_with :success
 
     end
   end
