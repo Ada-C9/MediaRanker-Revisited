@@ -78,7 +78,11 @@ describe WorksController do
 
   describe "new" do
     it "succeeds" do
+      # Act
+      get new_work_path
 
+      #Assert
+      must_respond_with :success
     end
   end
 
