@@ -68,21 +68,46 @@ describe WorksController do
 
   describe "new" do
     it "succeeds" do
-
+      # Arrange
+      # Act
+      get new_work_path
+      # Assert
+      must_respond_with :success
     end
   end
 
   describe "create" do
     it "creates a work with valid data for a real category" do
+      # Arrange-store data and test it
+      new_work = { title: 'Island Under The Sea',
+        creator:'You',
+        description: 'Chile',
+        publication_year: 1999-11-01,
+        category: 'book'
+      }
 
+      old_work_count = Work.count
+
+      Work.new(new_work).must_be :valid?
+
+      # Act
+      post works_path, params: { work: new_work }
+      # Assert
+
+      # Assert
+      must_respond_with :redirect
+      must_redirect_to work_path(Work.last)
+
+      Work.count.must_equal old_work_count + 1
+      Work.last.title.must_equal new_work[:title]
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
-
+      
     end
 
     it "renders 400 bad_request for bogus categories" do
-
+      skip
     end
 
   end
