@@ -7,11 +7,25 @@ describe WorksController do
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
-      # instance of an album
       # Arrange
       Work.where(category: "album").count.must_be :>, 0
       Work.where(category: "book").count.must_be :>, 0
       Work.where(category: "movie").count.must_be :>, 0
+
+      # #Act
+      get root_path
+      # # Assert
+      must_respond_with :success
+    end
+
+    it "succeeds with one media type absent" do
+      skip
+      # Precondition: there is at least one media in two of the categories
+      # Arrange
+      Work.where(category: "album").count.must_be :>, 0
+      Work.where(category: "book").count.must_be :>, 0
+      # must delete all movies so that none exit in that category
+      Work.where(category: "movie").destroy.count.must_be :==, 0
 
       # Act
       get root_path
@@ -19,13 +33,14 @@ describe WorksController do
       must_respond_with :success
     end
 
-    it "succeeds with one media type absent" do
-      # Precondition: there is at least one media in two of the categories
-
-    end
-
     it "succeeds with no media" do
-
+      # Arrange
+      Work.destroy_all
+      Work.all.length.must_equal 0
+      # Act
+      get works_path
+      # Assert
+      must_respond_with :success
     end
   end
 
@@ -34,11 +49,20 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
-
+      # get works
+      Work.all.count.must_be :>, 0
+      get works_path
+      must_respond_with :success
     end
 
     it "succeeds when there are no works" do
-
+      # Arrange
+      Work.destroy_all
+      Work.all.length.must_equal 0
+      # Act
+      get works_path
+      # Assert
+      must_respond_with :success
     end
   end
 
