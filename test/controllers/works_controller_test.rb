@@ -94,6 +94,7 @@ describe WorksController do
   describe "show" do
     it "succeeds for an extant work ID" do
       get work_path(Work.first.id)
+      get work_path(Work.last.id)
 
       must_respond_with :success
     end
@@ -108,6 +109,7 @@ describe WorksController do
   describe "edit" do
     it "succeeds for an extant work ID" do
       get edit_work_path(Work.last.id)
+      get edit_work_path(Work.first.id)
 
       must_respond_with :success
     end
@@ -121,15 +123,41 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      updated_title = "woo"
+      updated_category = "movie"
 
+      patch work_path(Work.first.id), params: {
+        work: {
+          title: updated_title,
+          category: updated_category
+        }
+      }
+
+      updated_work = Work.find(Work.first.id)
+      updated_work.title.must_equal updated_title
+      updated_work.category.must_equal updated_category
     end
 
     it "renders not_found for bogus data" do
+      updated_category = "photo"
 
+      patch work_path(works(:album).id), params: {
+        work: {
+          category: updated_category
+        }
+      }
+
+      must_respond_with :not_found
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      patch work_path(" "), params: {
+        work: {
+          category: "movie"
+        }
+      }
 
+      must_respond_with :not_found
     end
   end
 
