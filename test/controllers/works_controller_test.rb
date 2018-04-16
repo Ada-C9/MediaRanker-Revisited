@@ -7,14 +7,9 @@ describe WorksController do
 
       #check precondition
       categories = %w(book album movie)
-      check = []
 
       categories.each do |category|
         work = Work.find_by(category: category)
-        check << work
-      end
-
-      check.each do |work|
         work.must_be :valid?
       end
 
@@ -231,7 +226,7 @@ describe WorksController do
 
       patch work_path(work), params: {work: work_data}
 
-      must_respond_with :missing
+      must_respond_with :bad_request
       work.reload
 
       work.title.wont_equal work_data[:title]
@@ -285,12 +280,17 @@ describe WorksController do
       work = Work.first
       user = User.first
 
+      post login_path, params: { username: user.username }
+      must_respond_with :found
+
       post logout_path, params: { username: user.username }
       must_respond_with :found
 
+      original_vote = work.vote_count
       post upvote_path(work)
 
       must_redirect_to work_path(work)
+      Work.first.vote_count.must_equal original_vote
 
     end
 
@@ -303,7 +303,7 @@ describe WorksController do
 
       old_vote_count = work.vote_count
 
-      post upvote_path(work), params: {user_id: user.id}
+      post upvote_path(work)
 
       must_respond_with :found
       work.reload
@@ -324,7 +324,7 @@ describe WorksController do
       old_vote_count = work.vote_count
 
       post upvote_path(work), params: {user_id: user.id}
-      
+
       work.reload
       new_vote_count = work.vote_count
 
