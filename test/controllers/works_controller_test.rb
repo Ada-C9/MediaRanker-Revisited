@@ -1,10 +1,22 @@
 require 'test_helper'
 
+# Works controller responsible for:
+
+
 describe WorksController do
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
+      # instance of an album
+      # Arrange
+      Work.where(category: "album").count.must_be :>, 0
+      Work.where(category: "book").count.must_be :>, 0
+      Work.where(category: "movie").count.must_be :>, 0
 
+      # Act
+      get root_path
+      # Assert
+      must_respond_with :success
     end
 
     it "succeeds with one media type absent" do
