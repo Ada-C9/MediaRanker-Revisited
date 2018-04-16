@@ -5,7 +5,7 @@ describe WorksController do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
       ["album", "book", "movie"].each do |category|
-        Work.by_category(category).length.must_be :>, 0, "No #{category.pluralize} in the test fixtures"
+        Work.by_category(category).length.must_be :>, 0
       end
       get root_path
       must_respond_with :success
@@ -14,7 +14,7 @@ describe WorksController do
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
       ["album", "book", "movie"].each do |category|
-        Work.by_category(category).length.must_be :>, 0, "No #{category.pluralize} in the test fixtures"
+        Work.by_category(category).length.must_be :>, 0
       end
 
       Work.by_category("book").destroy_all
@@ -36,23 +36,27 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
-
+      Work.count.must_be :>, 0
+      get works_path
+      must_respond_with :success
     end
 
     it "succeeds when there are no works" do
-
+      Work.destroy_all
+      get works_path
+      must_respond_with :success
     end
   end
 
   describe "new" do
     it "succeeds" do
-
+      get new_work_path
+      must_respond_with :success
     end
   end
 
   describe "create" do
     it "creates a work with valid data for a real category" do
-
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
@@ -67,21 +71,31 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an extant work ID" do
-
+      get work_path(Work.first.id)
+      must_respond_with :success
+      get work_path(Work.last.id)
+      must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
-
+      work_id = Work.last.id + 1
+      get work_path(work_id)
+      must_respond_with :not_found
     end
   end
 
   describe "edit" do
     it "succeeds for an extant work ID" do
-
+      get edit_work_path(Work.first.id)
+      must_respond_with :success
+      get edit_work_path(Work.last.id)
+      must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
-
+      work_id = Work.last.id + 1
+      get edit_work_path(work_id)
+      must_respond_with :not_found
     end
   end
 
@@ -101,11 +115,22 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+      work_id = Work.first.id
 
+      delete work_path(work_id)
+      must_redirect_to root_path
+
+      Work.find_by(id: work_id).must_be_nil
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      start_count = Work.count
 
+      work_id = Work.last.id + 1
+      delete work_path(work_id)
+      must_respond_with :not_found
+
+      Work.count.must_equal start_count
     end
   end
 
