@@ -27,18 +27,33 @@ describe WorksController do
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
 
-      works_to_delete = Work.where(category: "album")
+      work_to_delete = Work.where(category: "album")
 
-      works_to_delete.destroy
+      work_to_delete.each do |work|
+        work.destroy
+      end
 
       #check precondition
 
-      work.find_by(category: "album").must_be_nil
+      Work.where(category: "album").must_be :empty?
 
+      get root_path
+
+      must_respond_with :success
 
     end
 
     it "succeeds with no media" do
+      old_work_count = Work.count
+      works = Work.all
+      works.each { |work| work.destroy }
+
+      #test precondition
+      Work.count.must_equal 0
+
+      get root_path
+
+      must_respond_with :success
 
     end
   end
