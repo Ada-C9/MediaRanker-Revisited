@@ -38,11 +38,18 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      Work.count.must_be :>, 0
 
+      get works_path
+      must_respond_with :success
     end
 
     it "succeeds when there are no works" do
+      Work.destroy_all
+      Work.count.must_equal 0
 
+      get works_path
+      must_respond_with :success
     end
   end
 
