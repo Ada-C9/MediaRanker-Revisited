@@ -4,16 +4,27 @@ describe WorksController do
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
+      album = Work.create(title: "Best Album", category: "album")
+      book = Work.create(title: "Best Book", category: "book")
+      movie = Work.create(title: "Best Movie", category: "movie")
 
+      get root_path
+      must_respond_with :success
     end
 
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
+      album = Work.create(title: "Best Album", category: "album")
+      book = Work.create(title: "Best Book", category: "book")
 
+      get root_path
+      must_respond_with :success
     end
 
     it "succeeds with no media" do
-
+      Work.destroy_all
+      get root_path
+      must_respond_with :success
     end
   end
 
@@ -22,11 +33,16 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      Work.count.must_be :>, 0
 
+      get works_path
+      must_respond_with :success
     end
 
     it "succeeds when there are no works" do
-
+      Work.destroy_all
+      get works_path
+      must_respond_with :success
     end
   end
 
