@@ -32,14 +32,13 @@ describe WorksController do
 
     it "succeeds with no media" do
 
-      # works = Work.all
-      # works.each do |work|
-      #   work.delete
-      # end
-      #
-      # get root_path
-      #
-      # must_respond_with :success
+      @albums = []
+      @books = []
+      @movies = []
+
+      get root_path
+
+      must_respond_with :success
 
     end
   end
@@ -53,22 +52,48 @@ describe WorksController do
 
       must_respond_with :success
     end
-  #
-  #   it "succeeds when there are no works" do
-  #
-  #   end
+
+    it "succeeds when there are no works" do
+
+      @albums = []
+      @books = []
+      @movies = []
+
+      get works_path
+
+      must_respond_with :success
+
+    end
   end
-  #
-  # describe "new" do
-  #   it "succeeds" do
-  #
-  #   end
-  # end
-  #
-  # describe "create" do
-  #   it "creates a work with valid data for a real category" do
-  #
-  #   end
+
+  describe "new" do
+    it "succeeds" do
+
+      get new_work_path
+
+      must_respond_with :success
+    end
+  end
+
+  describe "create" do
+    it "creates a work with valid data for a real category" do
+      work_data = {
+        title: "OMG best book",
+        category: "movies"
+      }
+      work_count = Work.count
+
+      Work.new(work_data).must_be :valid?
+
+      post works_path, params: {work: work_data}
+
+      must_respond_with :redirect
+      must_redirect_to work_path(Work.last.id)
+
+      Work.count.must_equal work_count + 1
+      Work.last.title.must_equal work_data[:title]
+
+    end
   #
   #   it "renders bad_request and does not update the DB for bogus data" do
   #
@@ -78,7 +103,7 @@ describe WorksController do
   #
   #   end
   #
-  # end
+  end
   #
   # describe "show" do
   #   it "succeeds for an extant work ID" do
