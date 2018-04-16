@@ -62,6 +62,7 @@ describe WorksController do
       Work.new(work_data).must_be :valid?
 
       post works_path, params: { work: work_data }
+      must_respond_with :redirect
       must_redirect_to work_path(Work.last)
     end
 
@@ -123,11 +124,30 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      work = Work.first
+      work_data = Work.first.attributes
+      work_data[:title] = "New Valid Title"
 
+      patch work_path(work.id), params: { work: work_data }
+      must_respond_with :redirect
+      must_redirect_to work_path(work)
+
+      work.reload
+
+      work.title.must_equal work_data[:title]
     end
 
-    it "renders bad_request for bogus data" do
+    it "renders not_found for bogus data" do
+      work = Work.first
+      work_data = Work.first.attributes
+      work_data[:title] = ""
 
+      patch work_path(work.id), params: { work: work_data }
+      must_respond_with :not_found
+
+      work.reload
+
+      work.title.wont_equal work_data[:title]
     end
 
     it "renders 404 not_found for a bogus work ID" do
