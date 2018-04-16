@@ -69,17 +69,55 @@ describe WorksController do
 
   describe "create" do
     it "creates a work with valid data for a real category" do
-      skip
+      work_data = {
+        title: "fake title",
+        category: "album"
+      }
+
+      counting = Work.count
+
+      Work.new(work_data).must_be :valid?
+
+      post works_path, params: {work: work_data}
+
+      must_respond_with :redirect
+      must_redirect_to work_path(Work.last.id)
+
+      Work.count.must_equal counting + 1
+      Work.last.title.must_equal work_data[:title]
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
-      skip
+      work_data = {
+        title: " ",
+        category: "movie"
+      }
+
+      counting = Work.count
+
+      Work.new(work_data).wont_be :valid?
+
+      post works_path, params: { work: work_data}
+
+      must_respond_with :bad_request
+      Work.count.must_equal counting
     end
 
     it "renders 400 bad_request for bogus categories" do
-      skip
-    end
+      work_data = {
+        title: "test title",
+        category: INVALID_CATEGORIES.sample
+      }
 
+      counting = Work.count
+
+      Work.new(work_data).wont_be :valid?
+
+      post works_path, params: { work: work_data}
+
+      must_respond_with :bad_request
+      Work.count.must_equal counting
+    end
   end
 
   describe "show" do
