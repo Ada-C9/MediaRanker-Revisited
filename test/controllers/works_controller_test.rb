@@ -25,8 +25,8 @@ describe WorksController do
     end
 
     it "succeeds with no media" do
-      self.use_transactional_fixtures = false
-
+      Work.destroy_all
+      assert Work.all.empty?
       get root_path
       must_respond_with :success
     end
@@ -91,7 +91,7 @@ describe WorksController do
 
     end
 
-    it "renders bad_request for bogus data" do
+    it "renders not_found for bogus data" do
 
     end
 
