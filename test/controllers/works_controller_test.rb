@@ -38,11 +38,25 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
-      skip
+      # Arrange - for each category
+      CATEGORIES.each do |category|
+        Work.by_category(category).length.must_be :>,0
+
+        get works_path(category)
+
+        must_respond_with :success
+      end
     end
 
     it "succeeds when there are no works" do
-      skip
+      # Arrange - for each category
+      CATEGORIES.each do |category|
+        Work.destroy_all
+
+        get works_path
+
+        must_respond_with :success
+      end
     end
   end
 
@@ -87,7 +101,7 @@ describe WorksController do
     end
   end
 
- describe "update" do
+  describe "update" do
     it "succeeds for valid data and an extant work ID" do
       skip
     end
