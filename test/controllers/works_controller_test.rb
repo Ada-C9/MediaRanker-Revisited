@@ -2,19 +2,39 @@ require 'test_helper'
 
 describe WorksController do
   describe "root" do
+
+      # let(:vote) { Vote.new user_id: @user_diane.id, work_id: @work_breakfast.id }
+
+
+
     it "succeeds with all media types" do
-      # Precondition: there is at least one media of each category
+
+      @album = works(:album)
+      @book = works(:poodr)
+      @movie = works(:movie)
+
+      get root_path
+      must_respond_with :error
 
     end
 
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
+      @book = works(:poodr)
+      @movie = works(:movie)
+
+      get root_path
+      must_respond_with :success
 
     end
 
     it "succeeds with no media" do
 
+      get root_path
+      must_respond_with :success
+
     end
+
   end
 
   CATEGORIES = %w(albums books movies)
