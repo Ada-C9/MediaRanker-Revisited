@@ -211,16 +211,25 @@ describe WorksController do
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      user = users(:kari)
-      session[:user_id] = user.id
-      post login_path
+      post login_path(users(:kari).id)
+
       post upvote_path(works(:poodr).id)
 
-      must_respond_with :success
+      must_respond_with :redirect
+
+      must_redirect_to work_path(works(:poodr).id)
     end
 
+
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      post login_path(users(:kari).id)
+
+      post upvote_path(works(:poodr).id)
+      post upvote_path(works(:poodr).id)
+
+      must_respond_with :redirect
+
+      must_redirect_to work_path(works(:poodr).id)
     end
   end
 end
