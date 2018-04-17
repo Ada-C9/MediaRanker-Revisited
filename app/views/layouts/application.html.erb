@@ -26,10 +26,10 @@
       </div>
       <div class="user-nav">
         <% if @login_user %>
-          <%= link_to "Logged in as #{@login_user.username}", user_path(@login_user), class: "button" %>
+          <%= link_to "Logged in as #{@login_user.name}", user_path(@login_user), class: "button" %>
           <%= link_to "Log Out", logout_path, method: :post, class: "button" %>
         <% else %>
-          <%= link_to "Log In", login_path, class: "button" %>
+          <%= link_to "Log In", '/auth/github', class: "button" %>
         <% end %>
       </div>
     </nav>
