@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'pry'
 
 describe WorksController do
   describe "root" do
@@ -66,8 +67,17 @@ describe WorksController do
   end
 
   describe "create" do
+
     it "creates a work with valid data for a real category" do
 
+      post works_path, params: {
+        work: {
+          title: "Hebdomeros",
+          category: "books"
+          }
+        }
+
+      must_respond_with :redirect
     end
 
     it "renders bad_request and does not update the DB for bogus data" do

@@ -1,3 +1,5 @@
+require 'pry'
+
 class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
@@ -21,6 +23,7 @@ class WorksController < ApplicationController
   def create
     @work = Work.new(media_params)
     @media_category = @work.category
+
     if @work.save
       flash[:status] = :success
       flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
