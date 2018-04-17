@@ -7,29 +7,17 @@ class SessionsController < ApplicationController
       if @user.nil?
         # User doesn't match anything in the DB
         # Attempt to create a new user
-        @user = User.new(
-          username: auth_hash['info']['name'],
-          email: auth_hash['info']['email'],
-          provider: auth_hash['provider'],
-          uid: auth_hash['uid'])
+        @user = User.build_from_github(auth_id)
           if @user.save
-            session[:user_id] = @user.id
-            flash[:status] = :success
-            flash[:result_text] = "Successfully created new user #{@user.username} with ID #{@user.id}"
+            login_success
           else
-            flash.now[:status] = :failure
-            flash.now[:result_text] = "Could not log in"
-            flash.now[:messages] = user.errors.messages
+            login_failure
           end
         else
-          session[:user_id] = @user.id
-          flash[:status] = :success
-          flash[:result_text] = "Successfully created new user #{@user.username} with ID #{@user.id}"
+          login_success
         end
       else
-        flash.now[:status] = :failure
-        flash.now[:result_text] = "Could not log in"
-        flash.now[:messages] = user.errors.messages
+        login_failure
       end
       redirect_to root_path
     end
@@ -39,6 +27,19 @@ class SessionsController < ApplicationController
       flash[:status] = :success
       flash[:result_text] = "Successfully logged out"
       redirect_to root_path
+    end
+
+    private
+    def login_success
+      session[:user_id] = @user.id
+      flash[:status] = :success
+      flash[:result_text] = "Successfully created new user #{@user.username} with ID #{@user.id}"
+    end
+
+    def login_failure
+      flash.now[:status] = :failure
+      flash.now[:result_text] = "Could not log in"
+      flash.now[:messages] = @user.errors.messages
     end
 
   # def login_form
