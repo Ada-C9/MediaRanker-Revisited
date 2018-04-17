@@ -166,7 +166,7 @@ describe WorksController do
     end
 
     it "redirects to the work page after the user has logged out" do
-      # get login_path, params: {name: "new user"}
+      post login_path, params: { username: "new user"}
       post logout_path
       must_redirect_to root_path
     end
