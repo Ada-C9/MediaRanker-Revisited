@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'pry'
 
 describe WorksController do
   let(:album) { works(:album) }
@@ -188,21 +189,30 @@ describe WorksController do
     end
 
     it "redirects to the work page after the user has logged out" do
-      post login_path
+      post login_path, params: {user: "dee"}
+      # binding.pry
+      # it is not logging in tho
+
       post logout_path
       # ? is this the right way to do this?
 
       post upvote_path(works(:album).id)
+
 
       must_respond_with :redirect
       must_redirect_to work_path(works(:album).id)
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      post login_path
-      # ? is this the right way to do this?
+      post login_path, ({
+        username: (users :dan).username})
+      # ?
 
-      post upvote_path(works(:album).id)
+      proc {
+        post upvote_path((works :album).id)
+        binding.pry
+      }.must_change 'Vote.count', 1
+
 
       must_respond_with :redirect
       must_redirect_to work_path(works(:album).id)
@@ -213,8 +223,11 @@ describe WorksController do
       # ? is this the right way to do this?
 
       post upvote_path(works(:album).id)
-      post upvote_path(works(:album).id)
-      
+
+      proc {
+        post upvote_path(works(:album).id)
+      }.must_change "Work.count", 0
+
       must_respond_with :redirect
       must_redirect_to work_path(works(:album).id)
     end

@@ -4,6 +4,7 @@ class SessionsController < ApplicationController
 
   def login
     username = params[:username]
+    # binding.pry
     if username and user = User.find_by(username: username)
       session[:user_id] = user.id
       flash[:status] = :success
