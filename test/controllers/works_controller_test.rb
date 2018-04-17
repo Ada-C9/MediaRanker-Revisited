@@ -186,6 +186,7 @@ describe WorksController do
 
       must_respond_with :not_found
       work.category.must_equal work_params[:category]
+      work.errors.messages.must_include :category
     end
 
     it "renders 404 not_found for a bogus work ID" do
