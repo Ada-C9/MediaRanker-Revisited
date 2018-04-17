@@ -186,6 +186,13 @@ describe WorksController do
   describe "upvote" do
 
     it "redirects to the work page if no user is logged in" do
+      user = User.first
+      user_params = user.attributes
+      username = user_params[:username]
+      post login_path, params: { session: {user_id: user.id, username: username}}
+
+      puts flash[:result_text]
+      puts flash.now[:messages]
 
     end
 
@@ -194,15 +201,6 @@ describe WorksController do
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      User.count.must_be :>, 0
-      user = User.first
-
-      post login_path, params: { session: {user_id: user.id}}
-
-      new_work = Work.create!(title: "Best New Work", category: "album")
-      new_vote = Vote.create(work_id: new_work.id, user_id: session[:user_id])
-
-      flash[:result_text].must_equal "Successfully upvotes!"
 
     end
 
@@ -215,9 +213,11 @@ describe WorksController do
       Work.count.must_be :>, 0
       work = Work.first
 
-      first_vote = Vote.create(user_id: session[:user_id], work_id: work.id)
+      first_vote = Vote.new(user_id: session[:user_id], work_id: work.id)
+      first_vote.save
       post upvote_path(work.id)
-      second_vote = Vote.create(user_id: session[:user_id], work_id: work.id)
+      second_vote = Vote.new(user_id: session[:user_id], work_id: work.id)
+      second_vote.save
       post upvote_path(work.id)
       second_vote.wont_be :valid?
 

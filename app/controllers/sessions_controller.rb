@@ -3,13 +3,20 @@ class SessionsController < ApplicationController
   end
 
   def login
-    username = params[:username]
-    if username and user = User.find_by(username: username)
+    auth_hash = request.env['omniauth.auth']
+
+    username = auth_hash[:info][:name]
+    if username and user = User.find_by(email: auth_hash[:info][:email])
       session[:user_id] = user.id
       flash[:status] = :success
       flash[:result_text] = "Successfully logged in as existing user #{user.username}"
     else
-      user = User.new(username: username)
+      user = User.new(
+        username: username,
+        uid: auth_hash[:uid],
+        email: auth_hash[:info][:email],
+        provider: auth_hash[:provider]
+      )
       if user.save
         session[:user_id] = user.id
         flash[:status] = :success
