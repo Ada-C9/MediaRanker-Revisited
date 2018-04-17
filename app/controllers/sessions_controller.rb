@@ -9,9 +9,9 @@ class SessionsController < ApplicationController
       if @user.nil?
         @user = User.build_from_github(auth_hash)
         if @user.save
-          session[:user_id] = user.id
+          session[:user_id] = @user.id
           flash[:status] = :success
-          flash[:result_text] = "Successfully created new user #{user.username} with ID #{user.id}"
+          flash[:result_text] = "Successfully created new user #{@user.username} with ID #{@user.id}"
           redirect_to root_path
         else
           flash[:status] = :failure
@@ -30,6 +30,16 @@ class SessionsController < ApplicationController
       flash.now[:messages] = @user.errors.messages
       render "login_form", status: :bad_request
       return
+    end
+  end
+
+  class SessionsController < ApplicationController
+    def destroy
+      session[:user_id] = nil
+      flash[:status] = :success
+      flash[:messages] = "Successfully logged out!"
+
+      redirect_to root_path
     end
   end
 
