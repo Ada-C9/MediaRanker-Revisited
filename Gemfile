@@ -40,6 +40,9 @@ gem 'jbuilder', '~> 2.5'
 gem 'foundation-rails'
 gem 'autoprefixer-rails'
 
+gem 'omniauth'
+gem 'omniauth-github'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
@@ -49,6 +52,10 @@ group :development, :test do
 
   # Use pry for rails console
   gem 'pry-rails'
+
+  gem 'dotenv-rails'
+
+  gem 'binding_of_caller'
 end
 
 group :test do
