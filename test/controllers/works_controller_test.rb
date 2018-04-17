@@ -202,28 +202,30 @@ describe WorksController do
     it "succeeds for a logged-in user and a fresh user-vote pair" do
       login_user = User.last
       work = Work.last
-      vote_count = Work.vote_count
+      votes = work.vote_count
+
       post login_path, params: {username: login_user.username}
       post upvote_path(work)
+      total_votes = work.vote_count
+
       must_respond_with :redirect
       must_redirect_to work_path(work)
-      vote_count.must_equal Work.vote_count + 1
+      votes.must_equal total_votes
     end
 
     it "redirects to the work page if the user has already voted for that work" do
       login_user = User.last
       work = Work.last
-      vote_count = Work.vote_count
+      votes = work.vote_count
+
       post login_path, params: {username: login_user.username}
       post upvote_path(work)
-
-
-      
-      post upvote_path(work)
+      post upvote_path(Work.last)
+      total_votes = work.vote_count
 
       must_respond_with :redirect
       must_redirect_to work_path(work)
-      vote_count.must_equal Work.vote_count + 1
+      votes.must_equal total_votes
     end
   end
 end
