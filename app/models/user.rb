@@ -14,6 +14,7 @@ class User < ApplicationRecord
       if user.save
         flash[:status] = :success
         flash[:result_text] = "#{user.username}Logged in successfully"
+
       else
         flash.now[:status] = :failure
         flash.now[:result_text] = "Could not log in"
@@ -21,6 +22,6 @@ class User < ApplicationRecord
       end
 
       return user
-      
+
     end
   end
