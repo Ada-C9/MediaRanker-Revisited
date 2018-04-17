@@ -184,19 +184,39 @@ describe WorksController do
   describe "upvote" do
 
     it "redirects to the work page if no user is logged in" do
-      
+
+      proc { post upvote_path(poodruby.id) }.wont_change "Vote.count"
+
+      must_respond_with :redirect
+      must_redirect_to work_path(poodruby.id)
     end
 
     it "redirects to the work page after the user has logged out" do
+      post login_path, params: {username: users(:dan).username}
+      post logout_path, params: {username: users(:dan).username}
 
+      proc { post upvote_path(poodruby.id) }.wont_change "Vote.count"
+
+      must_respond_with :redirect
+      must_redirect_to work_path(poodruby.id)
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
+      post login_path, params: {username: users(:dan).username}
 
+      proc { post upvote_path(poodruby.id) }.must_change "Vote.count", 1
+
+      must_respond_with :redirect
+      must_redirect_to work_path(poodruby.id)
     end
 
     it "redirects to the work page if the user has already voted for that work" do
+      post login_path, params: {username: users(:dan).username}
 
+      proc { post upvote_path(works(:album).id) }.wont_change "Vote.count"
+
+      must_respond_with :redirect
+      must_redirect_to work_path(works(:album).id)
     end
   end
 end
