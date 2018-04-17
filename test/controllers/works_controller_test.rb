@@ -205,6 +205,7 @@ describe WorksController do
     end
 
     it "redirects to the work * YOU MEAN ROOT PATH * page after the user has logged out" do
+      post login_path(users(:kari).id)
       post logout_path
       must_redirect_to root_path
       #is this right?!
