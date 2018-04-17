@@ -123,47 +123,82 @@ describe WorksController do
       must_respond_with :not_found
     end
   end
-  #
-  # describe "update" do
-  #   it "succeeds for valid data and an extant work ID" do
-  #
-  #   end
-  #
-  #   it "renders bad_request for bogus data" do
-  #
-  #   end
-  #
-  #   it "renders 404 not_found for a bogus work ID" do
-  #
-  #   end
-  # end
-  #
-  # describe "destroy" do
-  #   it "succeeds for an extant work ID" do
-  #
-  #   end
-  #
-  #   it "renders 404 not_found and does not update the DB for a bogus work ID" do
-  #
-  #   end
-  # end
-  #
-  # describe "upvote" do
-  #
-  #   it "redirects to the work page if no user is logged in" do
-  #
-  #   end
-  #
-  #   it "redirects to the work page after the user has logged out" do
-  #
-  #   end
-  #
-  #   it "succeeds for a logged-in user and a fresh user-vote pair" do
-  #
-  #   end
-  #
-  #   it "redirects to the work page if the user has already voted for that work" do
-  #
-  #   end
-  # end
+
+  describe "update" do
+    it "succeeds for valid data and an extant work ID" do
+      put work_path (works(:movie)), params: {
+        work: {
+          category: 'movie',
+          title: 'Harold & Maude'
+        }
+      }
+
+      updated_work = Work.find(works(:movie).id)
+
+      updated_work.title.must_equal 'Harold & Maude'
+      must_respond_with :redirect
+    end
+
+    it "renders bad_request for bogus data" do
+      put work_path (works(:movie)), params: {
+        work: {
+          category: 'nope',
+          title: ''
+        }
+      }
+
+      must_respond_with :not_found
+    end
+
+    it "renders 404 not_found for a bogus work ID" do
+      works(:movie).id = 'smelly_cat'
+      put work_path(works(:movie).id)
+      must_respond_with :not_found
+    end
+  end
+
+  describe "destroy" do
+    it "succeeds for an extant work ID" do
+      proc {delete work_path(works(:movie).id) }.must_change 'Work.count', -1
+
+      must_respond_with :redirect
+      must_redirect_to root_path
+    end
+
+    it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      works(:movie).id = 'smelly_cat'
+      delete work_path(works(:movie).id)
+      must_respond_with :not_found
+    end
+  end
+
+  describe "upvote" do
+
+    it "redirects to the work page if no user is logged in" do
+
+      post upvote_path(works(:movie).id)
+      must_redirect_to work_path(works(:movie).id)
+    end
+
+    it "***** redirects to the work page after the user has logged out" do
+      post logout_path
+      must_redirect_to root_path
+    end
+
+    it "succeeds for a logged-in user and a fresh user-vote pair" do
+
+      post login_path(users(:dan).id)
+      post upvote_path(works(:movie).id)
+      must_respond_with :redirect
+      must_redirect_to work_path(works(:movie).id)
+    end
+
+    it "redirects to the work page if the user has already voted for that work" do
+      post login_path(users(:dan).id)
+      post upvote_path(works(:movie).id)
+      post upvote_path(works(:movie).id)
+      must_respond_with :redirect
+      must_redirect_to work_path(works(:movie).id)
+    end
+  end
 end
