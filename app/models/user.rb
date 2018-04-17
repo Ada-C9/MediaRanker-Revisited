@@ -6,11 +6,11 @@ class User < ApplicationRecord
 
   def self.get_user_info(auth_hash)
       @user = User.new(
-        username: auth_hash['info']['username'],
+        username: auth_hash['info']['name'],
         email: auth_hash['info']['email'],
         uid: auth_hash['uid'],
         provider: auth_hash['provider'])
         # raise
-        return @user 
+        return @user
   end
 end

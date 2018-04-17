@@ -39,6 +39,9 @@ describe User do
       user2.errors.messages.must_include :username
     end
 
+    it "gets user info from auth hash" do
+
+    end
 
   end
 end
