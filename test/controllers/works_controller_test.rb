@@ -4,10 +4,6 @@ require 'pry'
 describe WorksController do
   describe "root" do
 
-      # let(:vote) { Vote.new user_id: @user_diane.id, work_id: @work_breakfast.id }
-
-
-
     it "succeeds with all media types" do
 
       @album = works(:album)
@@ -130,6 +126,8 @@ describe WorksController do
     it "succeeds for an extant work ID" do
 
       test_work = Work.first
+      test_work.wont_be_nil
+
       get work_path(test_work.id)
 
       must_respond_with :success
@@ -138,7 +136,10 @@ describe WorksController do
 
     it "renders 404 not_found for a bogus work ID" do
 
-      get work_path(1)
+      bogus_id = 4
+      Work.find_by(id: bogus_id).must_be_nil
+
+      get work_path(bogus_id)
 
       must_respond_with :not_found
 
@@ -149,6 +150,8 @@ describe WorksController do
     it "succeeds for an extant work ID" do
 
       test_work = Work.first
+      test_work.wont_be_nil
+
       get edit_work_path(test_work.id)
 
       must_respond_with :success
@@ -157,10 +160,10 @@ describe WorksController do
 
     it "renders 404 not_found for a bogus work ID" do
 
-      test_work = Work.find_by(id: 1)
-      test_work.must_be_nil
+      bogus_id = 1
+      Work.find_by(id: bogus_id).must_be_nil
 
-      get edit_work_path(1)
+      get edit_work_path(bogus_id)
 
       must_respond_with :not_found
 
@@ -221,11 +224,34 @@ describe WorksController do
   end
 
   describe "destroy" do
+
     it "succeeds for an extant work ID" do
+
+      test_id = Work.last.id
+      Work.find_by(id: test_id).wont_be_nil
+
+      proc {
+        delete work_path(test_id)
+      }.must_change 'Work.count', -1
+
+      # must_respond_with :success
+
+      Work.find_by(id: test_id).must_be_nil
+
+      must_redirect_to root_path
 
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+
+      bogus_id = 3
+      Work.find_by(id: bogus_id).must_be_nil
+
+      proc {
+        delete work_path(bogus_id)
+      }.must_change 'Work.count', 0
+
+      must_respond_with :not_found
 
     end
   end
