@@ -21,8 +21,7 @@ describe WorksController do
     end
 
     it "succeeds with no media" do
-      # works = Work.all
-      # works.destroy_all
+
       Work.destroy_all
       get root_path
       must_respond_with :success
@@ -185,20 +184,40 @@ describe WorksController do
       must_redirect_to root_path
     end
 
-    it "succeeds for a logged-in user and a fresh user-vote pair" do
+    # it "succeeds for a logged-in user and a fresh user-vote pair" do
+    #
+    #   proc {
+    #     post github_login_path params: {
+    #       username: users(:kari).username
+    #     }
+    #     voted_on_work = Work.find_by(id: works(:movie).id)
+    #     post upvote_path(voted_on_work.id), params: {
+    #       vote: { user: users(:kari), work: voted_on_work }
+    #     }
+    #   }.must_change 'Vote.count', 1
+    #
+    #   must_respond_with :redirect
+    #   must_redirect_to work_path(works(:movie))
+    #
+    # end
 
-      post login_path(users(:dan).id)
-      post upvote_path(works(:movie).id)
-      must_respond_with :redirect
-      must_redirect_to work_path(works(:movie).id)
-    end
-
-    it "redirects to the work page if the user has already voted for that work" do
-      post login_path(users(:dan).id)
-      post upvote_path(works(:movie).id)
-      post upvote_path(works(:movie).id)
-      must_respond_with :redirect
-      must_redirect_to work_path(works(:movie).id)
-    end
+    # it "redirects to the work page if the user has already voted for that work" do
+    #
+    #   proc {
+    #     post github_login_path params: {
+    #       username: users(:kari).username
+    #     }
+    #     voted_on_work = Work.find_by(id: works(:movie).id)
+    #     post upvote_path(voted_on_work.id), params: {
+    #       vote: { user: users(:kari), work: voted_on_work }
+    #     }
+    #     post upvote_path(voted_on_work.id), params: {
+    #       vote: { user: users(:kari), work: voted_on_work }
+    #     }
+    #   }.must_change 'Vote.count', 1
+    #
+    #   must_respond_with :redirect
+    #   must_redirect_to work_path(works(:movie))
+    # end
   end
 end
