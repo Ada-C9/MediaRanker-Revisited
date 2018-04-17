@@ -137,7 +137,7 @@ describe WorksController do
 
       get edit_work_path(work_id)
 
-      must_respond_with 404 
+      must_respond_with 404
 
     end
   end
@@ -206,21 +206,39 @@ describe WorksController do
   end
 
   describe "upvote" do
-
     it "redirects to the work page if no user is logged in" do
+      work_id = Work.first.id
+      vote_count = Work.first.votes.count
 
-    end
+      post upvote_path(work_id)
 
-    it "redirects to the work page after the user has logged out" do
-
+      vote_count.must_equal vote_count
+      must_redirect_to work_path(work_id)
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
+      user = User.last
+      post login_path, params: { username: user.username}
+      work = Work.first
+      old_vote_count = work.votes.count
 
+      post upvote_path(work.id)
+
+      work.votes.count.must_equal old_vote_count + 1
+      must_redirect_to work_path(work.id)
     end
 
     it "redirects to the work page if the user has already voted for that work" do
+      user = User.first
+      post login_path, params: { username: user.username}
+      work = Work.first
+      old_vote_count = Work.first.votes.count
 
+      post upvote_path(work.id)
+      post upvote_path(work.id)
+
+      work.vote_count.wont_equal old_vote_count + 1
+      must_redirect_to work_path(work.id)
     end
   end
 end
