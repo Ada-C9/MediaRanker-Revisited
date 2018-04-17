@@ -176,7 +176,14 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      # Arrange
+      work = Work.last.id + 1
 
+      # Act
+      get work_path(work)
+
+      # Assert
+      must_respond_with :not_found
     end
   end
 
