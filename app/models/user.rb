@@ -4,19 +4,22 @@ class User < ApplicationRecord
 
   validates :username, uniqueness: true, presence: true
 
-  def self.get_info_from_authhash
-
-    auth_hash = request.env['omniauth.auth']
-
-    @user = User.new(username: auth_hash['info']['username'], email: auth_hash['info']['email'], uid: auth_hash['uid'],
+  def self.get_from_github(auth_hash)
+    user = User.new(
+      username: auth_hash['info']['name'],
+      uid: auth_hash['uid'],
+      email: auth_hash['info']['email'],
       provider: auth_hash['provider'])
 
-      if @user.save
-        #saved successfully
-        session[:user_id]= @user.id
-        flash[:sucess] = "Logged in successfully"
-        redirect_to root_path
+      if user.save
+        flash[:status] = :success
+        flash[:result_text] = "#{user.username}Logged in successfully"
+      else
+        flash.now[:status] = :failure
+        flash.now[:result_text] = "Could not log in"
+        flash.now[:messages] = user.errors.messages
       end
+
+      return user
     end
   end
-end
