@@ -19,7 +19,7 @@ user_data = {
   if user.save
     return user
   else
-    binding.pry
+    return false
   end
 end
 
