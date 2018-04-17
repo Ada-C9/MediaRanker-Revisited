@@ -82,19 +82,71 @@ describe WorksController do
   describe "new" do
     it "succeeds" do
 
+      get new_work_path
+
+      must_respond_with :success
+
     end
   end
 
   describe "create" do
     it "creates a work with valid data for a real category" do
 
+      # Arange
+      media_params = {title: "Star Wars ep. IV", creator: "George Lucas", description: "Luke that is your sister", category: "movie", publication_year: "1977"}
+
+      first_media_count = Work.count
+
+      # Assumption
+
+      work = Work.new(media_params)
+
+      work.must_be :valid?
+
+
+      # Act
+      post works_path, params: {work: media_params}
+
+
+      # Assert
+      must_respond_with :redirect
+      must_redirect_to work_path(Work.last.id)
+
+      Work.count.must_equal first_media_count + 1
+      Work.last.title.must_equal media_params[:title]
+
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
 
+      media_params = {title: "Star Wars ep. IV", creator: "George Lucas", description: "Luke that is your sister", category: "movie", publication_year: "1977"}
+
+            first_media_count = Work.count
+
+            # Assumption
+
+            work = Work.new(media_params)
+
+            work.must_be :valid?
+
+
+            # Act
+            post works_path, params: {work: media_params}
+
+
+            # Assert
+            must_respond_with :redirect
+            must_redirect_to work_path(Work.last.id)
+
+            Work.count.must_equal first_media_count
+            Work.last.title.must_equal media_params[:title]
+
+
+
     end
 
     it "renders 400 bad_request for bogus categories" do
+      
 
     end
 
