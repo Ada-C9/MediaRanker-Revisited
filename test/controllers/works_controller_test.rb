@@ -43,6 +43,7 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+
       @book = works(:poodr)
       @movie = works(:movie)
 
@@ -70,22 +71,57 @@ describe WorksController do
 
     it "creates a work with valid data for a real category" do
 
-      post works_path, params: {
-        work: {
-          title: "Hebdomeros",
-          category: "books"
+      proc {
+        post works_path, params: {
+          work: {
+            title: "Hebdomeros",
+            category: "books"
+            }
           }
-        }
+        }.must_change 'Work.count', 1
+
+      test_work = Work.find_by(title: "Hebdomeros")
 
       must_respond_with :redirect
+      must_redirect_to work_path(test_work.id)
+
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
 
+      bad_titles = ["", "   ", "Old Title", ]
+
+      bad_titles.each do |bad_t|
+
+        proc {
+          post works_path, params: {
+            work: {
+              title: bad_t,
+              category: "album"
+              }
+            }
+          }.must_change 'Work.count', 0
+
+        must_respond_with :bad_request
+
+      end
     end
 
     it "renders 400 bad_request for bogus categories" do
 
+      INVALID_CATEGORIES.each do |bog_cat|
+
+        proc {
+          post works_path, params: {
+            work: {
+              title: "Nella",
+              category: bog_cat
+              }
+            }
+          }.must_change 'Work.count', 0
+
+        must_respond_with :bad_request
+      end
     end
 
   end
