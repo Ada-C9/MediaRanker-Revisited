@@ -181,19 +181,42 @@ describe WorksController do
   describe "upvote" do
 
     it "redirects to the work page if no user is logged in" do
+      post upvote_path(works(:album).id)
 
+      must_respond_with :redirect
+      must_redirect_to work_path(works(:album).id)
     end
 
     it "redirects to the work page after the user has logged out" do
+      post login_path
+      post logout_path
+      # ? is this the right way to do this?
 
+      post upvote_path(works(:album).id)
+
+      must_respond_with :redirect
+      must_redirect_to work_path(works(:album).id)
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
+      post login_path
+      # ? is this the right way to do this?
 
+      post upvote_path(works(:album).id)
+
+      must_respond_with :redirect
+      must_redirect_to work_path(works(:album).id)
     end
 
     it "redirects to the work page if the user has already voted for that work" do
+      post login_path
+      # ? is this the right way to do this?
 
+      post upvote_path(works(:album).id)
+      post upvote_path(works(:album).id)
+      
+      must_respond_with :redirect
+      must_redirect_to work_path(works(:album).id)
     end
   end
 end
