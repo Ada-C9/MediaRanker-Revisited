@@ -193,14 +193,31 @@ describe WorksController do
     end
   end
 
-  # TODO: TESTS FOR DESTROY
   describe "destroy" do
     it "succeeds for an extant work ID" do
-      skip
+      # Arrange
+      work_id = Work.first.id
+      start_count = Work.count
+
+      # Act
+      delete work_path(work_id)
+
+      # Assert
+      must_respond_with :redirect
+      must_redirect_to root_path
+
+      Work.count.must_equal start_count - 1
+      Work.find_by(id: work_id).must_be_nil
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
-      skip
+      work_id = Work.last.id + 1
+      start_count = Work.count
+
+      delete work_path(work_id)
+
+      must_respond_with :not_found
+      Work.count.must_equal start_count
     end
   end
 
