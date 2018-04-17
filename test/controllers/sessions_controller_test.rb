@@ -47,7 +47,13 @@ describe SessionsController do
       session[:user_id].must_equal nil
     end
 
-    it "must redirect to root path" do
+    it "succeeds if no user is logged in" do
+      post logout_path
+      must_respond_with :redirect
+      must_redirect_to root_path
+    end
+
+    it "succeeds if user is logged in" do
       post login_path, params: {
         username: users(:dan)
       }
