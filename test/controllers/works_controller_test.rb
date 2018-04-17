@@ -1,6 +1,7 @@
 require 'test_helper'
 
 describe WorksController do
+  # root -----------------------------------------------------------------------
   describe "root" do
     it "succeeds with all media types" do
       Work.count.must_equal 4
@@ -26,6 +27,7 @@ describe WorksController do
   CATEGORIES = %w(albums books movies)
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
+  # index ----------------------------------------------------------------------
   describe "index" do
     it "succeeds when there are works" do
       get works_path
@@ -40,12 +42,15 @@ describe WorksController do
     end
   end
 
+  # new ------------------------------------------------------------------------
   describe "new" do
     it "succeeds" do
-
+      get new_works_path
+      must_respond_with :success
     end
   end
 
+  # create ---------------------------------------------------------------------
   describe "create" do
     it "creates a work with valid data for a real category" do
 
@@ -61,6 +66,7 @@ describe WorksController do
 
   end
 
+  # show -----------------------------------------------------------------------
   describe "show" do
     it "succeeds for an extant work ID" do
 
@@ -71,6 +77,7 @@ describe WorksController do
     end
   end
 
+  # edit -----------------------------------------------------------------------
   describe "edit" do
     it "succeeds for an extant work ID" do
 
@@ -81,6 +88,7 @@ describe WorksController do
     end
   end
 
+  # update ---------------------------------------------------------------------
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
 
@@ -95,6 +103,7 @@ describe WorksController do
     end
   end
 
+  # destroy --------------------------------------------------------------------
   describe "destroy" do
     it "succeeds for an extant work ID" do
 
@@ -105,6 +114,7 @@ describe WorksController do
     end
   end
 
+  # upvote ---------------------------------------------------------------------
   describe "upvote" do
 
     it "redirects to the work page if no user is logged in" do
