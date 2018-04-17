@@ -39,6 +39,8 @@ gem 'jbuilder', '~> 2.5'
 # Use the Foundation CSS framework
 gem 'foundation-rails'
 gem 'autoprefixer-rails'
+gem 'omniauth'
+gem 'omniauth-github'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -49,6 +51,8 @@ group :development, :test do
 
   # Use pry for rails console
   gem 'pry-rails'
+
+  gem 'dotenv-rails'
 end
 
 group :test do
