@@ -130,7 +130,7 @@ describe WorksController do
     it "succeeds for an existent! work ID" do
       get edit_work_path works(:poodr).id
 
-    must_respond_with :success
+      must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
@@ -145,29 +145,29 @@ describe WorksController do
   describe "update" do
     it "succeeds for valid data and an existent! work ID" do
       put work_path works(:poodr).id, params: {
-      work: {
-        category: "book",
-        title: "Coraline",
-        creator: "Neil Gaiman"
+        work: {
+          category: "book",
+          title: "Coraline",
+          creator: "Neil Gaiman"
+        }
       }
-    }
 
-    updated_work = Work.find(works(:poodr).id)
+      updated_work = Work.find(works(:poodr).id)
 
-    updated_work.title.must_equal "Coraline"
+      updated_work.title.must_equal "Coraline"
 
-    must_respond_with :redirect
+      must_respond_with :redirect
     end
 
     it "renders not_found for bogus data" do
       put work_path works(:poodr).id, params: {
-      work: {
-        category: "nope",
-        title: " "
+        work: {
+          category: "nope",
+          title: " "
+        }
       }
-    }
 
-    must_respond_with :not_found
+      must_respond_with :not_found
 
     end
 
@@ -211,25 +211,38 @@ describe WorksController do
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      post login_path(users(:kari).id)
 
-      post upvote_path(works(:poodr).id)
+      proc {
+        post login_path params: {
+          username: users(:kari).username
+        }
+        voted_work = Work.find_by(id: works(:movie).id)
+        post upvote_path(voted_work.id), params: {
+          vote: { user: users(:kari), work: voted_work }
+        }
+      }.must_change 'Vote.count', 1
 
       must_respond_with :redirect
-
-      must_redirect_to work_path(works(:poodr).id)
+      must_redirect_to work_path(works(:movie))
     end
 
 
     it "redirects to the work page if the user has already voted for that work" do
-      post login_path(users(:kari).id)
-
-      post upvote_path(works(:poodr).id)
-      post upvote_path(works(:poodr).id)
+      proc {
+        post login_path params: {
+          username: users(:kari).username
+        }
+        voted_work = Work.find_by(id: works(:movie).id)
+        post upvote_path(voted_work.id), params: {
+          vote: { user: users(:kari), work: voted_work }
+        }
+        post upvote_path(voted_work.id), params: {
+          vote: { user: users(:kari), work: voted_work }
+        }
+      }.must_change 'Vote.count', 1
 
       must_respond_with :redirect
-
-      must_redirect_to work_path(works(:poodr).id)
+      must_redirect_to work_path(works(:movie).id)
     end
   end
 end
