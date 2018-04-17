@@ -270,6 +270,15 @@ describe WorksController do
 
     it "redirects to the work page after the user has logged out" do
 
+      work_p = Work.find_by(title: "Practical Object Oriented Design in Ruby")
+      post login_path, params: {username: "kari"}
+      post logout_path
+      session[:user_id].must_be_nil
+
+      post upvote_path(work_p.id)
+      must_redirect_to work_path(work_p.id)
+
+
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
@@ -285,11 +294,22 @@ describe WorksController do
 
       flash[:result_text].must_equal "Successfully upvoted!"
 
-
-
     end
 
     it "redirects to the work page if the user has already voted for that work" do
+
+      user_k = User.find_by(username: "kari")
+      work_a = Work.find_by(title: "Old Title")
+
+      post login_path, params: {username: "kari"}
+      # setup { login params: {username:  "kari"}}
+      session[:user_id].must_equal user_k.id
+
+      post upvote_path(work_a.id)
+
+      flash[:result_text].must_equal "Could not upvote"
+      must_redirect_to work_path(work_a.id)
+
 
     end
   end
