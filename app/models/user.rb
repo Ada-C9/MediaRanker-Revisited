@@ -4,11 +4,11 @@ class User < ApplicationRecord
 
   validates :username, uniqueness: true, presence: true
 
-  def self.login(auth_hash)
+  def login(auth_hash)
     if auth_hash['uid']
-      @user = User.find_by(uid: auth_hash[:uid], provider: 'github')
+      @user = self.find_by(uid: auth_hash[:uid], provider: 'github')
       if @user.nil?
-        @user = User.new(
+        @user = self.new(
           username: auth_hash['info']['name'],
           email: auth_hash['info']['email'],
           uid: auth_hash[:uid],
