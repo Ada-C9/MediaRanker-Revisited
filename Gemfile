@@ -41,6 +41,7 @@ gem 'foundation-rails'
 gem 'autoprefixer-rails'
 gem "omniauth"
 gem "omniauth-github"
+gem "binding_of_caller"
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
