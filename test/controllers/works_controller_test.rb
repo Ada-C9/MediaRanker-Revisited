@@ -57,16 +57,59 @@ describe WorksController do
 
   describe "create" do
     it "creates a work with valid data for a real category" do
+      work_data = {
+        work: {
+          title: "test work"
+        }
+      }
+      CATEGORIES.each do |category|
+        work_data[:work][:category] = category
+
+        start_count = Work.count
+
+        post works_path, params: work_data
+        must_redirect_to work_path(Work.last)
+
+        Work.count.must_equal start_count + 1
+      end
+
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
+      work_data = {
+        work: {
+          title: ""
+        }
+      }
+      CATEGORIES.each do |category|
+        work_data[:work][:category] = category
 
+        start_count = Work.count
+
+        post works_path, params: work_data
+        must_respond_with 400
+
+        Work.count.must_equal start_count
+      end
     end
 
     it "renders 400 bad_request for bogus categories" do
+      work_data = {
+        work: {
+          title: "test work"
+        }
+      }
+      INVALID_CATEGORIES.each do |category|
+        work_data[:work][:category] = category
 
+        start_count = Work.count
+
+        post works_path, params: work_data
+        must_respond_with 400
+
+        Work.count.must_equal start_count
+      end
     end
-
   end
 
   describe "show" do
@@ -80,7 +123,7 @@ describe WorksController do
     it "renders 404 not_found for a bogus work ID" do
       work_id = Work.last.id + 1
       get work_path(work_id)
-      must_respond_with :not_found
+      must_respond_with 404
     end
   end
 
@@ -101,15 +144,35 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      updated_title = "Title"
 
+      patch work_path(works(:poodr).id), params: {
+        work: {
+          title: updated_title
+        }
+      }
+
+      updated_work = Work.find(works(:poodr).id)
+      updated_work.title.must_equal updated_title
+      must_respond_with :redirect
+      must_redirect_to work_path(works(:poodr).id)
     end
 
     it "renders bad_request for bogus data" do
+      updated_title = " "
 
+      patch work_path(works(:poodr).id), params: {
+        work: {
+          title: updated_title
+        }
+      }
+      must_respond_with 404
     end
 
     it "renders 404 not_found for a bogus work ID" do
-
+      work_id = Work.last.id + 1
+      get work_path(work_id)
+      must_respond_with 404
     end
   end
 
@@ -128,7 +191,7 @@ describe WorksController do
 
       work_id = Work.last.id + 1
       delete work_path(work_id)
-      must_respond_with :not_found
+      must_respond_with 404
 
       Work.count.must_equal start_count
     end
