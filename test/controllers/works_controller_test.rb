@@ -41,6 +41,8 @@ describe WorksController do
   CATEGORIES = %w(albums books movies)
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
+  BAD_TITLES = ["", "   ", "Old Title", ]
+
   describe "index" do
     it "succeeds when there are works" do
 
@@ -89,9 +91,7 @@ describe WorksController do
 
     it "renders bad_request and does not update the DB for bogus data" do
 
-      bad_titles = ["", "   ", "Old Title", ]
-
-      bad_titles.each do |bad_t|
+      BAD_TITLES.each do |bad_t|
 
         proc {
           post works_path, params: {
@@ -157,23 +157,65 @@ describe WorksController do
 
     it "renders 404 not_found for a bogus work ID" do
 
+      test_work = Work.find_by(id: 1)
+      test_work.must_be_nil
+
       get edit_work_path(1)
 
-      must_respond_with :success
+      must_respond_with :not_found
 
     end
   end
 
   describe "update" do
+
     it "succeeds for valid data and an extant work ID" do
+
+      test_work = Work.last
+
+      patch work_path(test_work.id), params: {
+        work: {
+          title: "Ummagumma"
+          }
+        }
+
+      must_redirect_to work_path(test_work.id)
+      test_work.reload
+      assert_equal "Ummagumma", test_work.title
 
     end
 
-    it "renders bad_request for bogus data" do
+    it "renders 404 not_found for bogus data" do
+
+      test_work = Work.find_by(title: "New Title")
+
+      BAD_TITLES.each do |bad_t|
+
+        put work_path(test_work.id), params: {
+          work: {
+            title: bad_t
+            }
+          }
+
+        must_respond_with :not_found
+        test_work.reload
+        assert_equal "New Title", test_work.title
+      end
 
     end
 
     it "renders 404 not_found for a bogus work ID" do
+
+      test_work = Work.find_by(id: 2)
+      test_work.must_be_nil
+
+      patch work_path(2), params: {
+          work: {
+            title: "Ummagumma"
+            }
+          }
+
+      must_respond_with :not_found
 
     end
   end
