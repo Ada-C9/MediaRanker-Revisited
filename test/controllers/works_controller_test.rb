@@ -206,13 +206,13 @@ describe WorksController do
 
     it "redirects to the work * YOU MEAN ROOT PATH * page after the user has logged out" do
       post login_path(users(:kari).id)
-      post logout_path
+      post logout_path(users(:kari).id)
       must_redirect_to root_path
       #is this right?!
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-
+      skip
       proc {
         post login_path params: {
           username: users(:kari).username
@@ -229,6 +229,7 @@ describe WorksController do
 
 
     it "redirects to the work page if the user has already voted for that work" do
+      skip
       proc {
         post login_path params: {
           username: users(:kari).username
