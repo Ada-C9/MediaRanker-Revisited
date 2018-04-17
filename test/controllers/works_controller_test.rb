@@ -186,43 +186,61 @@ describe WorksController do
   describe "upvote" do
 
     it "redirects to the work page if no user is logged in" do
-      user = User.first
-      user_params = user.attributes
-      username = user_params[:username]
-      post login_path, params: { session: {user_id: user.id, username: username}}
+      work = Work.first
 
-      puts flash[:result_text]
-      puts flash.now[:messages]
-
+      post logout_path
+      post upvote_path(work.id)
+      must_redirect_to work_path(work.id)
+      flash[:result_text].must_equal "You must log in to do that"
     end
 
     it "redirects to the work page after the user has logged out" do
+      user = User.first
+      work = Work.first
+      work.votes.destroy_all
 
+      post logout_path
+      flash[:result_text].must_equal "Successfully logged out"
+
+      post upvote_path(work.id)
+      must_redirect_to work_path(work.id)
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
+      # Vote.destroy_all
+      # User.destroy_all
+      #
+      # user = User.create(
+      #   username: "Anne",
+      #   email: "annehwatson@gmail.com",
+      #   uid: "uuuuuid",
+      #   provider: "github"
+      # )
+      #
+      # work = Work.first
+      #
+      # get "/auth/github"
+      # session[:user_id] = user.id
+      # puts "session user id: #{session[:user_id]}"
+      #
+      # post upvote_path(work.id)
+      # puts "flash status: #{flash[:status]}"
+      # puts flash[:result_text]
 
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      User.count.must_be :>, 0
       user = User.first
-
-      post login_path, params: { session: {user_id: user.id}}
-
-      Work.count.must_be :>, 0
+      @login_user = user
       work = Work.first
+      puts "vote count original: #{Vote.count}"
 
-      first_vote = Vote.new(user_id: session[:user_id], work_id: work.id)
-      first_vote.save
+      get "/auth/github"
+      session[:user_id] = user.id
+      puts "session user id: #{session[:user_id]}"
+
       post upvote_path(work.id)
-      second_vote = Vote.new(user_id: session[:user_id], work_id: work.id)
-      second_vote.save
-      post upvote_path(work.id)
-      second_vote.wont_be :valid?
-
-      must_redirect_to work_path(work.id)
-
+      puts Vote.count
     end
   end
 end
