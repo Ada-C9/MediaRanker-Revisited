@@ -62,9 +62,10 @@ describe UsersController do
 
       User.find_by(id: bogus_id).must_be_nil
 
-      proc {
-        get user_path(bogus_id)
-      }.must_raise('RoutingError')
+
+      get user_path(bogus_id)
+
+      must_respond_with :not_found
 
     end
 
