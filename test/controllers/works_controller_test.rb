@@ -2,13 +2,32 @@ require 'test_helper'
 require 'pry'
 
 describe WorksController do
+
+
+  CATEGORIES_OG = %w(album book movie)
+
+  CATEGORIES_VG = ["album", "book", "movie"]
+  INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
+
+  BAD_TITLES = ["", "   ", "Old Title", ]
+
+
   describe "root" do
+
+    before do
+
+      @w_album = works(:album)
+      @w_another_album = works(:another_album)
+      @w_poodr = works(:poodr)
+      @w_movie = works(:movie)
+
+    end
 
     it "succeeds with all media types" do
 
-      @album = works(:album)
-      @book = works(:poodr)
-      @movie = works(:movie)
+      CATEGORIES_VG.each do |category|
+        Work.find_by(category: category).wont_be_nil
+      end
 
       get root_path
       must_respond_with :success
@@ -17,15 +36,42 @@ describe WorksController do
 
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
-      @book = works(:poodr)
-      @movie = works(:movie)
+
+      @w_movie.destroy
+
+      category_total = 0
+
+      CATEGORIES_VG.each do |category|
+        if Work.find_by(category: category)
+          category_total += 1
+        end
+      end
+
+      category_total.must_equal 2
 
       get root_path
+
       must_respond_with :success
 
     end
 
     it "succeeds with no media" do
+
+      @w_album.destroy
+      @w_another_album.destroy
+      @w_poodr.destroy
+      @w_movie.destroy
+
+      category_total = 0
+
+      CATEGORIES_VG.each do |category|
+        if Work.all.find_by(category: category)
+          category_total += 1
+        end
+      end
+
+      category_total.must_equal 0
+
 
       get root_path
       must_respond_with :success
@@ -34,10 +80,6 @@ describe WorksController do
 
   end
 
-  CATEGORIES = %w(albums books movies)
-  INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
-
-  BAD_TITLES = ["", "   ", "Old Title", ]
 
   describe "index" do
     it "succeeds when there are works" do
