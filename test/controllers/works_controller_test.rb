@@ -144,40 +144,79 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an existent! work ID" do
+      put work_path works(:poodr).id, params: {
+      work: {
+        category: "book",
+        title: "Coraline",
+        creator: "Neil Gaiman"
+      }
+    }
 
+    updated_work = Work.find(works(:poodr).id)
+
+    updated_work.title.must_equal "Coraline"
+
+    must_respond_with :redirect
     end
 
-    it "renders bad_request for bogus data" do
-      skip
+    it "renders not_found for bogus data" do
+      put work_path works(:poodr).id, params: {
+      work: {
+        category: "nope",
+        title: " "
+      }
+    }
+
+    must_respond_with :not_found
+
     end
 
     it "renders 404 not_found for a bogus work ID" do
-      skip
+      works(:poodr).id = 'notanid'
+      put work_path(works(:poodr).id)
+
+      must_respond_with :not_found
     end
   end
 
   describe "destroy" do
-    it "succeeds for an extant work ID" do
-      skip
+    it "succeeds for an existent work ID" do
+
+      proc {delete work_path(works(:poodr).id) }.must_change 'Work.count', -1
+
+      must_respond_with :redirect
+      must_redirect_to root_path
+
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
-      skip
+      proc {delete work_path('nope') }.must_change 'Work.count', 0
+
+      must_respond_with :not_found
     end
   end
 
   describe "upvote" do
 
     it "redirects to the work page if no user is logged in" do
-      skip
+      post upvote_path(works(:poodr).id)
+
+      must_redirect_to work_path(works(:poodr).id)
     end
 
-    it "redirects to the work page after the user has logged out" do
-      skip
+    it "redirects to the work * YOU MEAN ROOT PATH * page after the user has logged out" do
+      post logout_path
+      must_redirect_to root_path
+      #is this right?!
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      user = users(:kari)
+      session[:user_id] = user.id
+      post login_path
+      post upvote_path(works(:poodr).id)
+
+      must_respond_with :success
     end
 
     it "redirects to the work page if the user has already voted for that work" do
