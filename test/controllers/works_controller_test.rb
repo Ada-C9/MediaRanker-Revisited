@@ -192,8 +192,8 @@ describe WorksController do
     end
 
     it "redirects to the work page after the user has logged out" do
-      post login_path(users(:dan).id)
-      post logout_path(users(:dan).id)
+      post login_path, params: {username: users(:dan).username}
+      post logout_path, params: {username: users(:dan).username}
 
       proc { post upvote_path(poodruby.id) }.wont_change "Vote.count"
 
@@ -202,7 +202,7 @@ describe WorksController do
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      post login_path(users(:dan).id)
+      post login_path, params: {username: users(:dan).username}
 
       proc { post upvote_path(poodruby.id) }.must_change "Vote.count", 1
 
@@ -211,7 +211,7 @@ describe WorksController do
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      post login_path(users(:dan).id)
+      post login_path, params: {username: users(:dan).username}
 
       proc { post upvote_path(works(:album).id) }.wont_change "Vote.count"
 
