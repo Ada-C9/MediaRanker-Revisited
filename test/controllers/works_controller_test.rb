@@ -157,25 +157,69 @@ describe WorksController do
   end
 
   describe "update" do
-    it "succeeds for valid data and an extant work ID" do
+    let (:work) { Work.first }
 
+    it "succeeds for valid data and an extant work ID" do
+      work_params = {
+        title: 'my_title'
+      }
+      work.assign_attributes(work_params)
+
+      work.valid?.must_equal true
+
+      patch work_path(work.id), params: {work: work_params}
+
+      must_redirect_to work_path(work.id)
+      Work.first.title.must_equal 'my_title'
     end
 
-    it "renders bad_request for bogus data" do
+    it "renders not_found for bogus data" do
+      work_params = {
+        category: INVALID_CATEGORIES[-1]
+      }
 
+      work.assign_attributes(work_params)
+
+      work.valid?.must_equal false
+
+      patch work_path(work.id), params: {work: work_params}
+
+      must_respond_with :not_found
+      work.category.must_equal work_params[:category]
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      work_id = Work.last.id + 1
+      work_params = {
+        title: 'my_title'
+      }
+      work.assign_attributes(work_params)
 
+      patch work_path(work_id), params: {work: work_params}
+
+      must_respond_with :not_found
     end
   end
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+      work = Work.first
+      old_count = Work.count
 
+      delete work_path(work.id)
+
+      must_redirect_to root_path
+      Work.count.must_equal old_count - 1
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      work_id = Work.last.id + 1
+      old_count = Work.count
+
+      delete work_path(work_id)
+
+      must_respond_with :not_found
+      Work.count.must_equal old_count
 
     end
   end
@@ -183,19 +227,44 @@ describe WorksController do
   describe "upvote" do
 
     it "redirects to the work page if no user is logged in" do
+      work = Work.first
+      old_count = work.vote_count
 
-    end
+      post upvote_path(work.id)
 
-    it "redirects to the work page after the user has logged out" do
-
+      must_redirect_to work_path(work.id)
+      Work.first.vote_count.must_equal old_count
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
+      login_user = User.first
+      work = Work.create!(title: 'A new work', category: 'books')
 
+      post login_path, params: {username: login_user.username}
+      session[:user_id].must_equal login_user.id
+
+      post upvote_path(work.id)
+
+      must_redirect_to work_path(work.id)
+      work.reload
+      work.vote_count.must_equal 1
     end
 
     it "redirects to the work page if the user has already voted for that work" do
+      work = works(:another_album)
+      user = users(:dan)
 
+      post login_path, params: {username: user.username}
+      session[:user_id].must_equal user.id
+
+      old_vote_count = work.vote_count
+
+      # Act
+      post upvote_path(work.id)
+
+      # Assert
+      works(:another_album).vote_count.must_equal old_vote_count
+      must_redirect_to work_path(work.id)
     end
   end
 end
