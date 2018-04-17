@@ -51,7 +51,14 @@
   <% end %>
 
   <main>
+    <% if request.fullpath == "/" %>
     <%= yield %>
+    <% end %>
+
+    <% if @login_user %>
+    <%= yield %>
+    <% end %>
+
   </main>
 </body>
 </html>
