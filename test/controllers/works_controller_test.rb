@@ -312,6 +312,10 @@ describe WorksController do
       work.vote_count.must_equal old_work_count + 1
 
       post upvote_path(work)
+      
+      must_respond_with :redirect
+      must_redirect_to work_path(work)
+
       work.reload
       work.vote_count.must_equal old_work_count + 1
     end
