@@ -1,10 +1,23 @@
 require 'test_helper'
 
+# Arrange
+# Assumptions
+# Act
+# Assert
+
 describe WorksController do
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
+      # Arrange
 
+      # Assumptions
+
+
+      # Act
+
+
+      # Assert
     end
 
     it "succeeds with one media type absent" do
@@ -32,12 +45,24 @@ describe WorksController do
 
   describe "new" do
     it "succeeds" do
+      # Arrange
 
+      # Assumptions
+
+      # Act
+      # Assert
     end
   end
 
   describe "create" do
     it "creates a work with valid data for a real category" do
+      # go to create work page and fill out details of form and click submit button
+      # look at create action and see what the controller action/verb is and prefix
+      # Nicoleta used a proc here with params and a nested hash with work and title and category
+      # then after the proc must change the work count by one
+
+      #then must_respond_with (look at the create method- and see if it redirects -- surprise-- it does!)
+      # then must redirect to work path Work last
 
     end
 
@@ -46,6 +71,11 @@ describe WorksController do
     end
 
     it "renders 400 bad_request for bogus categories" do
+      # make each loop thru all the INVALID_CATEGORIES to loop over each category - put all below inside loop
+      # use a proc
+      # won't change work count
+      # must_respond_with bad request
+
 
     end
 
