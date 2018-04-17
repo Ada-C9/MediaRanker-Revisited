@@ -13,7 +13,7 @@ describe SessionsController do
       must_redirect_to root_path
     end
 
-    it "succeeds with existing user" do
+    it "succeeds with an existing user" do
       post login_path, params: {
         username: "dan"
       }
@@ -22,17 +22,23 @@ describe SessionsController do
       must_redirect_to root_path
     end
 
-    it "succeeds with no media" do
-      Work.all.each do |work|
-        work.destroy
+    it "succeeds as only users" do
+      Vote.all.each do |vote|
+        vote.destroy
       end
 
-      Work.count.must_equal 0
+      User.all.each do |person|
+        person.destroy
+      end
+
+      User.count.must_equal 0
+
       post login_path, params: {
-        username: "dan"
+        username: "lily"
       }
 
-      session[:user_id].must_equal User.find_by(username: "dan").id
+      session[:user_id].must_equal User.find_by(username: "lily").id
+      User.count.must_equal 1
       must_respond_with :redirect
       must_redirect_to root_path
     end
@@ -54,7 +60,6 @@ describe SessionsController do
       post login_path, params: {
         username: "dan"
       }
-
       session[:user_id].must_equal User.find_by(username: "dan").id
 
       post logout_path, params: {
@@ -62,7 +67,6 @@ describe SessionsController do
           username: "dan"
         }
       }
-
       session[:user_id].must_be_nil
     end
   end

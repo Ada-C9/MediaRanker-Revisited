@@ -20,7 +20,6 @@ describe UsersController do
         User.count.must_equal 0
         get users_path
         must_respond_with :success
-
     end
   end
 
