@@ -123,21 +123,42 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      put work_path works(:album).id, params: {
+        work: {
+          category: "album",
+          title: "Newer Title",
+          creator: "You Create"
+        }
+      }
 
+      updated_work = Work.find(works(:album).id)
+
+      updated_work.title.must_equal "Newer Title"
+      must_respond_with :redirect
     end
 
-    it "renders bad_request for bogus data" do
+    it "renders not_found for bogus data" do
+      put work_path works(:another_album).id, params: {
+        work: {
+          category: "play",
+        }
+      }
 
+      updated_work = Work.find(works(:another_album).id)
+
+      must_respond_with :not_found
     end
 
     it "renders 404 not_found for a bogus work ID" do
-
+      works(:poodr).id = 239847
+      put work_path(works(:poodr).id)
+      must_respond_with :not_found
     end
   end
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
-
+      
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
