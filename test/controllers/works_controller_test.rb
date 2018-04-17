@@ -119,7 +119,7 @@ describe WorksController do
 
     it "renders bad_request and does not update the DB for bogus data" do
 
-      media_params = {title: "Star Wars ep. IV", creator: "George Lucas", description: "Luke that is your sister", category: "movie", publication_year: "1977"}
+      media_params = {title: " ", creator: "George Lucas", description: "Luke that is your sister", category: "unicorns", publication_year: "1977"}
 
             first_media_count = Work.count
 
@@ -127,7 +127,7 @@ describe WorksController do
 
             work = Work.new(media_params)
 
-            work.must_be :valid?
+            work.wont_be :valid?
 
 
             # Act
@@ -135,25 +135,38 @@ describe WorksController do
 
 
             # Assert
-            must_respond_with :redirect
-            must_redirect_to work_path(Work.last.id)
+            must_respond_with :bad_request
+
 
             Work.count.must_equal first_media_count
-            Work.last.title.must_equal media_params[:title]
-
-
 
     end
 
     it "renders 400 bad_request for bogus categories" do
-      
+      media_params = {title: "Star Wars ep. IV", creator: "George Lucas", category: "random"}
+
+            first_media_count = Work.count
+
+            # Assumption
+
+            # Act
+            post works_path, params: {work: media_params}
+
+
+            # Assert
+            must_respond_with :bad_request
+
+            Work.count.must_equal first_media_count
 
     end
 
   end
 
   describe "show" do
-    it "succeeds for an extant work ID" do
+    it "succeeds for an existant work ID" do
+      get work_path(Work.first)
+
+      must_respond_with :success
 
     end
 
