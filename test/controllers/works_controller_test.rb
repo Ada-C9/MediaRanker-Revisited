@@ -198,15 +198,39 @@ describe WorksController do
   end
 
   describe "update" do
-    it "succeeds for valid data and an extant work ID" do
+    it "succeeds for valid data and an existant work ID" do
+      work = Work.first
+      work_detail = work.attributes
+      work_detail[:title] = 'tanoshi'
+
+      patch work_path(work), params: {work: work_detail}
+
+      must_redirect_to work_path(work)
+      work.reload
+      work.title.must_equal work_detail[:title]
 
     end
 
     it "renders bad_request for bogus data" do
+      work = Work.first
+      work_detail = work.attributes
+      work_detail[:title] = " "
+
+      patch work_path(work), params: {work: work_detail}
+
+      must_respond_with :not_found
+      work.reload
+      work.title.wont_equal work_detail[:title]
+
 
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      work_id = Work.first.id + 1
+
+      patch work_path(work_id)
+
+      must_respond_with :not_found
 
     end
   end
