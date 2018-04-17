@@ -90,6 +90,7 @@ describe WorksController do
 
       must_respond_with :bad_request
       Work.count.must_equal work_count
+      Work.last.title.wont_equal work_data[:title]
     end
 
   end
