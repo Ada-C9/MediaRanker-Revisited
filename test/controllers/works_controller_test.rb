@@ -120,7 +120,6 @@ describe WorksController do
     end
   end
 
-  # TODO: STARTING SHOW TESTS
   describe "show" do
     it "succeeds for an extant work ID" do
       get work_path(Work.first)
@@ -136,14 +135,18 @@ describe WorksController do
     end
   end
 
-  # TODO: TESTS FOR EDIT
   describe "edit" do
     it "succeeds for an extant work ID" do
-      skip
+      get work_path(Work.first)
+      must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
-      skip
+      bogus_work_id = Work.last.id + 1
+
+      get edit_work_path(bogus_work_id)
+
+      must_respond_with :not_found
     end
   end
 
