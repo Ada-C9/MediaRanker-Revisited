@@ -21,5 +21,6 @@ class User < ApplicationRecord
       end
 
       return user
+      
     end
   end
