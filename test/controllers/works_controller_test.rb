@@ -150,18 +150,46 @@ describe WorksController do
     end
   end
 
-  # TODO: TESTS FOR UPDATE
+  # REVIEW: HAVE CHARLES WALK ME THROUGH THE BELOW TEST
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
-      skip
+      work = Work.first
+      work_data = work.attributes
+      work_data[:title] = "random new title"
+
+      work.assign_attributes(work_data)
+      work.must_be :valid?
+
+      patch work_path(work), params: { work: work_data }
+
+      must_redirect_to work_path(work)
+
+      work.reload
+      work.title.must_equal work_data[:title]
     end
 
     it "renders bad_request for bogus data" do
-      skip
+      work = Work.first
+      work_data = work.attributes
+      work_data[:title] = " "
+
+      work.assign_attributes(work_data)
+      work.wont_be :valid?
+
+      patch work_path(work), params: { work: work_data }
+
+      must_respond_with :bad_request
+
+      work.reload
+      work.title.wont_equal work_data[:title]
     end
 
     it "renders 404 not_found for a bogus work ID" do
-      skip
+      work_id = Work.last.id + 1
+
+      patch work_path(work_id)
+
+      must_respond_with :not_found
     end
   end
 
