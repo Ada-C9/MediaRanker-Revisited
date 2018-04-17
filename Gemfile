@@ -60,7 +60,7 @@ group :test do
 end
 
 group :development do
-  gem 'binding-of-caller'
+  gem "binding_of_caller"
   gem 'dotenv-rails'
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'web-console', '>= 3.3.0'
