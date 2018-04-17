@@ -82,10 +82,20 @@ describe WorksController do
 
 
   describe "index" do
+
+    before do
+
+      @w_album = works(:album)
+      @w_another_album = works(:another_album)
+      @w_poodr = works(:poodr)
+      @w_movie = works(:movie)
+
+    end
+
+
     it "succeeds when there are works" do
 
-      @book = works(:poodr)
-      @movie = works(:movie)
+      Work.all.count.must_be :>, 0
 
       get works_path
       must_respond_with :success
@@ -93,6 +103,13 @@ describe WorksController do
     end
 
     it "succeeds when there are no works" do
+
+      @w_album.destroy
+      @w_another_album.destroy
+      @w_poodr.destroy
+      @w_movie.destroy
+
+      Work.all.count.must_equal 0
 
       get works_path
       must_respond_with :success
