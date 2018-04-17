@@ -215,12 +215,16 @@ describe WorksController do
       Work.count.must_equal work_count
     end
   end
-  #
-  # describe "upvote" do
-  #
-  #   it "redirects to the work page if no user is logged in" do
-  #
-  #   end
+
+  describe "upvote" do
+
+    it "redirects to the work page if no user is logged in" do
+
+      
+
+      must_respond_with :redirect
+      must_redirect_to work_path(work)
+    end
   #
   #   it "redirects to the work page after the user has logged out" do
   #
@@ -233,5 +237,5 @@ describe WorksController do
   #   it "redirects to the work page if the user has already voted for that work" do
   #
   #   end
-  # end
+  end
 end
