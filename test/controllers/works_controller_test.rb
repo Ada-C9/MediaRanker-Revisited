@@ -15,7 +15,6 @@ describe WorksController do
       # Precondition: there is at least one media in two of the categories
       %w(albums movies).each do |category|
         Work.by_category(category).length.must_be :>,0
-
         Work.by_category(:books).destroy_all
 
         get root_path
