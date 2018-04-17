@@ -162,11 +162,19 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+      proc {
+        delete work_path(works(:album).id)
+      }.must_change 'Work.count', -1
 
+      must_respond_with :redirect
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      proc {
+        delete work_path('bad id')
+      }.must_change 'Work.count', 0
 
+      must_respond_with 404
     end
   end
 
