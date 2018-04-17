@@ -172,17 +172,24 @@ describe WorksController do
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
-      get login_path, params: { username: "new user" }
+      post login_path, params: { username: "new user" }
       # work = works(:poodr)
-      # binding.pry
-      # proc {
-      #   post upvote_path(works(:poodr).id)
-      # }.must_change 'Vote.count', 1
+      proc {
+        post upvote_path(works(:poodr).id)
+      }.must_change 'Vote.count', 1
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      work = works(:poodr)
+      post login_path, params: { username: "new user" }
+      post upvote_path(work.id)
+      must_redirect_to work_path(work.id)
+
+      # additional upvote on the same work
+      proc {
+        post upvote_path(work.id)
+      }.must_change 'Vote.count', 0
+      must_redirect_to work_path(work.id)
     end
   end
 end
