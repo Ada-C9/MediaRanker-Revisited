@@ -19,13 +19,14 @@ describe WorksController do
     end
 
     it "succeeds with one media type absent" do
-      skip
       # Precondition: there is at least one media in two of the categories
       # Arrange
       Work.where(category: "album").count.must_be :>, 0
       Work.where(category: "book").count.must_be :>, 0
       # must delete all movies so that none exit in that category
-      Work.where(category: "movie").destroy.count.must_be :==, 0
+      Work.where(category: "movie").destroy_all
+
+      Work.where(category: "movie").count.must_be :==, 0
 
       # Act
       get root_path
@@ -68,8 +69,7 @@ describe WorksController do
 
   describe "new" do
     it "succeeds" do
-      # Arrange
-      # Act
+      # Arrange & Act
       get new_work_path
       # Assert
       must_respond_with :success
@@ -103,32 +103,75 @@ describe WorksController do
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
-      
+      # Arrange
+      bad = {
+          creator:'You',
+          description: 'Chile',
+          publication_year: 1999-11-01,
+          category: 'book'
+      }
+      old_work_count = Work.count
+
+      Work.new(bad).wont_be :valid?
+      # Act
+      post works_path, params: { work: bad }
+      # Assert
+      Work.count.must_equal old_work_count
+      must_respond_with :bad_request
     end
 
-    it "renders 400 bad_request for bogus categories" do
-      skip
+    it "renders 400 bad_request for bogus categories" do #for every category
+      # Arrange
+      bad = {
+          creator:'You',
+          description: 'Chile',
+          publication_year: 1999-11-01,
+          category: 'book'
+      }
+      old_work_count = Work.count
+
+      Work.new(bad).wont_be :valid?
+      # Act
+      post works_path, params: { work: bad }
+      # Assert
+      Work.count.must_equal old_work_count
+      must_respond_with :bad_request
     end
 
   end
 
   describe "show" do
     it "succeeds for an extant work ID" do
-
+      # Arrange & Act - get path
+      get work_path(Work.first)
+      # Assert - :success
+      must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
-
+      # Arrange
+      work_id = Work.last.id + 1
+      # Act - get path
+      get work_path(work_id)
+      # Assert
+      must_respond_with :not_found
     end
   end
 
   describe "edit" do
     it "succeeds for an extant work ID" do
-
+      # Arrange & Act
+      get edit_work_path(Work.first)
+      # Assert
+      must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
-
+      work_id = Work.last.id + 1
+      # Act - get path
+      get edit_work_path(work_id)
+      # Assert
+      must_respond_with :not_found
     end
   end
 
