@@ -120,16 +120,23 @@ describe WorksController do
     end
   end
 
+  # TODO: STARTING SHOW TESTS
   describe "show" do
     it "succeeds for an extant work ID" do
-      skip
+      get work_path(Work.first)
+      must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
-      skip
+      work_id = Work.last.id + 1
+
+      get work_path(work_id)
+
+      must_respond_with :not_found
     end
   end
 
+  # TODO: TESTS FOR EDIT
   describe "edit" do
     it "succeeds for an extant work ID" do
       skip
@@ -140,6 +147,7 @@ describe WorksController do
     end
   end
 
+  # TODO: TESTS FOR UPDATE
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
       skip
@@ -154,6 +162,7 @@ describe WorksController do
     end
   end
 
+  # TODO: TESTS FOR DESTROY
   describe "destroy" do
     it "succeeds for an extant work ID" do
       skip
@@ -164,6 +173,7 @@ describe WorksController do
     end
   end
 
+  # TODO: TESTS EXTERNAL LOGIC METHODS
   describe "upvote" do
 
     it "redirects to the work page if no user is logged in" do
