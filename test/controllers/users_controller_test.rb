@@ -17,7 +17,6 @@ describe UsersController do
     end
   end
 
-  # TODO: WRITE TESTS FOR USER SHOW
   describe 'show' do
     it 'works for a real exsisting user' do
       get user_path(User.first)
@@ -25,7 +24,11 @@ describe UsersController do
     end
 
     it 'renders not found (404) for a non-exsistent user' do
-      skip
+      user_id = User.last.id + 1
+
+      get user_path(user_id)
+
+      must_respond_with :not_found
     end
   end
 end
