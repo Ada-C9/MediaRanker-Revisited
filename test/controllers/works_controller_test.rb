@@ -90,7 +90,6 @@ describe WorksController do
     it "renders 400 bad_request for bogus categories" do
 
       INVALID_CATEGORIES.each do |category|
-        binding.pry
         proc {
           post works_path, params: {
             work: {
@@ -105,51 +104,73 @@ describe WorksController do
   end
 
 
-  #
-  # describe "show" do
-  #   it "succeeds for an extant work ID" do
-  #
-  #   end
-  #
-  #   it "renders 404 not_found for a bogus work ID" do
-  #
-  #   end
-  # end
-  #
-  # describe "edit" do
-  #   it "succeeds for an extant work ID" do
-  #
-  #   end
-  #
-  #   it "renders 404 not_found for a bogus work ID" do
-  #
-  #   end
-  # end
-  #
-  # describe "update" do
-  #   it "succeeds for valid data and an extant work ID" do
-  #
-  #   end
-  #
-  #   it "renders bad_request for bogus data" do
-  #
-  #   end
-  #
-  #   it "renders 404 not_found for a bogus work ID" do
-  #
-  #   end
-  # end
-  #
-  # describe "destroy" do
-  #   it "succeeds for an extant work ID" do
-  #
-  #   end
-  #
-  #   it "renders 404 not_found and does not update the DB for a bogus work ID" do
-  #
-  #   end
-  # end
-  #
+
+  describe "show" do
+    it "succeeds for an extant work ID" do
+      get work_path(works(:album).id)
+      must_respond_with :success
+    end
+
+    it "renders 404 not_found for a bogus work ID" do
+      get work_path("foo")
+      must_respond_with 404
+    end
+  end
+
+  describe "edit" do
+    it "succeeds for an extant work ID" do
+      get edit_work_path(works(:album).id)
+      must_respond_with :success
+
+    end
+
+    it "renders 404 not_found for a bogus work ID" do
+      get edit_work_path("foo")
+      must_respond_with 404
+    end
+  end
+
+  describe "update" do
+    it "succeeds for valid data and an extant work ID" do
+      get work_path(works(:album).id)
+      must_respond_with :success
+
+    end
+
+    it "renders bad_request for bogus data" do
+      get work_path("foo")
+      must_respond_with 404
+
+    end
+
+    it "renders 404 not_found for a bogus work ID" do
+      get work_path("foo")
+      must_respond_with 404
+
+    end
+  end
+
+  describe "destroy" do
+    it "succeeds for an extant work ID" do
+      proc {
+        delete work_path(works(:album).id), params: {
+          work: {
+            :title => "Some Title", :category => "movie"
+          }
+        }
+      }.must_change  'Work.count', -1
+
+      must_respond_with :redirect
+      must_redirect_to root_path
+
+    end
+
+    it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      get work_path("foo")
+      must_respond_with 404
+    end
+  end
+
   # describe "upvote" do
   #
   #   it "redirects to the work page if no user is logged in" do
