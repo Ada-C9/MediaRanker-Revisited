@@ -5,6 +5,7 @@ describe UsersController do
     it "succeeds when there are users" do
       #  Act
       get users_path
+      
       # Assert
       must_respond_with :success
     end
@@ -24,11 +25,22 @@ describe UsersController do
   end
 
   describe 'Show' do
-    it "renders 404 not_found for a wrong user ID" do
-      get work_path("wrong id")
+    it 'succeds with an existing id' do
+      # Act
+      get user_path(users(:dan).id)
 
+      #  Assert
+      must_respond_with :success
+    end
+
+    it "renders 404 not_found for a wrong user ID" do
+      # Act
+      get user_path("wrong id")
+
+      #  Assert
       must_respond_with :missing
     end
+
 
   end
 end
