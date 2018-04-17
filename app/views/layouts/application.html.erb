@@ -26,10 +26,10 @@
       </div>
       <div class="user-nav">
         <% if session[:user_id] %>
-          <%= link_to "Log out", logout_path, method: "delete"   %>
+          <%= link_to "Log out", logout_path, method: "post"   %>
         <% else %>
           <%= link_to "Login with Github", "/auth/github" %>
-        
+
         <% end %>
       </div>
     </nav>
