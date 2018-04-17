@@ -50,12 +50,13 @@ class WorksController < ApplicationController
     if @work.save
       flash[:status] = :success
       flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
+
       redirect_to work_path(@work)
     else
       flash.now[:status] = :failure
       flash.now[:result_text] = "Could not update #{@media_category.singularize}"
       flash.now[:messages] = @work.errors.messages
-      render :edit, status: :not_found
+      render :edit, status: :bad_request
     end
   end
 
