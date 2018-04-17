@@ -221,23 +221,49 @@ describe WorksController do
     end
   end
 
-  # TODO: TESTS EXTERNAL LOGIC METHODS
   describe "upvote" do
 
     it "redirects to the work page if no user is logged in" do
-      skip
+      work_id = Work.first.id
+
+      post upvote_path(work_id)
+      must_respond_with :redirect
     end
 
     it "redirects to the work page after the user has logged out" do
-      skip
+      work_id = Work.first.id
+
+      post logout_path
+
+      must_respond_with :redirect
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      test_work = Work.first
+
+      start_vote_count = test_work.votes.count
+
+      post login_path, params: { username: User.first.username}
+      must_respond_with :redirect
+
+      post upvote_path(test_work.id)
+      must_respond_with :redirect
+
+      test_work.votes.count.must_equal start_vote_count + 1
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      test_work = Work.last
+
+      start_vote_count = test_work.votes.count
+
+      post login_path, params: { username: User.first.username}
+      must_respond_with :redirect
+
+      post upvote_path(test_work.id)
+      must_respond_with :redirect
+
+      test_work.votes.count.must_equal start_vote_count
     end
   end
 end
