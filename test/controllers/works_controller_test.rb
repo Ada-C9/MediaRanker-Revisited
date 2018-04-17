@@ -158,30 +158,69 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
-      
+      proc {
+        delete work_path(works(:movie).id)
+      }.must_change 'Work.count', -1
+
+      must_respond_with :redirect
+      must_redirect_to root_path
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      proc {
+        delete work_path("nope")
+      }.must_change 'Work.count', 0
 
+      must_respond_with :not_found
     end
   end
 
   describe "upvote" do
 
     it "redirects to the work page if no user is logged in" do
-
+      post upvote_path(works(:poodr).id)
+      must_respond_with :redirect
+      must_redirect_to work_path(works(:poodr).id)
     end
 
     it "redirects to the work page after the user has logged out" do
-
+      post logout_path
+      must_redirect_to root_path
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
+      proc {
+        post login_path params: {
+          username: users(:kari).username
+        }
+        work = Work.find_by(id: works(:movie).id)
 
+        post upvote_path(work.id), params: {
+          vote: { user: users(:kari), work: work }
+        }
+      }.must_change 'Vote.count', 1
+
+      must_respond_with :redirect
+      must_redirect_to work_path(works(:movie))
     end
 
     it "redirects to the work page if the user has already voted for that work" do
+      proc {
+        post login_path params: {
+          username: users(:kari).username
+        }
+        work = Work.find_by(id: works(:movie).id)
 
+        post upvote_path(work.id), params: {
+          vote: { user: users(:kari), work: work }
+        }
+        post upvote_path(work.id), params: {
+          vote: { user: users(:kari), work: work }
+        }
+      }.must_change 'Vote.count', 1
+
+      must_respond_with :redirect
+      must_redirect_to work_path(works(:movie))
     end
   end
 end
