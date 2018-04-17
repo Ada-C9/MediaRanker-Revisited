@@ -28,12 +28,17 @@ describe User do
 
     it "requires a unique username" do
       username = "test username"
-      user1 = User.new(username: username)
+      user1 = users(:dan)
 
       # This must go through, so we use create!
       user1.save!
 
-      user2 = User.new(username: username)
+      user2 = User.new(
+        username: "dan",
+        email: "dan@adadevelopers.org",
+        uid: 1,
+        provider: 'github'
+      )
       result = user2.save
       result.must_equal false
       user2.errors.messages.must_include :username

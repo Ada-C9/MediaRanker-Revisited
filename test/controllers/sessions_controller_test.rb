@@ -1,5 +1,5 @@
-require "test_helper"
-
-describe SessionsController do
-
-end
+# require "test_helper"
+#
+# describe SessionsController do
+#
+# end
