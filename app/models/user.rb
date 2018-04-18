@@ -5,21 +5,24 @@ class User < ApplicationRecord
   validates :username, uniqueness: true, presence: true
 
 
-  def self.build_from_github(auth_hash)
+  def self.login(auth_hash)
 
-    user_hash = {
-      :username => auth_hash['info']['name'],
-      :email => auth_hash['info']['email'],
-      :uid => auth_hash['uid'],
-      :provider => auth_hash['provider']
-    }
 
-    new_user = User.new(user_hash)
+    @user = User.new(
+      username: auth_hash['info']['name'],
+      email: auth_hash['info']['email'],
+      uid: auth_hash['uid'],
+      provider: auth_hash['provider'])
 
-    if new_user.save
-      return new_user
-    else
-      return nil
+      if @user.save
+
+        return @user
+
+      else
+
+        return @user
+
+      end
+
     end
-  end
-end
+end 
