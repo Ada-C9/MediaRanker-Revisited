@@ -4,8 +4,8 @@ Rails.application.routes.draw do
   get "/auth/github", as: 'github_login'
 
   root 'works#root'
-  get '/login', to: 'sessions#login_form', as: 'login'
-  post '/login', to: 'sessions#login'
+  # get '/login', to: 'sessions#login_form', as: 'login'
+  get '/login', to: 'sessions#login', as: 'login'
   post '/logout', to: 'sessions#logout', as: 'logout'
 
   resources :works
