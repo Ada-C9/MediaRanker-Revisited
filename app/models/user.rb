@@ -6,7 +6,7 @@ class User < ApplicationRecord
   validates :username, uniqueness: true, presence: true
 
 def self.build_from_github(auth_hash)
-auth_hash["info"]["name"] ? name = auth_hash["info"]["name"] : name = auth_hash["info"]["email"]
+auth_hash["info"]["name"] |= auth_hash["info"]["email"]
 
 user_data = {
   uid: auth_hash[:uid],
