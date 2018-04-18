@@ -1,5 +1,5 @@
 class SessionsController < ApplicationController
-  
+
 
   def login_form
   end
@@ -13,14 +13,19 @@ class SessionsController < ApplicationController
         # User doesn't match anything in the DB
         # Attempt to create a new user
         user = User.build_from_github(auth_hash)
+        unless user.id
+          raise
+        end
       end
 
       # If we get here, we have the user instance
+      puts "Login attempt from user #{user.username} successful"
       session[:user_id] = user.id
       flash[:status] = :success
       flash[:result_text] = "Logged in successfully"
       redirect_to root_path
     else
+      puts "Login attempt failed"
       flash[:status] = :failure
       flash[:result_text] = "Could not log in"
       flash[:messages] = user.errors.messages

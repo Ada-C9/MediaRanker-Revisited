@@ -20,6 +20,9 @@ describe UsersController do
     before do
       user = User.first
       login(user)
+      must_respond_with :redirect
+      session[:user_id].must_equal user.id
+      puts "Logged in as #{user.username}"
     end
 
     it "displays a user with existant id" do
