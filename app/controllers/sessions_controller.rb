@@ -1,6 +1,4 @@
 class SessionsController < ApplicationController
-  def login_form
-  end
 
   def login
     auth_hash = request.env['omniauth.auth']
@@ -33,9 +31,7 @@ class SessionsController < ApplicationController
       flash.now[:messages] = @user.errors.messages
       redirect_to root_path
       return
-
     end
-
   end
 
   def logout

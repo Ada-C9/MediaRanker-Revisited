@@ -1,6 +1,7 @@
 require 'test_helper'
 
 describe WorksController do
+
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
@@ -34,11 +35,19 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+
+        existing_user = users(:dan)
+
+        perform_login(existing_user)
+
       get works_path
       must_respond_with :success
     end
 
     it "succeeds when there are no works" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
       works = Work.all
       works.each do |work|
         work.votes.destroy
@@ -51,13 +60,20 @@ describe WorksController do
 
   describe "new" do
     it "succeeds" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
       get new_work_path
-      must_respond_with :success
-    end
+     end
   end
 
   describe "create" do
     it "creates a work with valid data for a real category" do
+
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
+
       proc {
         post works_path, params: {
           work: {
@@ -75,6 +91,10 @@ describe WorksController do
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
+
       proc {
         post works_path, params: {
           work: {
@@ -90,6 +110,9 @@ describe WorksController do
     end
 
     it "renders 400 bad_request for bogus categories" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
       proc {
         post works_path, params: {
           work: {
@@ -109,11 +132,17 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an extant work ID" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
       get work_path(Work.find(works(:movie).id))
       must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
       get work_path(789)
       must_respond_with 404
     end
@@ -121,12 +150,18 @@ describe WorksController do
 
   describe "edit" do
     it "succeeds for an extant work ID" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
       get edit_work_path(Work.find(works(:movie).id))
       must_respond_with :success
 
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
       get edit_work_path(789)
       must_respond_with 404
     end
@@ -134,6 +169,9 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
       updated_title = "The best title"
 
       put work_path(works(:movie).id), params: {
@@ -150,7 +188,9 @@ describe WorksController do
     end
 
     it "renders bad_request for bogus data" do
+      existing_user = users(:dan)
 
+      perform_login(existing_user)
 
       put work_path(works(:movie).id), params: {
         work: {
@@ -163,6 +203,9 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
       put work_path(789)
       must_respond_with 404
 
@@ -171,12 +214,19 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
       delete work_path(Work.find(works(:movie).id))
       must_respond_with :redirect
       must_redirect_to root_path
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
+
       delete work_path(789)
       must_respond_with 404
     end
@@ -185,6 +235,9 @@ describe WorksController do
   describe "upvote" do
 
     it "redirects to the work page if no user is logged in" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
       post upvote_path(Work.find(works(:movie).id))
       must_respond_with :redirect
       must_redirect_to work_path(Work.find(works(:movie).id))
@@ -195,6 +248,9 @@ describe WorksController do
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
 
         post login_path, params: {
           username: users(:dan)
@@ -210,6 +266,9 @@ describe WorksController do
     end
 
     it "redirects to the work page if the user has already voted for that work" do
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
       post login_path, params: {
         username: users(:dan)
       }

@@ -1,36 +1,48 @@
 require "test_helper"
 
 describe SessionsController do
-  describe "login_form" do
-    it "succeeds" do
-      get login_path
-      must_respond_with :success
-    end
-  end
+
 
   describe "login" do
     it "succeeds with an existing username and redirects to root_path" do
-      post login_path, params: {
-        username: users(:dan)
-      }
+      existing_user = users(:dan)
 
-      must_respond_with :redirect
+      perform_login(existing_user)
+
       must_redirect_to root_path
+
     end
 
     it "succeeds with new valid username and redirects to root path" do
-      post login_path, params: {
-        username: "mary"
-      }
+      new_user = User.new(
+        provider: 'githib',
+        uid: 999,
+        username: 'test user',
+        email: 'test@test.com'
+      )
+
+      proc {
+        perform_login(new_user)
+      }.must_change 'User.count', 1
+
 
       must_respond_with :redirect
       must_redirect_to root_path
     end
 
     it "renders bad_request with invalid username" do
-      post login_path, params: {
-        username: ""
-      }
+      skip
+      new_user = User.new(
+        provider: 'githib',
+        uid: 999,
+        username:'',
+        email: 'test@test.com'
+      )
+
+      proc {
+        perform_login(new_user)
+      }.must_change 'User.count', 0
+
 
       must_respond_with :bad_request
     end
@@ -38,10 +50,10 @@ describe SessionsController do
 
   describe "logout" do
     it "changes session user id to nil" do
-      skip
-      post login_path, params: {
-        username: users(:dan)
-      }
+      existing_user = users(:dan)
+
+      perform_login(existing_user)
+
       session[:user_id].must_equal users(:dan).id
       post logout_path
       session[:user_id].must_equal nil
