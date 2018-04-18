@@ -4,28 +4,30 @@ class SessionsController < ApplicationController
 
   def login
     auth_hash = request.env['omniauth.auth']
-    raise
-    
-    username = params[:username]
-    if username and user = User.find_by(username: username)
-      session[:user_id] = user.id
-      flash[:status] = :success
-      flash[:result_text] = "Successfully logged in as existing user #{user.username}"
-    else
-      user = User.new(username: username)
-      if user.save
-        session[:user_id] = user.id
-        flash[:status] = :success
-        flash[:result_text] = "Successfully created new user #{user.username} with ID #{user.id}"
+
+    if auth_hash[:uid]
+      @user = User.find_by(uid: auth_hash[:uid], provider: 'github')
+      if @user.nil?
+        @user = User.build_from_github(auth_hash)
+        if @user.save
+          flash[:status] = :success
+          flash[:result_text] = "User created! Logged in successfully"
+          session[:user_id] = @user.id
+          redirect_to root_path
+        else
+          flash[:error] = "Something went wrong: unable to create user"
+          redirect_to root_path
+        end
       else
-        flash.now[:status] = :failure
-        flash.now[:result_text] = "Could not log in"
-        flash.now[:messages] = user.errors.messages
-        render "login_form", status: :bad_request
-        return
+        flash[:status] = :success
+        flash[:result_text] = "Yay! Logged in successfully"
+        session[:user_id] = @user.id
+        redirect_to root_path
       end
+    else
+      flash[:error] = "Something went wrong logging in through Github"
+      redirect_to root_path
     end
-    redirect_to root_path
   end
 
   def logout
