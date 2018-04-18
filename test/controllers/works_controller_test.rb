@@ -220,10 +220,20 @@ describe WorksController do
 
     it "redirects to the work page if no user is logged in" do
 
-      
+      work = Work.last
+
+      starting_vote_count = work.vote_count
+
+      post upvote_path(work)
+
+      work.reload
+      ending_vote_count = work.vote_count
 
       must_respond_with :redirect
       must_redirect_to work_path(work)
+
+      ending_vote_count.must_equal starting_vote_count
+
     end
   #
   #   it "redirects to the work page after the user has logged out" do
