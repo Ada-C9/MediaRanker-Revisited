@@ -47,6 +47,7 @@ group :development, :test do
 
   # Use pry for rails console
   gem 'pry-rails'
+  gem 'binding_of_caller'
   gem 'dotenv-rails'
 end
 
