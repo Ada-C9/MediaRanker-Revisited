@@ -65,8 +65,35 @@ describe SessionsController do
     end
   end
 
-  # TODO: WRITE TESTS FOR LOGOUT
   describe 'logout' do
+    it 'logs out the logged in user' do
+      user = users(:dan)
 
+      post login_path, params: {username: user.username}
+
+      session.keys.must_include "user_id"
+
+      post logout_path
+
+      session[:user_id].must_be_nil
+
+      flash.keys.must_include "status"
+      flash["status"].must_equal :success
+      flash.keys.must_include 'result_text'
+
+      must_redirect_to root_path
+    end
+
+    it 'does nothing when no user is currently logged in' do
+      post logout_path
+
+      session[:user_id].must_be_nil
+
+      flash.keys.must_include "status"
+      flash["status"].must_equal :success
+      flash.keys.must_include 'result_text'
+
+      must_redirect_to root_path
+    end
   end
 end
