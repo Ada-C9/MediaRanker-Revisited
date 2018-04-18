@@ -8,6 +8,7 @@ class SessionsController < ApplicationController
     auth_hash = request.env['omniauth.auth']
 
     if auth_hash[:uid]
+      puts "there is a uid, it is: #{auth_hash[:uid]}"
       user = User.find_by(uid: auth_hash[:uid], provider: 'github')
       if user.nil?
         # User doesn't match anything in the DB
