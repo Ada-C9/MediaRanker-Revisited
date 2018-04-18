@@ -39,6 +39,21 @@ describe User do
       user2.errors.messages.must_include :username
     end
 
+  end
+
+
+  describe "self.build_from_github" do
+    it "can create a new user with info from github" do
+      skip
+      # need implement test
+      auth_hash = {
+        auth_hash["info"]["name"]: "wenjie"
+        auth_hash["info"]["email"]: "wenjie@ada.org",
+        uid: auth_hash["uid"],
+        provider: auth_hash["provider"]
+      }
+    end
 
   end
+
 end
