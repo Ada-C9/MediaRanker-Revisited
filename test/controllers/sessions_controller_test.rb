@@ -15,46 +15,51 @@ describe SessionsController do
 
   describe "login" do
 
-    @unknown_user_name = "Yolanda"
+    before do
+
+      @unknown_user_name = "Yolanda"
+
+    end
 
     it "must succeed for an existing user" do
 
       user_d = users(:dan)
+
       post login_path, params: {username: "dan"}
 
       session[:user_id].must_equal user_d.id
+
       must_redirect_to root_path
-      must_respond_with :success
+
 
     end
 
     it "must succeed for a new user with a valid name" do
 
-      # user_y = User.new {params: {username: "Yolanda"}}
-      #
-      # user_y.id.wont_be_nil
       existing_user = User.find_by(username: @unknown_user_name)
 
       existing_user.must_be_nil
 
       post login_path, params: {username: @unknown_user_name}
 
-      post login_path must_respond_with :success
+      session[:user_id].wont_be_nil
       must_redirect_to root_path
 
     end
 
-    it "must create a new user when it recieves a new, valid username" do
+    it "must create a new user instance when it recieves a new, valid username" do
 
       existing_user = User.find_by(username: @unknown_user_name)
-
       existing_user.must_be_nil
+      before_user_count = User.all.count
 
       post login_path, params: {username: @unknown_user_name}
 
-      new_user = User.find_by(username: @unknown_user_name)
-      new_user.wont_be_nil
+      after_user_count = User.all.count
 
+      (after_user_count - before_user_count).must_equal 1
+      new_user = User.find_by(username: @unknown_user_name)
+      new_user.username.must_equal @unknown_user_name
       session[:user_id].must_equal new_user.id
 
     end
@@ -66,7 +71,6 @@ describe SessionsController do
       post login_path, params: {username: null_username}
 
       post login_path must_respond_with :bad_request
-      must_redirect_to root_path
 
     end
 
@@ -76,9 +80,12 @@ describe SessionsController do
 
     it "must succeed" do
 
+      post login_path, params: {username: "testy test"}
+      session[:user_id].wont_be_nil
+
       post logout_path
 
-      must_respond_with :success
+      session[:user_id].must_be_nil
 
     end
   end
