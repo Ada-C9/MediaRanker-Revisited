@@ -13,13 +13,9 @@ class User < ApplicationRecord
     )
 
     if user.save
-      flash[:status] = :success
-      flash[:result_text] = "#{user.username} logged in successfully"
+      return user
     else
-      flash.now[:status] = :failure
-      flash.now[:result_text] = "Could not log in"
-      flash.now[:messages] = user.errors.messages
+      raise ArgumentError.new
     end
-    return user  
   end
 end

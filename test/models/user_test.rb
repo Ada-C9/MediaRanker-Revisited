@@ -41,17 +41,34 @@ describe User do
 
   end
 
-
   describe "self.build_from_github" do
-    it "can create a new user with info from github" do
-      skip
-      # need implement test
+    it "can create a new user with valid data from provider" do
       auth_hash = {
-        auth_hash["info"]["name"]: "wenjie"
-        auth_hash["info"]["email"]: "wenjie@ada.org",
-        uid: auth_hash["uid"],
-        provider: auth_hash["provider"]
+        "info" => {
+          "name" => "wenjie",
+          "email" => "wenjie@ada.org"
+        },
+        "uid" => 404,
+        "provider" => "github"
       }
+
+      user_test = User.build_from_github(auth_hash)
+      user_test.must_be_instance_of User
+    end
+
+    it "can not create a new user if the data from provider is invalid" do
+      # where to test the error messages
+      auth_hash = {
+        "info" => {
+          "email" => "wenjie@ada.org"
+        },
+        "uid" => 404,
+        "provider" => "github"
+      }
+
+      proc {
+        User.build_from_github(auth_hash)
+      }.must_raise ArgumentError
     end
 
   end

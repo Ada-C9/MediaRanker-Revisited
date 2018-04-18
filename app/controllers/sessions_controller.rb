@@ -12,6 +12,8 @@ class SessionsController < ApplicationController
 
       if @user.nil?
         @user = User.build_from_github(auth_hash)
+        flash[:status] = :success
+        flash[:result_text] = "#{user.username} logged in successfully"
       else
         flash[:status] = :success
         flash[:result_text] = "Successfully logged in as existing user #{@user.username}"

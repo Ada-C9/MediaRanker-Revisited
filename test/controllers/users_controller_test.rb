@@ -5,18 +5,14 @@ describe UsersController do
   describe "index" do
     it "succeeds when there are users" do
       User.count.must_be :>, 0
-
       get users_path
-
       must_respond_with :success
     end
 
     it "succeeds when there are no users" do
-      # skip
+      skip
       User.destroy_all
-
       get users_path
-
       must_respond_with :success
     end
   end

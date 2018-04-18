@@ -27,17 +27,13 @@ describe WorksController do
   describe "index" do
     it "succeeds when there are works" do
       Work.count.must_be :>, 0
-
       get works_path
-
       must_respond_with :success
     end
 
     it "succeeds when there are no works" do
       Work.destroy_all
-
       get works_path
-
       must_respond_with :success
     end
   end
@@ -52,7 +48,6 @@ describe WorksController do
   describe "create" do
 
     it "creates a work with valid data for a real category" do
-
       old_work_count = Work.count
       work_data = {
         category: "movie",
