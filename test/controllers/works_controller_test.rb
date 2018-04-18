@@ -152,7 +152,7 @@ describe WorksController do
   # REVIEW: HAVE CHARLES WALK ME THROUGH THE BELOW TEST
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
-      work = Work.first
+      work = works(:album)
       work_data = work.attributes
       work_data[:title] = "random new title"
 
@@ -251,10 +251,26 @@ describe WorksController do
       test_work.votes.count.must_equal start_vote_count + 1
     end
 
+    it 'adds a vote to the user\'s votes list' do
+      test_work = Work.first
+
+      test_user = User.first
+
+      start_vote_count = test_user.votes.count
+
+      post login_path, params: { username: test_user.username}
+      must_respond_with :redirect
+
+      post upvote_path(test_work.id)
+      must_respond_with :redirect
+
+      test_user.votes.count.must_equal start_vote_count + 1
+    end
+
     it "redirects to the work page if the user has already voted for that work" do
       test_work = Work.last
 
-      start_vote_count = test_work.votes.count
+      start_vote_count = Vote.count
 
       post login_path, params: { username: User.first.username}
       must_respond_with :redirect
@@ -262,7 +278,9 @@ describe WorksController do
       post upvote_path(test_work.id)
       must_respond_with :redirect
 
-      test_work.votes.count.must_equal start_vote_count
+      Vote.count.must_equal start_vote_count
     end
   end
 end
+
+# TODO: GO BACK AND UPDATE USING FIXTURES
