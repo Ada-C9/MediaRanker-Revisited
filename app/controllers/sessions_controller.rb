@@ -1,6 +1,5 @@
 class SessionsController < ApplicationController
-  # skip_before_action :require_login, only: [:create]
-
+  
   def login_form
   end
 
@@ -10,26 +9,26 @@ class SessionsController < ApplicationController
 
     if auth_hash[:uid]
       @user = User.find_by(uid: auth_hash[:uid], provider: 'github')
-      
-        if @user.nil? # create a user
-          @user = User.build_from_github(auth_hash)
-          successful_save = @user.save
+      # @user = User.find_by(uid: auth_hash[:uid], provider: params[:provider])
 
-          if successful_save
-            flash[:success] = "Logged in successfully"
-            session[:user_id] = @user.id
-            redirect_to root_path
+      if @user.nil?
+        @user = User.build_from_github(auth_hash)
+        successful_save = @user.save
 
-          else
-            flash[:error] = "Some error happened in User creation"
-            redirect_to root_path
-          end
-
-        else
+        if successful_save
           flash[:success] = "Logged in successfully"
           session[:user_id] = @user.id
           redirect_to root_path
+        else
+          flash[:error] = "Some error happened in User creation"
+          redirect_to root_path
         end
+
+      else
+        flash[:success] = "Logged in successfully"
+        session[:user_id] = @user.id
+        redirect_to root_path
+      end
 
     else
       flash[:error] = "Logging in through GitHub not successful"
@@ -37,26 +36,6 @@ class SessionsController < ApplicationController
     end
 
 
-    # username = params[:username]
-    # if username and user = User.find_by(username: username)
-    #   session[:user_id] = user.id
-    #   flash[:status] = :success
-    #   flash[:result_text] = "Successfully logged in as existing user #{user.username}"
-    # else
-    #   user = User.new(username: username)
-    #   if user.save
-    #     session[:user_id] = user.id
-    #     flash[:status] = :success
-    #     flash[:result_text] = "Successfully created new user #{user.username} with ID #{user.id}"
-    #   else
-    #     flash.now[:status] = :failure
-    #     flash.now[:result_text] = "Could not log in"
-    #     flash.now[:messages] = user.errors.messages
-    #     render "login_form", status: :bad_request
-    #     return
-    #   end
-    # end
-    # redirect_to root_path
   end
 
   def logout
