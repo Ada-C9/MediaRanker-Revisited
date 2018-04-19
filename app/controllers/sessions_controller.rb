@@ -1,5 +1,5 @@
 class SessionsController < ApplicationController
-  
+
   def login_form
   end
 
@@ -14,17 +14,18 @@ class SessionsController < ApplicationController
       if @user.nil?
         @user = User.build_from_github(auth_hash)
         successful_save = @user.save
-
         if successful_save
           flash[:success] = "Logged in successfully"
           session[:user_id] = @user.id
           redirect_to root_path
+
         else
           flash[:error] = "Some error happened in User creation"
           redirect_to root_path
         end
 
       else
+
         flash[:success] = "Logged in successfully"
         session[:user_id] = @user.id
         redirect_to root_path

@@ -3,9 +3,11 @@ Rails.application.routes.draw do
 
 
   root 'works#root'
-  
+
   get '/auth/:provider/callback', to: 'sessions#login'
   get '/auth/github', as: 'github_login'
+
+  
   get '/login', to: 'sessions#login_form', as: 'login'
   post '/login', to: 'sessions#login'
   post '/logout', to: 'sessions#logout', as: 'logout'
