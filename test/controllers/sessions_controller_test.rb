@@ -28,8 +28,8 @@ describe SessionsController do
       login(user)
 
       User.count.must_equal old_user_count + 1
-      # must_redirect_to root_path
-      # session[:user_id].must_equal User.last.id
+      must_redirect_to root_path
+      session[:user_id].must_equal User.last.id
     end
 
     it "does not log in with insufficient data and redirect to root path" do
@@ -46,7 +46,7 @@ describe SessionsController do
       login(user)
 
       User.count.must_equal old_user_count
-      # must_redirect_to root_path
+      must_redirect_to root_path
     end
 
   end
