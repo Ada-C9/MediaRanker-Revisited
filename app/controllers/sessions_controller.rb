@@ -19,7 +19,7 @@ class SessionsController < ApplicationController
         flash[:result_text] = "Successfully logged in as existing user #{@user.username}"
       end
       session[:user_id] = @user.id
-
+      
     else
       flash[:error] = "Could not log in"
     end
