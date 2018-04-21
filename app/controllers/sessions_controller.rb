@@ -14,24 +14,27 @@ class SessionsController < ApplicationController
         successful_save = @user.save
 
         if successful_save
-          flash[:success] = "Logged in successfully"
           session[:user_id] = @user.id
-          redirect_to root_path
+          flash[:status] = :success
+          flash[:result_text] = "Successfully created new user #{@user.username} with ID #{@user.id}"
         else
-          flash[:error] = "Some error happened in User creation"
-          redirect_to root_path
+          flash.now[:status] = :failure
+          flash.now[:result_text] = "Could not log in"
+          flash.now[:messages] = user.errors.messages
         end
-        
+
       else
-        flash[:success] = "Logged in successfully"
         session[:user_id] = @user.id
-        redirect_to root_path
+        flash[:status] = :success
+        flash[:result_text] = "Successfully logged in as existing user #{@user.username}"
       end
 
     else
-      flash[:error] = "Logging in through GitHub not successful"
-      redirect_to root_path
+      flash.now[:status] = :failure
+      flash[:result_text] = "Logging in through GitHub not successful"
     end
+
+    redirect_to root_path
 
     # username = params[:username]
     # if username and user = User.find_by(username: username)
