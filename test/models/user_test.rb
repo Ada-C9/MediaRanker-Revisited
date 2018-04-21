@@ -43,7 +43,6 @@ describe User do
       result.must_equal false
       user2.errors.messages.must_include :username
     end
-
-
   end
+  
 end

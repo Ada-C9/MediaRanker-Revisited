@@ -12,6 +12,7 @@ class SessionsController < ApplicationController
       flash[:status] = :success
       flash[:result_text] = "Successfully logged in as existing user #{@user.username}"
     else
+      # could only put block above if and below here in model bc can't put session in model, but not necessary
       @user = User.new(
         username: auth_hash[:info][:nickname],
         email: auth_hash[:info][:email],

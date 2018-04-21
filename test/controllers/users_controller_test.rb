@@ -1,5 +1,4 @@
-# require 'test_helper'
-#
-# describe UsersController do
-#
-# end
+require 'test_helper'
+
+describe UsersController do
+end

@@ -9,7 +9,7 @@ Rails.application.routes.draw do
 
   resources :users, only: [:index, :show]
 
-  get "/auth/:provider/callback", to: "sessions#login"
+  get '/auth/:provider/callback', to: 'sessions#login', as: 'auth_callback'
   delete '/logout', to: 'sessions#logout', as: 'logout'
 
 end
