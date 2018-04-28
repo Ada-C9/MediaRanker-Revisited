@@ -35,7 +35,7 @@ describe User do
         provider: "github")
 
       # This must go through, so we use create!
-      user1.save
+      user1.save!
 
       user2 = User.new(
         username: username,

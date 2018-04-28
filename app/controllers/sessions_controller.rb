@@ -21,8 +21,8 @@ class SessionsController < ApplicationController
           flash[:result_text] = "Successfully created new user #{@user.username} with ID #{@user.id}"
           redirect_to root_path
         else
-          # not saved successfully
 
+          # not saved successfully
           flash[:result_text] = "Could not log in"
           flash[:status] = :failure
           flash[:messages] = user.errors.messages
