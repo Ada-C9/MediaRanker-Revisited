@@ -50,7 +50,7 @@ class WorksController < ApplicationController
       flash.now[:status] = :failure
       flash.now[:result_text] = "Could not update #{@media_category.singularize}"
       flash.now[:messages] = @work.errors.messages
-      render :edit, status: :not_found
+      render :edit, status: :bad_request
     end
   end
 
@@ -63,8 +63,11 @@ class WorksController < ApplicationController
 
   def upvote
     flash[:status] = :failure
+
     if @login_user
+
       vote = Vote.new(user: @login_user, work: @work)
+
       if vote.save
         flash[:status] = :success
         flash[:result_text] = "Successfully upvoted!"
@@ -75,7 +78,6 @@ class WorksController < ApplicationController
     else
       flash[:result_text] = "You must log in to do that"
     end
-
     # Refresh the page to show either the updated vote count
     # or the error message
     redirect_back fallback_location: work_path(@work)
