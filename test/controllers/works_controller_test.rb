@@ -151,12 +151,10 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
-      ids = []
-      Work.all.each { |work| ids << work.id }
-      id = rand(1..400)
-      until !ids.include?(id)
-        id = rand(1..400)
-      end
+      work = works(:album)
+      id = work.id
+      work.destroy
+
       put work_path(id), params: {work: {title: "blah", category: "album"}}
 
       must_respond_with 404
@@ -202,8 +200,8 @@ describe WorksController do
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      post login_path, params: {username: users(:dan).username}
-
+      perform_login(users(:dan))
+       
       proc { post upvote_path(poodruby.id) }.must_change "Vote.count", 1
 
       must_respond_with :redirect
