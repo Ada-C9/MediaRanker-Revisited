@@ -259,7 +259,8 @@ describe WorksController do
 
     it "redirects to the work page after the user has logged out" do
       user = User.first
-      post login_path, params: {username: user.username}
+      login(user)
+
       post logout_path, params: {username: user.id}
 
       work = Work.first
@@ -278,7 +279,10 @@ describe WorksController do
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
       user = User.first
-      post login_path, params: {username: user.username}
+
+      login(user)
+
+      get works_path, params: {username: user.username}
 
       work = Work.first
       old_work_count = work.vote_count
@@ -296,7 +300,9 @@ describe WorksController do
 
     it "redirects to the work page if the user has already voted for that work" do
       user = User.first
-      post login_path, params: {username: user.username}
+      login(user)
+
+      get works_path, params: {username: user.username}
 
       work = Work.first
       old_work_count = work.vote_count
@@ -312,7 +318,7 @@ describe WorksController do
       work.vote_count.must_equal old_work_count + 1
 
       post upvote_path(work)
-      
+
       must_respond_with :redirect
       must_redirect_to work_path(work)
 
@@ -320,4 +326,64 @@ describe WorksController do
       work.vote_count.must_equal old_work_count + 1
     end
   end
+
+  # TODO: Maybe need to work on this later when we have the validations for geust users 
+  # describe 'guest user' do
+  #   it 'rejects requests for new book form' do
+  #     get new_book_path
+  #     must_respond_with :unauthorized
+  #   end
+  #
+  #   it 'rejects requests to post/create a book' do
+  #     # Arrange
+  #     book_data = {
+  #       title: 'controller test book',
+  #       author_id: Author.first.id
+  #     }
+  #     old_book_count = Book.count
+  #
+  #     # Assumption
+  #     Book.new(book_data).must_be :valid?
+  #
+  #     # Act
+  #     post books_path, params: { book: book_data }
+  #
+  #     must_respond_with :unauthorized
+  #     Book.count.must_equal old_book_count
+  #   end
+  #
+  #   it 'rejects requests for the edit form' do
+  #     get edit_book_path(Book.first)
+  #
+  #     must_respond_with :unauthorized
+  #   end
+  #
+  #   it 'rejects requests to update a book' do
+  #     # Arrange
+  #     book = Book.first
+  #     book_data = book.attributes
+  #     book_data[:title] = 'some updated title'
+  #
+  #     # Assumption
+  #     book.assign_attributes(book_data)
+  #     book.must_be :valid?
+  #
+  #     # Act
+  #     patch book_path(book), params: { book: book_data }
+  #
+  #     must_respond_with :unauthorized
+  #   end
+  #
+  #   it 'rejects requests to destroy a book' do
+  #     # Arrange
+  #     book_id = Book.first.id
+  #     old_book_count = Book.count
+  #
+  #     # Act
+  #     delete book_path(book_id)
+  #
+  #     Book.count.must_equal old_book_count
+  #     must_respond_with :unauthorized
+  #   end
+  # end
 end
