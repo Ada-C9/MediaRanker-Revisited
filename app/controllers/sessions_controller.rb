@@ -11,9 +11,9 @@ class SessionsController < ApplicationController
 
       if @user.nil?
 
-        @user = User.login(auth_hash)
+        @user = User.info_from_github(auth_hash)
 
-        if @user.id
+        if @user.save
 
           # saved successfully
           session[:user_id] = @user.id

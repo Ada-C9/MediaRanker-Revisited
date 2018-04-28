@@ -28,17 +28,41 @@ describe User do
 
     it "requires a unique username" do
       username = "test username"
-      user1 = User.new(username: username)
+      user1 = User.new(
+        username: username,
+        email: "test@ada.com",
+        uid: "124",
+        provider: "github")
 
       # This must go through, so we use create!
-      user1.save!
+      user1.save
 
-      user2 = User.new(username: username)
+      user2 = User.new(
+        username: username,
+        email: "test2@ada.com",
+        uid: "253",
+        provider: "github")
       result = user2.save
       result.must_equal false
       user2.errors.messages.must_include :username
     end
+  end
 
+  describe "info_from_github(auth_hash) method" do
+    it "builds user from auth_hash" do
+      auth_hash = {
+        info: { username: "test username",
+        email: "test@ada.com" },
+        uid: "124",
+        provider: "github"
+      }
+      user = User.info_from_github(auth_hash)
+
+      user.username.must_equal "test username"
+      user.email.must_equal "test@ada.com"
+      user.uid.must_equal 124
+      user.provider.must_equal "github"
+    end
 
   end
 end
