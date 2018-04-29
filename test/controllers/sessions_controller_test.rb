@@ -34,7 +34,7 @@ describe SessionsController do
       session[:user_id].must_equal new_user_id
     end
 
-    it "should raise error if given user data" do
+    it "should redirect to the root route if given user data" do
       bad_user = User.new(
         provider: 'foo',
       )
@@ -54,6 +54,7 @@ describe SessionsController do
       perform_logout(current_user)
 
       must_respond_with :redirect
+      must_redirect_to root_path
       session[:user_id].must_equal nil
     end
   end
