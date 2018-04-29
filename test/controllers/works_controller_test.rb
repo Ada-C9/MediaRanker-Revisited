@@ -15,9 +15,7 @@ describe WorksController do
 
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
-      Work.where(category: :movie).each do |movie|
-        movie.destroy
-      end
+      Work.where(category: :movie).destroy_all
       Work.where(category: :movie).must_be_empty
 
       get root_path
@@ -140,15 +138,40 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      work_id = Work.first.id
+      work_data = {
+        title: 'new title'
+      }
 
+      patch work_path(work_id), params: { work: work_data }
+
+      must_respond_with :redirect
+      must_redirect_to work_path(work_id)
+      Work.first.title.must_equal 'new title'
     end
 
-    it "renders bad_request for bogus data" do
+    it "renders not_found and does not update database for bogus data" do
+      work_id = Work.first.id
+      work_data = {
+        title: nil
+      }
 
+      patch work_path(work_id), params: { work: work_data }
+      must_respond_with :not_found
+      Work.first.title.wont_be_nil
     end
 
-    it "renders 404 not_found for a bogus work ID" do
+    it "renders 404 not_found and does not update DB for a bogus work ID" do
+      work_id = Work.last.id + 1
+      old_work_count = Work.count
+      work_data = {
+        title: 'new title'
+      }
 
+      patch work_path(work_id), params: { work: work_data }
+
+      must_respond_with :not_found
+      Work.count.must_equal old_work_count
     end
   end
 
@@ -166,7 +189,7 @@ describe WorksController do
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
-      work_id = Work.last.id +1
+      work_id = Work.last.id + 1
       old_work_count = Work.count
 
       delete work_path(work_id)
@@ -177,21 +200,21 @@ describe WorksController do
   end
 
   describe "upvote" do
-
-    it "redirects to the work page if no user is logged in" do
-
-    end
-
-    it "redirects to the work page after the user has logged out" do
-
-    end
-
-    it "succeeds for a logged-in user and a fresh user-vote pair" do
-
-    end
-
-    it "redirects to the work page if the user has already voted for that work" do
-
-    end
+    # it "redirects to the work page if no user is logged in" do
+    #   logout_path
+    #
+    # end
+    # SKIP
+    # it "redirects to the work page after the user has logged out" do
+    #   SKIP
+    # end
+    # SKIP
+    # it "succeeds for a logged-in user and a fresh user-vote pair" do
+    #   SKIP
+    # end
+    # SKIP
+    # it "redirects to the work page if the user has already voted for that work" do
+    #   SKIP
+    # end
   end
 end
