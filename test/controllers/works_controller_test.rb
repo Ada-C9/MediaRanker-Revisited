@@ -121,30 +121,78 @@ describe WorksController do
     end
   end
 
-  # describe "edit" do
-  #   it "succeeds for an extant work ID" do
-  #
-  #   end
-  #
-  #   it "renders 404 not_found for a bogus work ID" do
-  #
-  #   end
-  # end
-  #
-  # describe "update" do
-  #   it "succeeds for valid data and an extant work ID" do
-  #
-  #   end
-  #
-  #   it "renders bad_request for bogus data" do
-  #
-  #   end
-  #
-  #   it "renders 404 not_found for a bogus work ID" do
-  #
-  #   end
-  # end
-  #
+  describe "edit" do
+    it "succeeds for an extant work ID" do
+      get edit_work_path((works(:album)).id)
+      must_respond_with :success
+    end
+
+    it "renders 404 not_found for a bogus work ID" do
+      get edit_work_path(-1)
+      must_respond_with :missing
+    end
+  end
+
+  describe "update" do
+    it "succeeds for valid data and an extant work ID" do
+      work = works(:album)
+
+      proc  {
+        patch work_path(work.id) , params: { work:
+          {
+          title: "Beychella2",
+          creator: "Who Creates" ,
+          description: "This is an album" ,
+          publication_year: 2018-04-16 ,
+          category: "album"
+          }
+        }
+      }.must_change 'Work.count', 0
+
+      Work.find(work.id).title.must_equal "Beychella2"
+      must_respond_with :redirect
+      must_redirect_to work_path(work.id)
+    end
+
+    # changed this to missing because of controller action method status is a 404 not error
+    it "renders not_found for bogus data" do
+      work = works(:album)
+
+      proc  {
+        patch work_path(work.id) , params: { work:
+          {
+          title: nil,
+          creator: "Who Creates" ,
+          description: "This is an album" ,
+          publication_year: 2018-04-16 ,
+          category: "album"
+          }
+        }
+      }.must_change 'Work.count', 0
+
+      Work.find(work.id).title.must_equal "Old Title"
+
+      must_respond_with :missing
+    end
+
+    it "renders 404 not_found for a bogus work ID" do
+
+      proc  {
+        patch work_path(-1) , params: { work:
+          {
+          title: "Beychella_Forever",
+          creator: "Who Creates" ,
+          description: "This is an album" ,
+          publication_year: 2018-04-16 ,
+          category: "album"
+          }
+        }
+      }.must_change 'Work.count', 0
+
+      must_respond_with :missing
+    end
+  end
+
   # describe "destroy" do
   #   it "succeeds for an extant work ID" do
   #
