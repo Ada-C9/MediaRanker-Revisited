@@ -28,12 +28,12 @@ describe User do
 
     it "requires a unique username" do
       username = "test username"
-      user1 = User.new(username: username)
+      user1 = User.new(username: username, email: 'email@gmail.com', uid: 123456789, provider: 'github')
 
       # This must go through, so we use create!
       user1.save!
 
-      user2 = User.new(username: username)
+      user2 = User.new(username: username, email: 'newemail@gmail.com', uid: 202020202, provider: 'github')
       result = user2.save
       result.must_equal false
       user2.errors.messages.must_include :username
