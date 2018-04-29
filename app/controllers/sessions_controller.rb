@@ -13,11 +13,14 @@ class SessionsController < ApplicationController
       if user.save
         session[:user_id] = user.id
         flash[:status] = :success
+
         flash[:result_text] = "Successfully created new user #{user.username} with ID #{user.id}"
       else
+
         flash.now[:status] = :failure
         flash.now[:result_text] = "Could not log in"
         flash.now[:messages] = user.errors.messages
+
         render "login_form", status: :bad_request
         return
       end
