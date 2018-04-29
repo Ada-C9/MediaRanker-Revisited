@@ -1,5 +1,5 @@
 class SessionsController < ApplicationController
-
+require 'pry'
   def login_form
   end
 
@@ -9,7 +9,7 @@ class SessionsController < ApplicationController
 
     if auth_hash[:uid]
       @user = User.find_by(uid: auth_hash[:uid], provider: 'github')
-  
+
       if @user.nil?
         @user = User.build_from_github(auth_hash)
         successful_save = @user.save
@@ -17,7 +17,7 @@ class SessionsController < ApplicationController
           flash[:success] = "Logged in successfully"
           session[:user_id] = @user.id
           redirect_to root_path
-
+          binding.pry
         else
           flash[:error] = "Some error happened in User creation"
           redirect_to root_path
