@@ -16,11 +16,23 @@ describe SessionsController do
         provider: 'github',
         uid: 7654,
         email: 'dee@notreal.com',
-        username: 'dee',
+        username: 'dee'
       )
 
-      proc { perform_login(new_user) }.must_change 'User.count', 1
+      proc { perform_login(new_user) }.must_change "User.count", 1
 
+      must_respond_with :redirect
+      must_redirect_to root_path
+    end
+  end
+
+  describe 'logout' do
+    it 'successfully logs out current user' do
+      perform_login(users(:dan))
+
+      post logout_path
+
+      session["user_id"].must_be_nil
       must_respond_with :redirect
       must_redirect_to root_path
     end
