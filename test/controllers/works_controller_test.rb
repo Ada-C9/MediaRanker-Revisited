@@ -105,10 +105,10 @@ describe WorksController do
     it "renders bad_request and does not update the DB for bogus data" do
       # Arrange
       bad = {
-          creator:'You',
-          description: 'Chile',
-          publication_year: 1999-11-01,
-          category: 'book'
+        creator:'You',
+        description: 'Chile',
+        publication_year: 1999-11-01,
+        category: 'book'
       }
       old_work_count = Work.count
 
@@ -123,10 +123,10 @@ describe WorksController do
     it "renders 400 bad_request for bogus categories" do #for every category
       # Arrange
       bad = {
-          creator:'You',
-          description: 'Chile',
-          publication_year: 1999-11-01,
-          category: 'book'
+        creator:'You',
+        description: 'Chile',
+        publication_year: 1999-11-01,
+        category: 'book'
       }
       old_work_count = Work.count
 
@@ -175,17 +175,55 @@ describe WorksController do
     end
   end
 
+  # Update
+  # What should happen if the controller executes an update of something with valid data? with invalid data?
+  # Delete
+  # What should happen if the controller tries to delete an ID of a model that exists in the DB? that doesn't exist in the DB?
+
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      # Arrange
+      work = Work.first
+      work_data = work.attributes
+      work_data[:title] = "Deep Sleeper"
+
+      # Assumptions
+      work.assign_attributes(work_data)
+      work.must_be :valid?
+
+      # Act - send to instance in db w/ the right parameters
+      patch work_path(work), params: { work: work_data }
+
+      # Assert
+      must_redirect_to work_path(work)
+      work.reload
+      work.title.must_equal work_data[:title]
 
     end
 
     it "renders bad_request for bogus data" do
+      # Arrange - use a current entry & update w/ bad data??
+      work = Work.first
+      work_data = work.attributes
+      work_data[:title] = ""
+
+      # Assumptions
+      work.assign_attributes(work_data)
+      work.wont_be :valid?
+      # Act
+      patch work_path(work), params: { work: work_data }
+      # Assert
+      must_respond_with :bad_request
 
     end
 
     it "renders 404 not_found for a bogus work ID" do
-
+      # Arrange -
+      work_id = Work.last.id + 1
+      # Act
+      patch work_path(work_id)
+      # Assert
+      must_respond_with :not_found
     end
   end
 
@@ -200,16 +238,62 @@ describe WorksController do
   end
 
   describe "upvote" do
-
     it "redirects to the work page if no user is logged in" do
+      # Arrange -
+      work = Work.last
+      # Act - path
+      proc {
+        post upvote_path(work)
+      }.must_change 'Vote.count', 0
+
+      # Assert
+      must_redirect_to work_path(work)
 
     end
 
-    it "redirects to the work page after the user has logged out" do
+    it "redirects to the work page after the user has voted" do
+      # Arrange
+      work_data = Work.first.attributes
+      work_data[:id] = nil
+      work_data[:title] = "New Awesome Work"
+
+      work = Work.create(work_data)
+
+      user = User.first
+
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
+
+      get auth_callback_path(:github)
+
+      must_redirect_to root_path
+
+      session[:user_id].must_equal user.id
+
+      # Act
+      proc {
+        post upvote_path(work)
+      }.must_change 'Vote.count', 1
+
+      # Assert
+      must_redirect_to work_path(work)
 
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
+      # Arrange - user can vote if they haven't voted for work before
+      work = Work.first
+      user = User.first
+
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
+
+      get auth_callback_path(:github)
+      # Act - check assumptions?
+      proc {
+        post upvote_path(work)
+      }.must_change 'Vote.count', 1
+
+      # Assert
+      session[:user_id].must_equal user.id
 
     end
 

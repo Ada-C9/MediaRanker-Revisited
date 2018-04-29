@@ -47,3 +47,9 @@ ActiveRecord::Schema.define(version: 20180417203102) do
   add_foreign_key "votes", "users"
   add_foreign_key "votes", "works"
 end
+
+
+# TODO:
+  #   <div>
+  #   <%=render partial: "reviews/form", locals: { actions_name: "Save My Review"} %>
+  # </div>
