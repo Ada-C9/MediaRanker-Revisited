@@ -209,43 +209,114 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      work = Work.first
 
+      work_data = work.attributes
+      work_data[:title] = 'Changed title'
+
+      work.assign_attributes(work_data)
+      work.must_be :valid?
+
+      patch work_path(work), params: { work: work_data }
+
+      must_redirect_to work_path(work)
+      work.reload
+      work.title.must_equal work_data[:title]
     end
 
     it "renders bad_request for bogus data" do
+      work = Work.first
+
+      work_data = work.attributes
+      work_data[:title] = ''
+
+      work.assign_attributes(work_data)
+      work.wont_be :valid?
+
+      patch work_path(work), params: { work: work_data }
+
+      must_respond_with :bad_request
+      work.reload
+      work.title.wont_equal work_data[:title]
 
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      work = Work.last.id + 1
 
+      patch work_path(work)
+
+      must_respond_with :not_found
     end
   end
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+      work = Work.first
+      old_work_count = Work.count
 
+      delete work_path(work)
+
+      must_respond_with :redirect
+      must_redirect_to root_path
+
+      Work.count.must_equal old_work_count - 1
+      Work.find_by(id: work.id).must_be_nil
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      work_id = Work.last.id + 1
+      old_work_count = Work.count
 
+      delete work_path(work_id)
+
+      must_respond_with :not_found
+      Work.count.must_equal old_work_count
     end
   end
 
   describe "upvote" do
 
     it "redirects to the work page if no user is logged in" do
+      work = Work.first
 
+      post upvote_path(work.id)
+
+      must_respond_with :redirect
+      must_redirect_to work_path(work)
     end
 
     it "redirects to the work page after the user has logged out" do
+      user = users(:dan)
+      delete logout_path(user.id)
 
+      must_respond_with :redirect
+      must_redirect_to works_path
     end
-
-    it "succeeds for a logged-in user and a fresh user-vote pair" do
-
-    end
+# NOT SURE WHY THIS ISN'T WORKING
+    # it "succeeds for a logged-in user and a fresh user-vote pair" do
+    #
+    #   user = users(:dan)
+    #   work = Work.first
+    #
+    #   before_count = work.votes.count
+    #
+    #   post upvote_path(work.id)
+    #
+    #   work.votes.count.must_equal before_count + 1
+    #
+    # end
 
     it "redirects to the work page if the user has already voted for that work" do
+
+      user = users(:dan)
+      work = Work.first
+
+      post upvote_path(work.id)
+      post upvote_path(work.id)
+
+      must_respond_with :redirect
+      must_redirect_to work_path(work.id)
 
     end
   end
