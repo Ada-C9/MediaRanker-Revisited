@@ -2,6 +2,12 @@
 
 dan:
   username: dan
+  oauth_provider: github
+  oauth_uid: 12345
+  email: dan@email.com
 
 kari:
   username: kari
+  oauth_provider: github
+  oauth_uid: 13371337
+  email: kari@kari.com
