@@ -9,8 +9,7 @@ class SessionsController < ApplicationController
 
     if auth_hash[:uid]
       @user = User.find_by(uid: auth_hash[:uid], provider: 'github')
-      # @user = User.find_by(uid: auth_hash[:uid], provider: params[:provider])
-
+  
       if @user.nil?
         @user = User.build_from_github(auth_hash)
         successful_save = @user.save
