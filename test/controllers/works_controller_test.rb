@@ -3,16 +3,26 @@ require 'test_helper'
 describe WorksController do
   describe "root" do
     it "succeeds with all media types" do
-      works = []
+
+      works << Work.find_by_category("album")
+      works << Work.find_by_category("book")
+      works << Work.find_by_category("movie")
+      works.include?(nil).must_equal false
+
       get root_path
       must_respond_with :success
     end
 
-    # it "succeeds with one media type absent" do
-    #   # Precondition: there is at least one media in two of the categories
-    #
-    # end
-    #
+    it "succeeds with one media type absent" do
+      Work.find_by_category("album").nil?.must_equal false
+      Work.find_by_category("book").nil?.must_equal false
+      Work.destroy_all(category: "movie")
+      Work.find_by_category("movie").nil?.must_equal true
+
+      get root_path
+      must_respond_with :success
+    end
+
     it "succeeds with no media" do
       Work.destroy_all
       Work.all.count.must_equal 0
