@@ -109,16 +109,18 @@ describe WorksController do
 
   end
 
-  # describe "show" do
-  #   it "succeeds for an extant work ID" do
-  #
-  #   end
-  #
-  #   it "renders 404 not_found for a bogus work ID" do
-  #
-  #   end
-  # end
-  #
+  describe "show" do
+    it "succeeds for an extant work ID" do
+      get work_path(works(:album))
+      must_respond_with :success
+    end
+
+    it "renders 404 not_found for a bogus work ID" do
+      get work_path(-1)
+      must_respond_with :missing
+    end
+  end
+
   # describe "edit" do
   #   it "succeeds for an extant work ID" do
   #
