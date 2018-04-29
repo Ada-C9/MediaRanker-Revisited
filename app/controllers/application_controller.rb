@@ -14,4 +14,12 @@ private
       @login_user = User.find_by(id: session[:user_id])
     end
   end
+
+  def require_login
+    if @login_user.nil?
+      flash[:status] = :failure
+      flash[:result_text] = "You must be logged in to view this section"
+      redirect_to github_login_path
+    end
+  end
 end
