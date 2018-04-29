@@ -61,22 +61,54 @@ describe WorksController do
       must_respond_with :success
     end
   end
-  #
-  # describe "create" do
-  #   it "creates a work with valid data for a real category" do
-  #
-  #   end
-  #
-  #   it "renders bad_request and does not update the DB for bogus data" do
-  #
-  #   end
-  #
-  #   it "renders 400 bad_request for bogus categories" do
-  #
-  #   end
-  #
-  # end
-  #
+
+  describe "create" do
+    it "creates a work with valid data for a real category" do
+      proc  {
+        post works_path, params: { work:
+          {
+            title:  "Beychella" ,
+            creator: "Who Creates" ,
+            description: "This is an album" ,
+            publication_year: 2018-04-16 ,
+            category: "album"
+          }
+        }
+      }.must_change 'Work.count', 1
+    end
+
+    it "renders bad_request and does not update the DB for bogus data" do
+      proc  {
+        post works_path, params: { work:
+          {
+            title:  nil ,
+            creator: "Who Creates" ,
+            description: "This is an album" ,
+            publication_year: 2018-04-16 ,
+            category: "album"
+          }
+        }
+      }.must_change 'Work.count', 0
+      must_respond_with :bad_request
+    end
+
+    it "renders 400 bad_request for bogus categories" do
+      proc  {
+        post works_path, params: { work:
+          {
+            title:  "valid title" ,
+            creator: "valid autor" ,
+            description: "This is an album" ,
+            publication_year: 2018-04-16 ,
+            category: "nope"
+          }
+        }
+      }.must_change 'Work.count', 0
+      must_respond_with :bad_request
+    end
+
+  end
+
   # describe "show" do
   #   it "succeeds for an extant work ID" do
   #
