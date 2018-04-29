@@ -12,9 +12,10 @@ describe SessionsController do
 
       must_respond_with :redirect
       must_redirect_to root_path
+      session[:user_id].must_equal existing_user.id
     end
 
-    it "should create a new user and redirect to the root route given valid user data" do
+    it "should create a new user and redirect to the root route if given valid user data" do
       new_user = User.new(
         provider: 'github',
         uid: 999,
@@ -26,11 +27,14 @@ describe SessionsController do
         perform_login(new_user)
       }.must_change 'User.count', 1
 
+      new_user_id = User.all.find_by(uid: 999).id
+
       must_respond_with :redirect
       must_redirect_to root_path
+      session[:user_id].must_equal new_user_id
     end
 
-    it "should respond with error given bogus user data" do
+    it "should raise error if given user data" do
       bad_user = User.new(
         provider: 'foo',
       )
@@ -50,8 +54,7 @@ describe SessionsController do
       perform_logout(current_user)
 
       must_respond_with :redirect
-      # DEBUG
-      # must_redirect_to root_path
+      session[:user_id].must_equal nil
     end
   end
 end
