@@ -165,66 +165,82 @@ describe WorksController do
       work.title.must_equal work_data[:title]
     end
 
-      # it "renders bad_request for bogus data" do
-      #   work = Work.first
-      #   work_data = work.attributes
-      #   work_data[:title] = ""
-      #
-      #   # Assumptions
-      #   work.assign_attributes(work_data)
-      #   work.wont_be :valid?
-      #
-      #   # Act
-      #   patch work_path(work), params: { work: work_data }
-      #
-      # end
+    it "renders bad_request for bogus data" do
+      work = Work.last
+      work_data = work.attributes
+      work_data[:title] = ''
 
-      it "renders 404 not_found for a bogus work ID" do
-        work = Work.last
-        id = Work.last.id + 10
-        work_data = work.attributes
-        work_data[:id] = id
-        binding.pry
 
-        # Assumptions
-        work.assign_attributes(work_data)
-        work.wont_be :valid?
+      # Assumptions
+      work.assign_attributes(work_data)
+      work.wont_be :valid?
 
-        # Act
-        patch work_path(work), params: { work: work_data }
+      # Act
+      patch work_path(work), params: { work: work_data }
 
-        # Assert
-        must_respond_with :not_found
-      end
+      # Assert
+      must_respond_with :not_found
+
+    end
+
+    # it "renders 404 not_found for a bogus work ID" do
+    #   work = Work.last.id
+    #
+    #   work_data = work.attributes
+    #   work_data[:id] = id
+    #
+    #
+    #
+    #   # Assumptions
+    #   work.assign_attributes(work_data)
+    #   work.wont_be :valid?
+    #
+    #   # Act
+    #   patch work_path(work), params: { work: work_data }
+    #
+    #   # Assert
+    #   must_respond_with :bad_request
+    # end
+  end
+
+
+  #
+  describe "destroy" do
+    it "succeeds for an extant work ID" do
+
+      delete work_path(Work.first)
+      must_redirect_to root_path
+
+
+    end
+
+    it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      work_id = Work.last.id + 1
+
+      get work_path(work_id)
+
+      must_respond_with :not_found
+    end
   end
 end
+  describe "upvote" do
 
-#
-# describe "destroy" do
-#   it "succeeds for an extant work ID" do
-#
-#   end
-#
-#   it "renders 404 not_found and does not update the DB for a bogus work ID" do
-#
-#   end
-# end
-#
-# describe "upvote" do
-#
-#   it "redirects to the work page if no user is logged in" do
-#
-#   end
-#
-#   it "redirects to the work page after the user has logged out" do
-#
-#   end
-#
-#   it "succeeds for a logged-in user and a fresh user-vote pair" do
-#
-#   end
-#
-#   it "redirects to the work page if the user has already voted for that work" do
-#
-#   end
-# end
+    # it "redirects to the work page if no user is logged in" do
+    #   post upvote_path(User.first.id)
+    # must_redirect_to root_path
+    #
+    # end
+
+#     it "redirects to the work page after the user has logged out" do
+# post logout_path
+# must_redirect_to work_path
+#     end
+
+    it "succeeds for a logged-in user and a fresh user-vote pair" do
+
+    end
+
+    it "redirects to the work page if the user has already voted for that work" do
+
+    end
+  end
