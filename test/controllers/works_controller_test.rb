@@ -14,11 +14,9 @@ describe WorksController do
     # end
     #
     it "succeeds with no media" do
-      works = Work.all
-
-      works.each {|work| delete work_path(work.id)}
-
+      Work.destroy_all
       Work.all.count.must_equal 0
+
       get root_path
       must_respond_with :success
     end
