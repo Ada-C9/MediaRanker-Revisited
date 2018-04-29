@@ -32,18 +32,22 @@ describe WorksController do
     end
   end
 
-  # CATEGORIES = %w(albums books movies)
-  # INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
-  #
-  # describe "index" do
-  #   it "succeeds when there are works" do
-  #
-  #   end
-  #
-  #   it "succeeds when there are no works" do
-  #
-  #   end
-  # end
+  CATEGORIES = %w(albums books movies)
+  INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
+
+  describe "index" do
+    it "succeeds when there are works" do
+
+    end
+
+    it "succeeds when there are no works" do
+      Work.destroy_all
+      Work.all.count.must_equal 0
+
+      get works_path
+      must_respond_with :success
+    end
+  end
   #
   # describe "new" do
   #   it "succeeds" do
