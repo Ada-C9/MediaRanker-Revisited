@@ -54,12 +54,13 @@ describe WorksController do
       must_respond_with :success
     end
   end
-  #
-  # describe "new" do
-  #   it "succeeds" do
-  #
-  #   end
-  # end
+
+  describe "new" do
+    it "succeeds" do
+      get new_work_path
+      must_respond_with :success
+    end
+  end
   #
   # describe "create" do
   #   it "creates a work with valid data for a real category" do
