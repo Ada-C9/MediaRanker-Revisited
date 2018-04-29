@@ -229,11 +229,29 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+      # Arrange
+      work = Work.last
 
+      # Act
+      proc {
+        delete work_path(work)
+      }.must_change 'Work.count', -1
+
+      # Assert
+      must_redirect_to root_path
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      # Arrange
+      work = Work.last.id + 1
 
+      # Act
+      proc {
+        delete work_path(work)
+      }.must_change 'Work.count', 0
+
+      # Assert
+      must_respond_with :not_found
     end
   end
 
@@ -292,13 +310,25 @@ describe WorksController do
         post upvote_path(work)
       }.must_change 'Vote.count', 1
 
-      # Assert
+      # Assert - need to render same page?
       session[:user_id].must_equal user.id
-
     end
 
     it "redirects to the work page if the user has already voted for that work" do
+      # Arrange
+      work = Work.last
+      user = User.first
 
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
+
+      get auth_callback_path(:github)
+      # Act
+      proc {
+        post upvote_path(work)
+      }.must_change 'Vote.count', 0
+      # Assert
+      must_redirect_to work_path(work)
+      # must_respond_with :failure
     end
   end
 end
