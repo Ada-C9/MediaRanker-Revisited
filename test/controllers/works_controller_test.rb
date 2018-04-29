@@ -17,7 +17,7 @@ describe WorksController do
       Work.find_by_category("album").nil?.must_equal false
       Work.find_by_category("book").nil?.must_equal false
       Work.destroy_all(category: "movie")
-      Work.find_by_category("movie").nil?.must_equal true
+      Work.find_by_category("movie").must_equal nil
 
       get root_path
       must_respond_with :success
@@ -176,7 +176,6 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
-
       proc  {
         patch work_path(-1) , params: { work:
           {
@@ -193,16 +192,27 @@ describe WorksController do
     end
   end
 
-  # describe "destroy" do
-  #   it "succeeds for an extant work ID" do
-  #
-  #   end
-  #
-  #   it "renders 404 not_found and does not update the DB for a bogus work ID" do
-  #
-  #   end
-  # end
-  #
+  describe "destroy" do
+    it "succeeds for an extant work ID" do
+      work = works(:album)
+      proc  {
+        delete work_path(work.id)
+      }.must_change 'Work.count', -1
+
+      Work.find_by(id: work.id).must_equal nil
+      must_respond_with :redirect
+      must_redirect_to :root
+    end
+
+    it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      proc  {
+        delete work_path(-1)
+      }.must_change 'Work.count', 0
+
+      must_respond_with :missing
+    end
+  end
+
   # describe "upvote" do
   #
   #   it "redirects to the work page if no user is logged in" do
