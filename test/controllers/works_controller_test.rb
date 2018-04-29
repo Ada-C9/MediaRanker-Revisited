@@ -37,7 +37,13 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      works << Work.find_by_category("album")
+      works << Work.find_by_category("book")
+      works << Work.find_by_category("movie")
+      works.include?(nil).must_equal false
 
+      get works_path
+      must_respond_with :success
     end
 
     it "succeeds when there are no works" do
