@@ -11,7 +11,6 @@ describe SessionsController do
     end
 
     it "should login an existing user and redirect to root path" do
-      # start_count = User.count
       proc { perform_login(users(:dan)) }.wont_change 'User.count'
 
       must_respond_with :redirect
@@ -20,7 +19,7 @@ describe SessionsController do
     end
 
      it "should successfully create a new user and login" do
-       # start_count = User.count
+      
         chris = User.new(
          provider: 'github',
          uid: 99999,

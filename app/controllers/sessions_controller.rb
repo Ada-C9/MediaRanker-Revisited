@@ -17,7 +17,6 @@ require 'pry'
           flash[:success] = "Logged in successfully"
           session[:user_id] = @user.id
           redirect_to root_path
-          binding.pry
         else
           flash[:error] = "Some error happened in User creation"
           redirect_to root_path
