@@ -1,39 +1,69 @@
 require 'test_helper'
 
 describe UsersController do
-  describe "index" do
-    it "succeeds when there are users" do
-      get users_path
 
-      must_respond_with :success
+  describe "Logged in users" do
+    before do
+      @user = users(:ada)
     end
 
-    it "succeeds when there are no users" do
-      User.all.each do |user|
-        user.votes.each do |vote|
-          vote.destroy
-        end
-        user.destroy
+    describe "index" do
+      it "succeeds when there are users" do
+        perform_login(@user)
+
+        get users_path
+
+        must_respond_with :success
+      end
+    end
+
+    describe "show" do
+      it "succeeds for an extant user ID" do
+        perform_login(@user)
+
+        get user_path(users(:ada).id)
+
+        must_respond_with :success
       end
 
-      get users_path
+      it "renders 404 not_found for a bogus user ID" do
+        perform_login(@user)
 
-      User.all.count.must_equal 0
-      must_respond_with :success
+        get user_path("foo")
+
+        must_respond_with :not_found
+      end
     end
   end
 
-  describe "show" do
-    it "succeeds for an extant user ID" do
-      get user_path(users(:dan).id)
+  describe "Guest users" do
+    describe "index" do
+      it "cannot access index" do
+        get users_path
 
-      must_respond_with :success
+        must_respond_with :redirect
+        must_redirect_to root_path
+        flash[:result_text].must_equal "You must be logged in to view this section"
+      end
     end
 
-    it "renders 404 not_found for a bogus user ID" do
-      get user_path("foo")
+    describe "show" do
+      it "cannot access show for an extant user ID" do
+        get user_path(users(:ada).id)
 
-      must_respond_with :missing
+        must_respond_with :redirect
+        must_redirect_to root_path
+        flash[:result_text].must_equal "You must be logged in to view this section"
+      end
+
+      it "cannot access show for a bogus user ID" do
+        get user_path("foo")
+
+        must_respond_with :redirect
+        must_redirect_to root_path
+        flash[:result_text].must_equal "You must be logged in to view this section"
+      end
     end
   end
+
 end

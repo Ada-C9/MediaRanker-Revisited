@@ -19,7 +19,7 @@ private
     if @login_user.nil?
       flash[:status] = :failure
       flash[:result_text] = "You must be logged in to view this section"
-      redirect_to github_login_path
+      redirect_to root_path
     end
   end
 end
