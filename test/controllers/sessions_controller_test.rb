@@ -1,46 +1,35 @@
 require "test_helper"
 
 describe SessionsController do
-  describe "login_form" do
-    it "succeeds in rendering the login form" do
-      get login_path
-      must_respond_with :success
-    end
-  end
 
-  describe "login" do
-    it "responds with found for with a valid new or returning user name" do
-      post login_path, params: { username: "new user"}
-      must_respond_with :found
+  describe "auth_callback" do
+    it "logs in an existing user and redirects to the root route" do
+      start_count = User.count
+      user = users(:ada)
+
+      login(user)
+
+      get auth_callback_path(:github)
       must_redirect_to root_path
+      session[:user_id].must_equal user.id
+
+      User.count.must_equal start_count
     end
 
-    it "does not add new user to db if the user is exists already" do
-      proc {
-        post login_path, params: { username: "kari"}
-      }.must_change 'User.count', 0
-      must_respond_with :found
-    end
+    it "creates a new user" do
+      start_count = User.count
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
 
-    it "adds new user to the db" do
-      proc {
-        post login_path, params: { username: "new user"}
-      }.must_change 'User.count', 1
-      must_respond_with :found
-    end
+      login(user)
 
-    it "repsonds with bad_request when no user name is given" do
-      post login_path, params: { username: nil }
-      must_respond_with :bad_request
-    end
-  end
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
+      get auth_callback_path(:github)
 
-  describe "logout" do
-    it "suceeds in logging out user" do
-      post login_path, params: { username: "new user"}
-      post logout_path
-      must_respond_with :found
       must_redirect_to root_path
+
+      User.count.must_equal start_count + 1
+      session[:user_id].must_equal User.last.id
     end
   end
+
 end
