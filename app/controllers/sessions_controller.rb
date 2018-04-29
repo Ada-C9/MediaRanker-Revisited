@@ -2,9 +2,9 @@ class SessionsController < ApplicationController
   before_action :require_login
   skip_before_action :require_login, only: [:login]
 
-  def login_form
-    @user = User.new
-  end
+  # def login_form
+  #   @user = User.new
+  # end
 
   def login
     auth_hash = request.env['omniauth.auth']
