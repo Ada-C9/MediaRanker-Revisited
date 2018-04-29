@@ -92,8 +92,12 @@ describe WorksController do
           }
         }.must_change 'Work.count', 1
 
+        work_id = Work.find_by(title: "New work").id
+
+        flash[:status].must_equal :success
+        flash[:result_text].must_equal "Successfully created album #{work_id}"
         must_respond_with :redirect
-        must_redirect_to work_path(Work.find_by(title: "New work"))
+        must_redirect_to work_path(work_id)
       end
 
       it "renders bad_request and does not update the DB for bogus data" do
@@ -102,12 +106,14 @@ describe WorksController do
         proc {
           post works_path, params: {
             work: {
-              title: "New work"
+              category: "album"
             }
           }
         }.must_change 'Work.count', 0
 
-        must_respond_with :error
+        flash.now[:status].must_equal :failure
+        flash.now[:result_text].must_equal "Could not create album"
+        must_respond_with :bad_request
       end
 
       it "renders 400 bad_request for bogus categories" do
@@ -122,26 +128,27 @@ describe WorksController do
           }
         }.must_change 'Work.count', 0
 
-        must_respond_with 400
+        flash.now[:status].must_equal :failure
+        flash.now[:result_text].must_equal "Could not create foo"
+        must_respond_with :bad_request
       end
     end
 
     describe "show" do
-      # DEBUG
-      # it "succeeds for an extant work ID" do
-      #   perform_login(@user)
-      #
-      #   get work_path(works(:album).id)
-      #
-      #   must_respond_with :success
-      # end
+      it "succeeds for an extant work ID" do
+        perform_login(@user)
+
+        get work_path(works(:poodr).id)
+
+        must_respond_with :success
+      end
 
       it "renders 404 not_found for a bogus work ID" do
         perform_login(@user)
 
         get work_path("foo")
 
-        must_respond_with 404
+        must_respond_with :not_found
       end
     end
 
@@ -159,23 +166,22 @@ describe WorksController do
 
         get edit_work_path("foo")
 
-        must_respond_with 404
+        must_respond_with :not_found
       end
     end
 
     describe "update" do
       it "succeeds for valid data and an extant work ID" do
         perform_login(@user)
-        updated_title = "Some Title"
 
         put work_path(works(:album).id), params: {
           work: {
-            title: updated_title
+            title: "Some Title"
           }
         }
 
-        updated_work = Work.find(works(:album).id)
-        updated_work.title.must_equal updated_title
+        flash[:status].must_equal :success
+        flash[:result_text].must_equal "Successfully updated album #{works(:album).id}"
         must_respond_with :redirect
         must_redirect_to work_path(works(:album).id)
       end
@@ -184,11 +190,14 @@ describe WorksController do
         perform_login(@user)
 
         put work_path(works(:album).id), params: {
-          foo: "foo"
+          work: {
+            category: "foo"
+          }
         }
 
-        # TODO: double check
-        must_respond_with 400
+        flash.now[:status].must_equal :failure
+        flash.now[:result_text].must_equal "Could not update album"
+        must_respond_with :not_found
       end
 
       it "renders 404 not_found for a bogus work ID" do
@@ -196,7 +205,7 @@ describe WorksController do
 
         put work_path("foo")
 
-        must_respond_with 404
+        must_respond_with :not_found
       end
     end
 
@@ -223,44 +232,29 @@ describe WorksController do
       end
     end
 
-    # describe "upvote" do
-    #
-    #   it "redirects to the work page if no user is logged in" do
-    #     @login_user = nil
-    #
-    #     post upvote_path(works(:album).id)
-    #
-    #     must_respond_with :redirect
-    #     must_redirect_to work_path(works(:album).id)
-    #   end
-    #
-    #   it "redirects to the work page after the user has logged out" do
-    #     @login_user = nil
-    #
-    #     post upvote_path(works(:album).id)
-    #
-    #     must_respond_with :redirect
-    #     must_redirect_to work_path(works(:album).id)
-    #   end
-    #
-    #   it "succeeds for a logged-in user and a fresh user-vote pair" do
-    #     @login_user = users(:dan)
-    #
-    #     post upvote_path(works(:poodr).id)
-    #
-    #     must_respond_with :redirect
-    #     must_redirect_to work_path(works(:poodr).id)
-    #   end
-    #
-    #   it "redirects to the work page if the user has already voted for that work" do
-    #     @login_user = users(:dan)
-    #
-    #     post upvote_path(works(:album).id)
-    #
-    #     must_respond_with :redirect
-    #     must_redirect_to work_path(works(:album).id)
-    #   end
-    # end
+    describe "upvote" do
+      it "succeeds for a logged-in user and a fresh user-vote pair" do
+        perform_login(@user)
+
+        post upvote_path(works(:poodr).id)
+
+        flash[:status].must_equal :success
+        flash[:result_text].must_equal "Successfully upvoted!"
+        must_respond_with :redirect
+        must_redirect_to work_path(works(:poodr).id)
+      end
+
+      it "redirects to the work page if the user has already voted for that work" do
+        perform_login(@user)
+
+        post upvote_path(works(:album).id)
+
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "Could not upvote"
+        must_respond_with :redirect
+        must_redirect_to work_path(works(:album).id)
+      end
+    end
 
   end
 
@@ -302,9 +296,10 @@ describe WorksController do
       it "cannot access index" do
         get works_path
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
     end
 
@@ -312,9 +307,10 @@ describe WorksController do
       it "cannot access new" do
         get new_work_path
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
     end
 
@@ -327,9 +323,10 @@ describe WorksController do
           }
         }
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
     end
 
@@ -337,17 +334,19 @@ describe WorksController do
       it "cannot access show for an extant work ID" do
         get work_path(works(:album).id)
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
 
       it "cannot access show for a bogus work ID" do
         get work_path("foo")
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
     end
 
@@ -355,51 +354,56 @@ describe WorksController do
       it "cannot access edit for an extant work ID" do
         get edit_work_path(works(:album).id)
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
 
       it "cannot access edit for a bogus work ID" do
         get edit_work_path("foo")
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
     end
 
     describe "update" do
       it "cannot access update for valid data and an extant work ID" do
-        updated_title = "Some Title"
-
         put work_path(works(:album).id), params: {
           work: {
-            title: updated_title
+            title: "Some Title"
           }
         }
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
 
       it "cannot access update for bogus data" do
         put work_path(works(:album).id), params: {
-          foo: "foo"
+          work: {
+            category: "foo"
+          }
         }
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
 
       it "cannot access update for a bogus work ID" do
         put work_path("foo")
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
     end
 
@@ -407,23 +411,44 @@ describe WorksController do
       it "cannot access destroy for an extant work ID" do
         delete work_path(works(:album).id)
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
 
       it "cannot access destroy for a bogus work ID" do
         delete work_path("foo")
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
     end
 
     describe "upvote" do
+      it "redirects to the work page if no user is logged in" do
+        post upvote_path(works(:album).id)
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
+
+      it "redirects to the work page after the user has logged out" do
+        perform_login(users(:ada))
+        perform_logout(users(:ada))
+
+        post upvote_path(works(:album).id)
+
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
     end
-
+    
   end
 end

@@ -41,9 +41,10 @@ describe UsersController do
       it "cannot access index" do
         get users_path
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
     end
 
@@ -51,17 +52,19 @@ describe UsersController do
       it "cannot access show for an extant user ID" do
         get user_path(users(:ada).id)
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
 
       it "cannot access show for a bogus user ID" do
         get user_path("foo")
 
+        flash[:status].must_equal :failure
+        flash[:result_text].must_equal "You must be logged in to view this section"
         must_respond_with :redirect
         must_redirect_to root_path
-        flash[:result_text].must_equal "You must be logged in to view this section"
       end
     end
   end
