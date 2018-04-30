@@ -9,7 +9,7 @@ describe SessionsController do
       perform_login(existing_user)
 
       must_redirect_to root_path
-      User.count.must_equal before
+      User.count.must_equal before_count
     end
 
     it "should create a new user and redirect to the root route" do
