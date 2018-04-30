@@ -234,8 +234,10 @@ describe WorksController do
     it "succeeds for a logged-in user and a fresh user-vote pair" do
       work = Work.first
       user = User.first
-      post login_path, params: {username: user.username}
+      Vote.destroy_all
 
+      login(user)
+      
       post upvote_path(work)
       flash[:status].must_equal :success
       must_redirect_to work_path(work)
