@@ -1,5 +1,5 @@
 class SessionsController < ApplicationController
-  skip_before_action :require_login, only: [:oath_login, :login_form, :login]
+  skip_before_action :require_login, only: [:oauth_login, :login_form, :login]
   def login_form
   end
 

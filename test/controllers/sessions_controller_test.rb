@@ -1,6 +1,37 @@
 require "test_helper"
 
 describe SessionsController do
+  describe "auth_callback" do
+    it "logs in an existing user and redirects to the root route" do
+      start_count = User.count
+      existing_user = users(:ada)
+
+      perform_login(existing_user)
+
+      must_respond_with :redirect
+      must_redirect_to root_path
+
+      session[:user_id].must_equal existing_user.id
+      User.count.must_equal start_count
+    end
+
+    it "should create a new user and redirect to the root route" do
+      new_user = User.new(
+        provider: "github",
+        uid: 9990,
+        username: "Test User",
+        email: "test@test.com"
+      )
+
+      proc {
+        perform_login(new_user)
+      }.must_change "User.count", 1
+
+      must_respond_with :redirect
+      must_redirect_to root_path
+    end
+  end
+  
   describe "login" do
     it "succeeds with new user" do
       proc {

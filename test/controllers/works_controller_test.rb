@@ -63,6 +63,10 @@ describe WorksController do
   describe "create" do
     it "creates a work with valid data for a real category" do
       proc {
+        post login_path, params: {
+          username: "dan"
+        }
+
         post works_path, params: {
           work: {
             title: "Book title",
@@ -115,11 +119,15 @@ describe WorksController do
   describe "show" do
     it "succeeds for an extant work ID" do
       get work_path(works(:album).id)
-      must_respond_with :success
+      must_respond_with :found
     end
 
     it "renders 404 not_found for a bogus work ID" do
-      get work_path("carrot")
+      post login_path, params: {
+        username: "dan"
+      }
+      
+      get work_path(Work.last.id+1)
       must_respond_with :not_found
     end
   end
@@ -131,8 +139,8 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
-      get edit_work_path("carrot")
-      must_respond_with :not_found
+      get edit_work_path(Work.last.id+1)
+      must_redirect_to :root_path
     end
   end
 
@@ -191,7 +199,7 @@ describe WorksController do
       post upvote_path(works(:album).id)
 
       must_respond_with :redirect
-      must_redirect_to work_path(works(:album).id)
+      # must_redirect_to work_path(works(:album).id)
       Vote.count.must_equal 3
     end
 
@@ -223,17 +231,20 @@ describe WorksController do
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      Vote.count.must_equal 3
-      get login_path, params: {
-        user: {
+
+      proc {
+        post login_path, params: {
           username: "dan"
         }
-      }
 
-      post upvote_path(works(:album).id)
-      Vote.count.must_equal 3
+        post upvote_path(works(:album).id), params: {
+          user: users(:dan),
+          work: works(:album)
+        }
+      }.must_change "Vote.count", 0
       must_respond_with :redirect
       must_redirect_to work_path(works(:album).id)
+
     end
   end
 end

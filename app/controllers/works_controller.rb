@@ -35,7 +35,11 @@ class WorksController < ApplicationController
   end
 
   def show
-    @votes = @work.votes.order(created_at: :desc)
+    if @work
+      @votes = @work.votes.order(created_at: :desc)
+    else
+      render_404
+    end
   end
 
   def edit
