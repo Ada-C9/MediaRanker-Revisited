@@ -155,8 +155,7 @@ describe WorksController do
           title: "updated_title"
         }
       }
-      #updated_work = Work.find(works(:album).id)
-      #updated_work.title.must_equal updated_title
+      
       must_respond_with :redirect
       must_redirect_to work_path(works(:album).id)
     end
