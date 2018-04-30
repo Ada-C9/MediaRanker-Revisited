@@ -7,6 +7,7 @@ describe WorksController do
       works << Work.find_by_category("album")
       works << Work.find_by_category("book")
       works << Work.find_by_category("movie")
+
       works.include?(nil).must_equal false
 
       get root_path
@@ -16,6 +17,7 @@ describe WorksController do
     it "succeeds with one media type absent" do
       Work.find_by_category("album").nil?.must_equal false
       Work.find_by_category("book").nil?.must_equal false
+
       Work.destroy_all(category: "movie")
       Work.find_by_category("movie").must_equal nil
 
@@ -40,6 +42,7 @@ describe WorksController do
       works << Work.find_by_category("album")
       works << Work.find_by_category("book")
       works << Work.find_by_category("movie")
+
       works.include?(nil).must_equal false
 
       get works_path
@@ -89,6 +92,7 @@ describe WorksController do
           }
         }
       }.must_change 'Work.count', 0
+
       must_respond_with :bad_request
     end
 
@@ -104,6 +108,7 @@ describe WorksController do
           }
         }
       }.must_change 'Work.count', 0
+
       must_respond_with :bad_request
     end
 
@@ -135,6 +140,7 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+
       work = works(:album)
 
       proc  {
@@ -150,6 +156,7 @@ describe WorksController do
       }.must_change 'Work.count', 0
 
       Work.find(work.id).title.must_equal "Beychella2"
+
       must_respond_with :redirect
       must_redirect_to work_path(work.id)
     end
@@ -194,12 +201,15 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+
       work = works(:album)
+
       proc  {
         delete work_path(work.id)
       }.must_change 'Work.count', -1
 
       Work.find_by(id: work.id).must_equal nil
+
       must_respond_with :redirect
       must_redirect_to :root
     end
@@ -226,25 +236,28 @@ describe WorksController do
     end
 
     it "redirects to the work page after the user has logged out" do
-      post login_path, params: { username: users(:dan) }
-
       work = works(:album)
+
+      post login_path, params: { username: users(:dan) }
       post logout_path
+
       session[:user_id].nil?.must_equal true
 
       post upvote_path(work.id)
+
       must_respond_with :redirect
       must_redirect_to work_path(work.id)
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      post login_path, params: { username: users(:kari) }
-
       work = works(:another_album)
+
+      post login_path, params: { username: users(:kari) }
 
       proc {
         post upvote_path(work.id)
       }.must_change 'Vote.count', 1
+      
       must_respond_with :redirect
       must_redirect_to work_path(work.id)
     end
