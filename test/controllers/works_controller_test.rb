@@ -73,26 +73,65 @@ describe WorksController do
 
   describe "create" do
     it "creates a work with valid data for a real category" do
+      work_data = {
+        title: "test title",
+        category: CATEGORIES.sample
+      }
+      old_count = Work.count
 
+      post works_path, params: { work: work_data }
+
+      must_respond_with :redirect
+      Work.count.must_equal old_count + 1
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
+      work_data = {
+        title: "",
+        category: CATEGORIES.sample
+      }
+      old_count = Work.count
+      work = Work.new(work_data)
+      work.valid?.must_equal false
 
+      post works_path, params: { work: work_data }
+
+      must_respond_with :bad_request
+      Work.count.must_equal old_count
     end
 
     it "renders 400 bad_request for bogus categories" do
+      work_data = {
+        title: "testing bad request",
+        category: INVALID_CATEGORIES.sample
+      }
+      old_count = Work.count
+      work = Work.new(work_data)
+      work.valid?.must_equal false
 
+      post works_path, params: { work: work_data }
+
+      must_respond_with :bad_request
+      Work.count.must_equal old_count
     end
 
   end
 
   describe "show" do
     it "succeeds for an extant work ID" do
+      work_id = Work.first.id
 
+      get work_path(work_id)
+
+      must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      work_id = Work.last.id + 1
 
+      get work_path(work_id)
+
+      must_respond_with :not_found
     end
   end
 
