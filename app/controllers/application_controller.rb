@@ -8,6 +8,12 @@ class ApplicationController < ActionController::Base
     raise ActionController::RoutingError.new('Not Found')
   end
 
+  def require_login
+    @user = User.find_by(id: session[:user_id])
+    head :unauthorized unless @user
+  end
+
+
 private
   def find_user
     if session[:user_id]

@@ -10,21 +10,25 @@ class SessionsController < ApplicationController
       if @user.nil?
         # User doesn't match anything in the DB
         # Attempt to create a new user
-        @user = User.new(
-          username: auth_hash['info']['name'],
-          email: auth_hash['info']['email'],
-          uid: auth_hash['uid'],
-          provider: auth_hash['provider'])
-
-      else
+        # @user = User.new(
+        #   username: auth_hash['info']['name'],
+        #   email: auth_hash['info']['email'],
+        #   uid: auth_hash['uid'],
+        #   provider: auth_hash['provider'])
+        user = User.build_from_github(auth_hash)
+        if @user.save
+        session[:user_id] = @user.id
         flash[:success] = "Logged in successfully"
         redirect_to root_path
-      end
-
+        else
+        flash[:error] = "Could not log in"
+        redirect_to root_path
+        end
+      else
       session[:user_id] = @user.id
-    else
       flash[:error] = "Could not log in"
       redirect_to root_path
+      end
     end
   end
 
