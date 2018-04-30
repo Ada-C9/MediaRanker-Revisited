@@ -5,6 +5,7 @@ dan:
   # provider: github
   # uid: 12349
   # email: ada@adadevelopersacademy.org
+  id: 766
 
 
 kari:
@@ -12,6 +13,7 @@ kari:
   # provider: github
   # uid: 12348
   # email: ada@adadevelopersacademy.org
+  id: 767
 
 
 ada:
@@ -19,9 +21,11 @@ ada:
   # uid: 12345
   # email: ada@adadevelopersacademy.org
   username: countess_ada
+  id: 760
 
 grace:
   # provider: github
   # uid: 13371337
   # email: grace@hooper.net
   username: graceful_hoops
+  id: 769
