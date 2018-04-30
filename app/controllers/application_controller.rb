@@ -15,8 +15,14 @@ class ApplicationController < ActionController::Base
       @login_user = User.find_by(id: session[:user_id])
     end
   end
+
   def require_login
     @user = User.find_by(id: session[:user_id])
-    head :unauthorized unless @user
-  end 
+    # head :unauthorized unless @user
+    redirect_to root_path unless @user
+    if !@user
+      flash[:status] = :failure
+      flash[:result_text] = "You must login first"
+    end
+  end
 end

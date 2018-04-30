@@ -25,13 +25,6 @@ describe SessionsController do
       session[:user_id].must_equal user.id
     end
 
-    it "does not log in with insufficient data" do
-
-    end
-
-    it "does not log in if the user data is invalid" do
-
-    end
 
   end
 end
