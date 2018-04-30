@@ -213,22 +213,55 @@ describe WorksController do
     end
   end
 
-  # describe "upvote" do
-  #
-  #   it "redirects to the work page if no user is logged in" do
-  #
-  #   end
-  #
-  #   it "redirects to the work page after the user has logged out" do
-  #
-  #   end
-  #
-  #   it "succeeds for a logged-in user and a fresh user-vote pair" do
-  #
-  #   end
-  #
-  #   it "redirects to the work page if the user has already voted for that work" do
-  #
-  #   end
-  # end
+  describe "upvote" do
+
+    it "redirects to the work page if no user is logged in" do
+      # should I do a logout and check session to ensure no user is logged in?
+      work = works(:album)
+      # post logout_path
+      # session[:user_id].nil?.must_equal true
+      post upvote_path(work.id)
+      must_respond_with :redirect
+      must_redirect_to work_path(work.id)
+    end
+
+    it "redirects to the work page after the user has logged out" do
+      post login_path, params: { username: users(:dan) }
+
+      work = works(:album)
+      post logout_path
+      session[:user_id].nil?.must_equal true
+
+      post upvote_path(work.id)
+      must_respond_with :redirect
+      must_redirect_to work_path(work.id)
+    end
+
+    it "succeeds for a logged-in user and a fresh user-vote pair" do
+      post login_path, params: { username: users(:kari) }
+
+      work = works(:another_album)
+
+      proc {
+        post upvote_path(work.id)
+      }.must_change 'Vote.count', 1
+      must_respond_with :redirect
+      must_redirect_to work_path(work.id)
+    end
+
+    it "redirects to the work page if the user has already voted for that work" do
+      user = users(:dan)
+      work = works(:album)
+
+      post login_path, params: { username: user.username }
+
+      Vote.where(:user_id => (user.id)).where(:work_id => (work.id)).nil?.must_equal false
+
+      proc {
+        post upvote_path(work.id)
+      }.must_change 'Vote.count', 0
+      must_respond_with :redirect
+      must_redirect_to work_path(work.id)
+    end
+  end
 end
