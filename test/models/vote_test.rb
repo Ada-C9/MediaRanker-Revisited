@@ -1,9 +1,11 @@
 require 'test_helper'
+require 'pry'
 
 describe Vote do
   describe "relations" do
     it "has a user" do
       v = votes(:one)
+      v.user = users(:ada)
       v.must_respond_to :user
       v.user.must_be_kind_of User
     end
@@ -16,8 +18,8 @@ describe Vote do
   end
 
   describe "validations" do
-    let (:user1) { User.new(username: 'chris') }
-    let (:user2) { User.new(username: 'chris') }
+    let (:user1) { User.new(name: 'chris', uid: 1, provider: "github") }
+    let (:user2) { User.new(name: 'chris', uid: 2, provider: "github") }
     let (:work1) { Work.new(category: 'book', title: 'House of Leaves') }
     let (:work2) { Work.new(category: 'book', title: 'For Whom the Bell Tolls') }
 
