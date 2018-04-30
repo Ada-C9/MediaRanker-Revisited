@@ -180,7 +180,7 @@ describe WorksController do
 
   describe "upvote" do
 
-    it "redirects to the work page if no user is logged in" do
+    it "redirects to the root page if no user is logged in" do
       login_user = nil
       vote = Vote.new(user: login_user, work: Work.first)
 
@@ -189,11 +189,11 @@ describe WorksController do
       vote.wont_be :valid?
 
       must_respond_with :redirect
-      must_redirect_to work_path
+      must_redirect_to root_path
 
     end
 
-    it "redirects to the work page after the user has logged out" do
+    it "redirects to the root page after the user has logged out" do
       login_user = User.last
       post logout_path(login_user)
       must_respond_with :redirect

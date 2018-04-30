@@ -1,16 +1,22 @@
 class SessionsController < ApplicationController
 
+  skip_before_action :require_login
 
-  def create
+  def login
     auth_hash = request.env['omniauth.auth']
 
     if auth_hash[:uid]
-      @user = User.find_by(uid: auth_hash[:uid], provider: 'github')
-      if @user.nil?
-        @user = User.login(auth_hash)
+      user = User.find_by(uid: auth_hash[:uid], provider: 'github')
+      if user.nil?
+        # User doesn't match anything in the DB
+        # Attempt to create a new user
+        user = User.build_login(auth_hash)
       end
-      session[:user_id] = @user.id
-      flash[:success] = "User #{@user.username} successfully logged in"
+
+      # If we get here, we have the user instance
+      session[:user_id] = user.id
+      flash[:status] = :success
+      flash[:result_text] = "Logged in successfully"
       redirect_to root_path
     else
       flash[:status] = :failure
@@ -21,11 +27,10 @@ class SessionsController < ApplicationController
   end
 
   def logout
-    if session[:user_id]
-      session.delete(:user_id)
-      flash[:result_text] = "Successfully logged out"
-      redirect_to root_path
-    end
+    session[:user_id] = nil
+    flash[:status] = :success
+    flash[:result_text] = "Successfully logged out"
+    redirect_to root_path
   end
 
 end
