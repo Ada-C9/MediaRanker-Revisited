@@ -58,6 +58,8 @@ group :test do
   gem 'minitest-reporters'
   gem 'minitest-spec-rails'
   gem 'minitest-skip'
+  gem 'simplecov'
+  gem 'simplecov-console'
 end
 
 group :development do
