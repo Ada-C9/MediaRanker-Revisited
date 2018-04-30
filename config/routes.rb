@@ -4,6 +4,7 @@ Rails.application.routes.draw do
 
   get '/auth/:provider/callback', to: 'sessions#login', as: 'auth_callback'
   get '/auth/github', as: 'github_login'
+  get '/auth/google_oauth2', as: 'google_login'
 
   # get '/login', to: 'sessions#login_form', as: 'login_form'
   # post '/login', to: 'sessions#login', as: 'login'
