@@ -27,14 +27,17 @@ describe WorksController do
       get root_path
 
       must_respond_with :success
-
     end
 
-    it "succeeds with no media" do
+    it "succeeds with one media type absent" do
+      # Precondition: there is at least one media in two of the categories
 
-      @albums = []
-      @books = []
-      @movies = []
+      movies = Work.where(category: 'movie')
+      movies.each do |movie|
+        movie.delete
+      end
+
+      Work.where(category: 'movie').length.must_be :<, 1
 
       get root_path
 
@@ -62,7 +65,20 @@ describe WorksController do
       get works_path
 
       must_respond_with :success
+    end
 
+    it "succeeds with one media type absent" do
+
+      movies = Work.where(category: 'movie')
+      movies.each do |movie|
+        movie.delete
+      end
+
+      Work.where(category: 'movie').length.must_be :<, 1
+
+      get works_path
+
+      must_respond_with :success
     end
   end
 
@@ -233,16 +249,16 @@ describe WorksController do
       must_redirect_to work_path(work)
 
       ending_vote_count.must_equal starting_vote_count
-
     end
   #
   #   it "redirects to the work page after the user has logged out" do
   #
   #   end
   #
-  #   it "succeeds for a logged-in user and a fresh user-vote pair" do
-  #
-  #   end
+    it "succeeds for a logged-in user and a fresh user-vote pair" do
+
+
+    end
   #
   #   it "redirects to the work page if the user has already voted for that work" do
   #
