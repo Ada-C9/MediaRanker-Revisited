@@ -2,7 +2,7 @@ require "test_helper"
 
 describe SessionsController do
 
-  describe 'auth_callback' do
+  describe "login via auth_callback_path" do
     it 'creates a db entry for a new user' do
       new_user = User.new (
         {
@@ -15,21 +15,20 @@ describe SessionsController do
       new_user.must_be :valid?
       old_user_count = User.count
 
-
-      ########### HERE ##########
-      # in test helper, not controller
+      # call mock path in test helper
       login(new_user)
-      # goes to path, goes to login in controller
+      # go to path and call login function in controller
       get auth_callback_path(:github)
 
       User.count.must_equal old_user_count + 1
       # must use User.last.id bc new_user is a local variable and doesn't have an id
       session[:user_id].must_equal User.last.id
 
-      # Did it redirect?
+      must_respond_with :redirect
+      must_redirect_to root_path
     end
 
-    it 'logs in an existing user' do
+    it "logs in an existing user" do
       user = User.first
       old_user_count = User.count
 
@@ -38,11 +37,14 @@ describe SessionsController do
 
       User.count.must_equal old_user_count
       session[:user_id].must_equal user.id
+
+      must_respond_with :redirect
+      must_redirect_to root_path
     end
 
     # first if statement doesn't get hit
     # for ex, auth hash doesn't include uid bc something is wrong w/ github
-    it 'does not login when user cant be found' do
+    it "doesn't login when user can't be found" do
       user = User.first
       user.uid = nil
 
@@ -55,11 +57,59 @@ describe SessionsController do
       User.count.must_equal old_user_count
       session[:user_id].wont_equal user.id
     end
+  end
 
-    # ADD TESTS FOR logout
-    # try to logout but no one logged in
-    # logged out then login`
+  describe "logout" do
+    before do
+      @kari = users(:kari)
+    end
 
+    it "logs out an authenticated user" do
+      login(@kari)
+      get auth_callback_path(:github)
+      must_respond_with :redirect
+
+      delete logout_path
+      must_respond_with :redirect
+    end
+
+    it "can login then logout then login again" do
+      # login
+      login(@kari)
+      get auth_callback_path(:github)
+      must_respond_with :redirect
+
+      # logout
+      delete logout_path
+      must_respond_with :redirect
+
+      # login again
+      login(@kari)
+      get auth_callback_path(:github)
+      must_respond_with :redirect
+    end
+
+    it "can login then logout then login as a different user" do
+      # login
+      login(@kari)
+      get auth_callback_path(:github)
+      must_respond_with :redirect
+
+      # logout
+      delete logout_path
+      must_respond_with :redirect
+
+      dan = users(:dan)
+      # login again
+      login(dan)
+      get auth_callback_path(:github)
+      must_respond_with :redirect
+    end
+
+    it "works even if no one's actually logged in" do
+      delete logout_path
+      must_respond_with :redirect
+    end
   end
 
 end
