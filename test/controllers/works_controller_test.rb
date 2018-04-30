@@ -1,6 +1,7 @@
 require 'test_helper'
 
 describe WorksController do
+
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
@@ -33,6 +34,8 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      user = users(:kari)
+      login(user)
       Work.count.must_be :>, 0
 
       get works_path
@@ -40,6 +43,8 @@ describe WorksController do
     end
 
     it "succeeds when there are no works" do
+      user = users(:kari)
+      login(user)
       Work.destroy_all
       get works_path
       must_respond_with :success
@@ -48,6 +53,8 @@ describe WorksController do
 
   describe "new" do
     it "succeeds" do
+      user = users(:kari)
+      login(user)
       get new_work_path
       must_respond_with :success
     end
@@ -58,7 +65,8 @@ describe WorksController do
       work_data = { title: "Valid Work", category: "album"}
 
       old_work_count = Work.count
-
+      user = users(:kari)
+      login(user)
       Work.new(work_data).must_be :valid?
 
       post works_path, params: { work: work_data }
@@ -70,6 +78,8 @@ describe WorksController do
       old_work_count = Work.count
 
       work_data = { title: "", category: "not a category" }
+      user = users(:kari)
+      login(user)
       Work.new(work_data).wont_be :valid?
 
       post works_path, params: { work: work_data }
@@ -79,7 +89,8 @@ describe WorksController do
 
     it "renders 400 bad_request for bogus categories" do
       old_work_count = Work.count
-
+      user = users(:kari)
+      login(user)
       work_data = { title: "A Title", category: "not a category" }
       Work.new(work_data).wont_be :valid?
 
@@ -93,6 +104,8 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an extant work ID" do
+      user = users(:kari)
+      login(user)
       votes = Work.first.votes.order(created_at: :desc)
 
       get work_path(Work.first)
@@ -100,6 +113,8 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      user = users(:kari)
+      login(user)
       bogus_work_id = Work.last.id + 1
       get work_path(bogus_work_id)
       must_respond_with 404
@@ -109,12 +124,16 @@ describe WorksController do
 
   describe "edit" do
     it "succeeds for an extant work ID" do
+      user = users(:kari)
+      login(user)
       work_id = Work.first
       get edit_work_path(work_id)
       must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      user = users(:kari)
+      login(user)
       bogus_work_id = Work.last.id + 1
       get edit_work_path(bogus_work_id)
       must_respond_with :not_found
@@ -124,6 +143,8 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      user = users(:kari)
+      login(user)
       work = Work.first
       work_data = Work.first.attributes
       work_data[:title] = "New Valid Title"
@@ -138,6 +159,8 @@ describe WorksController do
     end
 
     it "renders not_found for bogus data" do
+      user = users(:kari)
+      login(user)
       work = Work.first
       work_data = Work.first.attributes
       work_data[:title] = ""
@@ -151,6 +174,8 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      user = users(:kari)
+      login(user)
       work_id = Work.last.id + 1
       patch work_path(work_id)
       must_respond_with :not_found
@@ -160,6 +185,8 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+      user = users(:kari)
+      login(user)
       work_id = Work.first.id
       old_count = Work.count
 
@@ -173,6 +200,8 @@ describe WorksController do
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      user = users(:kari)
+      login(user)
       work_id = Work.last.id + 1
       old_count = Work.count
       delete work_path(work_id)
@@ -231,7 +260,8 @@ describe WorksController do
 
     it "redirects to the work page if the user has already voted for that work" do
       user = User.first
-      @login_user = user
+      login(user)
+
       work = Work.first
       puts "vote count original: #{Vote.count}"
 
