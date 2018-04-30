@@ -4,7 +4,8 @@ Rails.application.routes.draw do
   # get '/login', to: 'sessions#login_form', as: 'login'
   # post '/login', to: 'sessions#login'
   post '/logout', to: 'sessions#logout', as: 'logout'
-  get "/auth/:provider/callback", to: "sessions#login"
+  get "/auth/:provider/callback", to: "sessions#login", as: "auth_callback"
+  get "auth/github", as: "github_login"
 
   resources :works
   post '/works/:id/upvote', to: 'works#upvote', as: 'upvote'
