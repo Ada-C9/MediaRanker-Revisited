@@ -11,7 +11,7 @@ class WorksController < ApplicationController
   end
 
   def index
-    @works_by_category = Work.to_category_hash
+      @works_by_category = Work.to_category_hash
   end
 
   def new
