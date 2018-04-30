@@ -44,8 +44,17 @@ describe UsersController do
     end
 
     describe "guest user" do
-      it "cannot access index" do
+      it "cannot access show with valid user ID" do
         user_id = User.first.id
+
+        get user_path(user_id)
+        must_respond_with :redirect
+        must_redirect_to root_path
+        flash[:result_text].must_equal "You must log in to do that"
+      end
+
+      it "cannot access show with bogus user ID" do
+        user_id = User.last.id + 1
 
         get user_path(user_id)
         must_respond_with :redirect
