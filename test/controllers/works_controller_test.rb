@@ -237,8 +237,9 @@ describe WorksController do
 
     it "redirects to the work page after the user has logged out" do
       work = works(:album)
+      user = users(:dan)
 
-      post login_path, params: { username: users(:dan) }
+      post login_path, params: { username: user.username }
       post logout_path
 
       session[:user_id].nil?.must_equal true
@@ -251,13 +252,14 @@ describe WorksController do
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
       work = works(:another_album)
+      user = users(:kari)
 
-      post login_path, params: { username: users(:kari) }
+      post login_path, params: { username: user.username }
 
       proc {
         post upvote_path(work.id)
       }.must_change 'Vote.count', 1
-      
+
       must_respond_with :redirect
       must_redirect_to work_path(work.id)
     end
