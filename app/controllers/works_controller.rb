@@ -2,7 +2,6 @@ class WorksController < ApplicationController
   before_action :category_from_work, except: [:root, :index, :new, :create]
 
   before_action :require_login, except:[:root]
-
   def root
     @albums = Work.best_albums
     @books = Work.best_books
@@ -62,10 +61,10 @@ class WorksController < ApplicationController
   end
 
   def upvote
+
     flash[:status] = :failure
 
     if @login_user
-
       vote = Vote.new(user: @login_user, work: @work)
 
       if vote.save

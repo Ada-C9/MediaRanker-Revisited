@@ -10,13 +10,15 @@ class ApplicationController < ActionController::Base
 
   def require_login
     if session[:user_id].nil?
+      flash[:status] = :failure
+      flash.now[:result_text] = "Please log in for access to the entire site."
       redirect_to root_path
     end
   end
 
 private
   def find_user
-    if @user
+    if @user.nil?
       @login_user = User.find_by(id: session[:user_id])
     end
   end
