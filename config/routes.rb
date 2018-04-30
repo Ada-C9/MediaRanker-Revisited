@@ -6,7 +6,9 @@ Rails.application.routes.draw do
 
   get '/login', to: 'sessions#login_form', as: 'login'
   post '/login', to: 'sessions#login'
-  post '/logout', to: 'sessions#logout', as: 'logout'
+
+  delete "/logout", to: "sessions#destroy", as: "logout"
+
 
   resources :works
   post '/works/:id/upvote', to: 'works#upvote', as: 'upvote'
