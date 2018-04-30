@@ -9,7 +9,7 @@ class ApplicationController < ActionController::Base
   end
 
   def require_login
-    if @user.nil?
+    if @login_user.nil?
       redirect_to github_login_path
     end
   end
