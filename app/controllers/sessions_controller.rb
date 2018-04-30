@@ -1,8 +1,6 @@
 class SessionsController < ApplicationController
-require 'pry'
-  def login_form
-  end
-
+  require 'pry'
+  before_action :require_login, except: [:root, :login]
 
   def login
     auth_hash = request.env['omniauth.auth']
@@ -19,7 +17,7 @@ require 'pry'
           redirect_to root_path
         else
           flash[:error] = "Some error happened in User creation"
-          redirect_to root_path
+          redirect_back fallback_location: auth_callback_path
         end
 
       else
@@ -31,10 +29,8 @@ require 'pry'
 
     else
       flash[:error] = "Logging in through GitHub not successful"
-      redirect_to root_path
+      redirect_back fallback_location: auth_callback_path
     end
-
-
   end
 
   def logout

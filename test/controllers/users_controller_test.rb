@@ -26,11 +26,14 @@ describe UsersController do
 
   describe "show" do
     it "succeeds for an existant user id " do
+      perform_login(users(:kari))
       get user_path(users(:kari).id)
       must_respond_with :success
     end
 
-    it "renders 404 not_found for a bogus user id" do
+    it "renders 404 not_found for a bogus work id" do
+
+
       get user_path("chris")
       must_respond_with 404
     end

@@ -3,8 +3,6 @@ require "test_helper"
 describe SessionsController do
   let(:dan) {users(:dan)}
 
-
-
   describe "login" do
     before do
       start_count = User.count
@@ -19,7 +17,7 @@ describe SessionsController do
     end
 
      it "should successfully create a new user and login" do
-      
+
         chris = User.new(
          provider: 'github',
          uid: 99999,
@@ -32,5 +30,16 @@ describe SessionsController do
        must_redirect_to root_path
        session[:user_id].must_equal User.last.id
      end
+  end
+
+  describe "logout" do
+    it "successfully logouts current users" do
+      perform_login(users(:dan))
+      post logout_path
+      session["user_id"].must_be_nil
+      must_respond_with :redirect
+      must_redirect_to root_path
+      
+    end
   end
 end
