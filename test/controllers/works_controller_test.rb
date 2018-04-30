@@ -261,7 +261,7 @@ describe WorksController do
       user = User.first
       login(user)
 
-      post logout_path, params: {username: user.id}
+      delete logout_path, params: {username: user.id}
 
       work = Work.first
       old_work_count = work.vote_count
@@ -327,7 +327,7 @@ describe WorksController do
     end
   end
 
-  # TODO: Maybe need to work on this later when we have the validations for geust users 
+  # TODO: Maybe need to work on this later when we have the validations for geust users
   # describe 'guest user' do
   #   it 'rejects requests for new book form' do
   #     get new_book_path
