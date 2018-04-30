@@ -44,6 +44,12 @@ class ActiveSupport::TestCase
 
   def login(user)
     OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
+    get auth_callback_path(:github)
+  end
+
+  def logout(user)
+    OmniAuth.config.mock_auth[:github] = nil
+    delete logout_path
   end
 
 end
