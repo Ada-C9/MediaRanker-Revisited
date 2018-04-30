@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'pry'
 
 describe WorksController do
   let(:album) { works(:album) }
@@ -67,7 +68,6 @@ describe WorksController do
             }
           }
         }.must_change 'Work.count', 1
-
         must_respond_with :redirect
         new_work = Work.find_by(title: title)
         must_redirect_to work_path(new_work)
@@ -112,7 +112,7 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
-      get edit_work_path("bogus book")
+      get edit_work_path(678678687678)
       must_respond_with :missing
     end
   end
@@ -129,6 +129,7 @@ describe WorksController do
       updated_work = Work.find(album.id)
       updated_work.title.must_equal updated_title
       must_respond_with :redirect
+      must_redirect_to work_path(album.id)
     end
 
     it "renders not_found for bogus data" do
@@ -162,6 +163,7 @@ describe WorksController do
       }.must_change 'Work.count', -1
 
       must_respond_with :redirect
+      must_redirect_to root_path
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
@@ -179,13 +181,26 @@ describe WorksController do
       post login_path, params: {username: "dan"}
     end
 
+    def perform_logout
+      post logout_path, params: {username: "dan"}
+    end
+
     it "redirects to the work page if no user is logged in" do
-      post upvote_path(album)
+      proc {
+        post upvote_path(album)
+      }.must_change 'Vote.count', 0
       must_respond_with :redirect
+      must_redirect_to work_path(album.id)
     end
 
     it "redirects to the work page after the user has logged out" do
-
+      perform_login
+      perform_logout
+      proc {
+        post upvote_path(album)
+      }.must_change 'Vote.count', 0
+      must_respond_with :redirect
+      must_redirect_to work_path(album.id)
 
     end
 
