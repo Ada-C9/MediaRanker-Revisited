@@ -16,7 +16,21 @@ describe SessionsController do
     end
 
     it "creates a new user if one does not already exist" do
+      old_user_count = User.count
 
+      user = User.new(
+        provider: "github",
+        uid: 333333,
+        username: "anne_test",
+        email: "anne@anne.com"
+      )
+
+      login(user)
+
+      must_redirect_to root_path
+
+      User.count.must_equal old_user_count + 1
+      session[:user_id].must_equal User.last.id
     end
   end
 end
