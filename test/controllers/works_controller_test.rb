@@ -272,4 +272,21 @@ describe WorksController do
       must_redirect_to work_path(@work)
     end
   end
+
+  describe "guest users" do
+    it "can access the 'view to media' page" do
+    end
+
+    it "cannot access the 'view all media' page" do
+    end
+
+    it "cannot access the 'add a new work' page" do
+    end
+
+    it "cannot access the 'view all users' page" do
+    end
+  end
+
+  describe "logged in users" do
+  end
 end
