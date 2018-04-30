@@ -19,7 +19,11 @@ class WorksController < ApplicationController
   end
 
   def new
-    @work = Work.new
+    if @login_user.nil?
+      render_404
+    else
+      @work = Work.new
+    end
   end
 
   def create
@@ -38,10 +42,17 @@ class WorksController < ApplicationController
   end
 
   def show
-    @votes = @work.votes.order(created_at: :desc)
+    if @login_user.nil?
+      render_404
+    else
+      @votes = @work.votes.order(created_at: :desc)
+    end
   end
 
   def edit
+    if @login_user.nil?
+      render_404
+    end
   end
 
   def update
