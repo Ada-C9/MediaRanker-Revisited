@@ -171,7 +171,8 @@ describe WorksController do
     end
 
     it "redirects to the work page after the user has logged out" do
-      post login_path, params: { username: users(:kari).username }
+      user = users(:kari)
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
       post logout_path, params: { username: users(:kari).username }
       post upvote_path(works(:movie).id), params: {
         vote: { user: users(:kari), work: works(:movie).id }
@@ -183,10 +184,11 @@ describe WorksController do
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      session[:user_id] = users(:kari).id
+      user = users(:kari)
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
       # post login_path, params: { username: users(:kari).username }
       post upvote_path(works(:movie).id), params: {
-        vote: { user: users(:kari), work: works(:movie) }
+        vote: { user: user, work: works(:movie) }
       }
 
       must_redirect_to work_path(works(:movie))
@@ -194,7 +196,8 @@ describe WorksController do
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      post login_path, params: { username: users(:kari).username }
+      user = users(:kari)
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
       2.times do
         post upvote_path(works(:movie).id), params: {
           vote: { user: users(:kari), work: works(:movie) }
