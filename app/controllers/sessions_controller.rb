@@ -22,7 +22,7 @@ class SessionsController < ApplicationController
   end
 
   def successful_login
-    session[:user_id] = @user.id
+    @user = User.find(session[:user_id])
     flash[:success] = "Logged in successfully"
     redirect_to root_path
   end

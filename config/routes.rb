@@ -3,16 +3,18 @@ Rails.application.routes.draw do
   root 'works#root'
   # get '/login', to: 'sessions#login_form', as: 'login'
   # post '/login', to: 'sessions#login'
-  get '/login', to: 'sessions#new', as: 'login'
-  get "/auth/:provider/callback", to: "sessions#create"
-  post '/logout', to: 'sessions#logout', as: 'logout'
-
-  delete "/logout", to: "sessions#destroy", as: "logout"
 
   resources :works
   post '/works/:id/upvote', to: 'works#upvote', as: 'upvote'
 
   resources :users, only: [:index, :show]
 
+  get '/login', to: 'sessions#new', as: 'login'
+
+  post '/logout', to: 'sessions#logout', as: 'logout'
+
+  delete "/logout", to: "sessions#destroy", as: "logout"
+
+  get "/auth/:provider", to "sessions#login"
   get "/auth/:provider/callback", to: "sessions#create"
 end
