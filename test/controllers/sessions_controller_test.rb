@@ -57,6 +57,27 @@ describe SessionsController do
       User.count.must_equal old_user_count
       session[:user_id].wont_equal user.id
     end
+
+    it "can login even if another user is logged in as well" do
+      kari = users(:kari)
+      dan = users(:dan)
+
+      # login as kari
+      login(kari)
+      get auth_callback_path(:github)
+      session[:user_id].must_equal kari.id
+
+      must_respond_with :redirect
+      must_redirect_to root_path
+
+      # login as dan
+      login(dan)
+      get auth_callback_path(:github)
+      session[:user_id].must_equal dan.id
+
+      must_respond_with :redirect
+      must_redirect_to root_path
+    end
   end
 
   describe "logout" do
@@ -68,9 +89,11 @@ describe SessionsController do
       login(@kari)
       get auth_callback_path(:github)
       must_respond_with :redirect
+      must_redirect_to root_path
 
       delete logout_path
       must_respond_with :redirect
+      must_redirect_to root_path
     end
 
     it "can login then logout then login again" do
@@ -78,37 +101,44 @@ describe SessionsController do
       login(@kari)
       get auth_callback_path(:github)
       must_respond_with :redirect
+      must_redirect_to root_path
 
       # logout
       delete logout_path
       must_respond_with :redirect
+      must_redirect_to root_path
 
       # login again
       login(@kari)
       get auth_callback_path(:github)
       must_respond_with :redirect
+      must_redirect_to root_path
     end
 
     it "can login then logout then login as a different user" do
-      # login
+      # login kari
       login(@kari)
       get auth_callback_path(:github)
       must_respond_with :redirect
+      must_redirect_to root_path
 
-      # logout
+      # logout kari
       delete logout_path
       must_respond_with :redirect
+      must_redirect_to root_path
 
       dan = users(:dan)
-      # login again
+      # login dan
       login(dan)
       get auth_callback_path(:github)
       must_respond_with :redirect
+      must_redirect_to root_path
     end
 
     it "works even if no one's actually logged in" do
       delete logout_path
       must_respond_with :redirect
+      must_redirect_to root_path
     end
   end
 
