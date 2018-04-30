@@ -4,7 +4,7 @@ describe WorksController do
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
-      work = Work.find_by(category: "book")
+      work = Work.find_by(category: "work")
       work.must_be :valid?
       work = Work.find_by(category: "movie")
       work.must_be :valid?
@@ -16,11 +16,11 @@ describe WorksController do
 
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
-      works = Work.where(category: "book")
+      works = Work.where(category: "work")
       works.each do |work|
         work.destroy
       end
-      Work.where(category: "book").must_be :empty?
+      Work.where(category: "work").must_be :empty?
       get root_path
       must_respond_with :success
     end
@@ -33,7 +33,7 @@ describe WorksController do
     end
   end
 
-  CATEGORIES = %w(albums books movies)
+  CATEGORIES = %w(albums works movies)
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
   describe "index" do
@@ -106,7 +106,7 @@ describe WorksController do
       Work.new(work_data).wont_be :valid?
 
       # Act
-      post works_path, params: { book: work_data }
+      post works_path, params: { work: work_data }
 
       # Assert
       must_respond_with :bad_request
@@ -124,7 +124,7 @@ describe WorksController do
       Work.new(work_data).wont_be :valid?
 
       # Act
-      post works_path, params: { book: work_data }
+      post works_path, params: { work: work_data }
 
       # Assert
       must_respond_with :bad_request
@@ -252,7 +252,7 @@ describe WorksController do
 
       # Assert
       must_respond_with :redirect
-      must_redirect_to work_path(work)
+      must_redirect_to root_path
 
       work.vote_count.must_equal old_work_count
     end
@@ -327,63 +327,67 @@ describe WorksController do
     end
   end
 
-  # TODO: Maybe need to work on this later when we have the validations for geust users
-  # describe 'guest user' do
-  #   it 'rejects requests for new book form' do
-  #     get new_book_path
-  #     must_respond_with :unauthorized
-  #   end
-  #
-  #   it 'rejects requests to post/create a book' do
-  #     # Arrange
-  #     book_data = {
-  #       title: 'controller test book',
-  #       author_id: Author.first.id
-  #     }
-  #     old_book_count = Book.count
-  #
-  #     # Assumption
-  #     Book.new(book_data).must_be :valid?
-  #
-  #     # Act
-  #     post books_path, params: { book: book_data }
-  #
-  #     must_respond_with :unauthorized
-  #     Book.count.must_equal old_book_count
-  #   end
-  #
-  #   it 'rejects requests for the edit form' do
-  #     get edit_book_path(Book.first)
-  #
-  #     must_respond_with :unauthorized
-  #   end
-  #
-  #   it 'rejects requests to update a book' do
-  #     # Arrange
-  #     book = Book.first
-  #     book_data = book.attributes
-  #     book_data[:title] = 'some updated title'
-  #
-  #     # Assumption
-  #     book.assign_attributes(book_data)
-  #     book.must_be :valid?
-  #
-  #     # Act
-  #     patch book_path(book), params: { book: book_data }
-  #
-  #     must_respond_with :unauthorized
-  #   end
-  #
-  #   it 'rejects requests to destroy a book' do
-  #     # Arrange
-  #     book_id = Book.first.id
-  #     old_book_count = Book.count
-  #
-  #     # Act
-  #     delete book_path(book_id)
-  #
-  #     Book.count.must_equal old_book_count
-  #     must_respond_with :unauthorized
-  #   end
-  # end
+
+  describe 'guest user' do
+    it 'rejects requests for new work form' do
+      get new_work_path
+
+      must_respond_with :unauthorized
+    end
+
+    it 'rejects requests to post/create a work' do
+      # Arrange
+      work = Work.new(
+        title: 'controller test work',
+        creator: 'test creater',
+        category: movie
+      )
+      old_work_count = Work.count
+
+      # Assumption
+      work.must_be :valid?
+
+      # Act
+      post works_path, params: { work: work_data }
+
+      must_respond_with :unauthorized
+      Work.count.must_equal old_work_count
+    end
+
+    it 'rejects requests for the edit form' do
+      get edit_work_path(Work.first)
+
+      must_respond_with :unauthorized
+    end
+
+    it 'rejects requests to update a work' do
+      # Arrange
+      work = Work.first
+      work_data = work.attributes
+      work_data[:title] = 'some updated title'
+
+      # Assumption
+      work.assign_attributes(work_data)
+      work.must_be :valid?
+
+      # Act
+      patch work_path(work), params: { work: work_data }
+
+      must_respond_with :unauthorized
+    end
+
+    it 'rejects requests to destroy a work' do
+      # Arrange
+      work_id = Work.first.id
+      old_work_count = Work.count
+
+      # Act
+      delete work_path(work_id)
+
+      Work.count.must_equal old_work_count
+      must_respond_with :unauthorized
+    end
+  end
+
+
 end
