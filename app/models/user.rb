@@ -2,20 +2,19 @@ class User < ApplicationRecord
   has_many :votes, dependent: :destroy
   has_many :ranked_works, through: :votes, source: :work
 
-  validates :username, uniqueness: true, presence: true
+  # validates :username, uniqueness: true, presence: true
 
-  def login(auth_hash)
-    if auth_hash['uid']
-      @user = self.find_by(uid: auth_hash[:uid], provider: 'github')
-      if @user.nil?
-        @user = self.new(
-          username: auth_hash['info']['name'],
-          email: auth_hash['info']['email'],
-          uid: auth_hash[:uid],
-          provider: ['github'])
-      end
+  def self.login(auth_hash)
+    user_data = {
+      username: auth_hash['info']['nickname'],
+      email: auth_hash['info']['email'],
+      uid: auth_hash[:uid],
+      provider: [:provider]
+    }
+    user = self.new(user_data)
+    if user.save
+      return user
     end
-    return @user
   end
 
 end
