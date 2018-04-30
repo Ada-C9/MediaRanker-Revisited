@@ -238,11 +238,11 @@ describe WorksController do
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      login_user = User.first
+      user = User.first
       work = Work.create!(title: 'A new work', category: 'books')
 
-      post login_path, params: {username: login_user.username}
-      session[:user_id].must_equal login_user.id
+      login(user)
+      session[:user_id].must_equal user.id
 
       post upvote_path(work.id)
 
@@ -255,7 +255,7 @@ describe WorksController do
       work = works(:another_album)
       user = users(:dan)
 
-      post login_path, params: {username: user.username}
+      login(user)
       session[:user_id].must_equal user.id
 
       old_vote_count = work.vote_count
