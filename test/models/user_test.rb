@@ -3,9 +3,9 @@ require 'test_helper'
 describe User do
   describe "relations" do
     it "has a list of votes" do
-      dan = users(:ada)
-      dan.must_respond_to :votes
-      dan.votes.each do |vote|
+      ada = users(:ada)
+      ada.must_respond_to :votes
+      ada.votes.each do |vote|
         vote.must_be_kind_of Vote
       end
     end
@@ -27,15 +27,14 @@ describe User do
     end
 
     it "requires a unique username" do
-      username = "test username"
-      user1 = User.create!(name: username)
+      one = User.first
+      two = User.last
 
-      # This must go through, so we use create!
+      two.name = one.name
+      two.save
 
-      user2 = User.new(name: username)
-      result = user2.save
-      result.must_equal false
-      user2.errors.messages.must_include :name
+      two.valid?.must_equal false
+      two.errors.messages.must_include :name
     end
   end
 end
