@@ -8,7 +8,4 @@ class UsersController < ApplicationController
     render_404 unless @user
   end
 
-  # def login
-  # end
-
 end

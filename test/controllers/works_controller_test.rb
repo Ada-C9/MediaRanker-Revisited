@@ -93,6 +93,7 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an extant work ID" do
+      binding.pry
       # get work_path(works(:album).id)
       #
       # must_respond_with :success
@@ -200,7 +201,13 @@ describe WorksController do
     end
 
     it "redirects to the work page if the user has already voted for that work" do
+      perform_login(users(:ada))
 
+      post upvote_path(works(:album).id)
+      post upvote_path(works(:album).id)
+
+      must_respond_with :redirect
+      must_redirect_to work_path(works(:album).id)
     end
   end
 end
