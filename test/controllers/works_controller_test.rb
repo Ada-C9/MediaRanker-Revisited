@@ -1,8 +1,5 @@
 require 'test_helper'
 
-# Works controller responsible for:
-
-
 describe WorksController do
   describe "root" do
     it "succeeds with all media types" do
@@ -174,11 +171,6 @@ describe WorksController do
       must_respond_with :not_found
     end
   end
-
-  # Update
-  # What should happen if the controller executes an update of something with valid data? with invalid data?
-  # Delete
-  # What should happen if the controller tries to delete an ID of a model that exists in the DB? that doesn't exist in the DB?
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
