@@ -16,4 +16,22 @@ describe UsersController do
       must_respond_with :success
     end
   end
+
+  describe 'show' do
+    it 'must respond with success if the user is found' do
+      user = User.first
+
+      get user_path(user.id)
+
+      must_respond_with :success
+    end
+
+    it 'must respond with 404 not found if the user is not found' do
+      user_id = User.last.id + 1
+
+      get user_path(user_id)
+
+      must_respond_with :not_found
+    end
+  end
 end
