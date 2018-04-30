@@ -54,7 +54,9 @@ describe WorksController do
 
   describe "new" do
     it "succeeds" do
-
+      work = Work.first
+      get new_work_path, params: {work: work}
+      must_respond_with :success
     end
   end
 
