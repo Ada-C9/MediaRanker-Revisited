@@ -93,10 +93,9 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an extant work ID" do
-      binding.pry
-      # get work_path(works(:album).id)
-      #
-      # must_respond_with :success
+      get work_path(Work.first.id)
+
+      must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
