@@ -16,7 +16,33 @@ describe WorksController do
 
       it "succeeds with one media type absent" do
         # Precondition: there is at least one media in two of the categories
-
+        Work.destroy_all
+        data1 = {
+          title: "coco",
+          creator: "Pixar",
+          description: "Best in 2017",
+          publication_year: 2017,
+          category: "movie"
+        }
+        data2 = {
+          title: "Zootopia",
+          creator: "Pixar",
+          description: "Best in 2015",
+          publication_year: 2016,
+          category: "movie"
+        }
+        data3 = {
+          title: "Turing",
+          creator: "Hollywood",
+          description: "Best in 2015",
+          publication_year: 2015,
+          category: "book"
+        }
+        Work.create(data1)
+        Work.create(data2)
+        Work.create(data3)
+        get root_path
+        must_respond_with :success
       end
 
       it "succeeds with no media" do
@@ -194,36 +220,16 @@ describe WorksController do
     describe "upvote" do
 
       it "redirects to the work page after the user has logged out" do
-        skip
-        # user log in
-        user1 = User.first
-        post login_path, params: {username: user1.username}
-
-        must_respond_with :redirect
-        must_redirect_to root_path
-        flash[:result_text].must_equal "Successfully logged in as existing user #{user1.username}"
-        session[:user_id].must_equal user1.id
-
         work1 = Work.last
         post upvote_path(work1)
 
-        # log out, redirect_to to root path
-        post logout_path, params: {username: ""}
+        delete logout_path
         must_respond_with :redirect
         must_redirect_to root_path
         flash[:result_text] = "Successfully logged out"
       end
 
       it "succeeds for a logged-in user and a fresh user-vote pair" do
-        skip
-        user1 = User.first
-        post login_path, params: { username: user1.username}
-
-        must_respond_with :redirect
-        must_redirect_to root_path
-        flash[:result_text].must_equal "Successfully logged in as existing user #{user1.username}"
-        session[:user_id].must_equal user1.id
-
         work_data = {
           category: "movie",
           title: "lolita",
@@ -232,20 +238,12 @@ describe WorksController do
 
         Work.create(work_data)
         work1 = Work.last
-
         post upvote_path(work1)
         must_respond_with :redirect
-        must_redirect_to work_path(work1)
-        flash[:result_text].must_equal "Successfully upvoted!"
+        must_redirect_to root_path
       end
 
       it "redirects to the work page if the user has already voted for that work" do
-        skip
-        # user login
-        user1 = User.first
-        post login_path, params: {username: user1.username}
-
-        # create new work
         work_data = {
           category: "movie",
           title: "lolita",
@@ -263,30 +261,61 @@ describe WorksController do
         post upvote_path(work1)
         flash[:result_text].must_equal "Could not upvote"
       end
+
     end
   end
 
   describe "guest user" do
     it "rejects requests for new work form" do
+      user = User.first
+
+      get new_work_path
+      must_respond_with :bad_request
     end
 
     it "rejects requests to create a new work" do
+      work_data = {
+        category: "movie",
+        title: "lolita",
+        description: "I just made it up"
+      }
+
+      Work.new(work_data).must_be :valid?
+
+      post works_path, params: {work: work_data}
+      must_respond_with :bad_request
+      flash[:error].must_equal "You must log in to do that"
 
     end
 
 
-
-
-    it "redirects to the work page if no user is logged in" do
-      skip
+    it "does not allow a guest user to vote" do
       work1 = Work.first
 
       post upvote_path(work1)
-      must_respond_with :redirect
-      must_redirect_to work_path(work1)
-      flash[:result_text].must_equal "You must log in to do that"
-
+      must_respond_with :bad_request
+      flash[:error].must_equal "You must log in to do that"
     end
 
+    it "does not allow a guest user to view a work page" do
+      work1 = Work.first
+      get work_path(work1)
+      must_respond_with :bad_request
+      flash[:error].must_equal "You must log in to do that"
+    end
+
+    it "does not allow a guest user to edit a work" do
+      work1 = Work.first
+      get edit_work_path(work1)
+      must_respond_with :bad_request
+      flash[:error].must_equal "You must log in to do that"
+    end
+
+    it "does not allow a guest user to update a work" do
+      work1 = Work.first
+      patch work_path(work1)
+      must_respond_with :bad_request
+      flash[:error].must_equal "You must log in to do that"
+    end
   end
 end

@@ -10,7 +10,7 @@ describe UsersController do
     end
 
     it "succeeds when there are no users" do
-      skip
+      Work.destroy_all
       User.destroy_all
       get users_path
       must_respond_with :success

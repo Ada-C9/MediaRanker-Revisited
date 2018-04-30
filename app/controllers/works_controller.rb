@@ -2,6 +2,7 @@ class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
+  before_action :login_user, except: [:root]
 
   def root
     @albums = Work.best_albums
@@ -16,6 +17,7 @@ class WorksController < ApplicationController
 
   def new
     @work = Work.new
+
   end
 
   def create
@@ -78,10 +80,10 @@ class WorksController < ApplicationController
 
     # Refresh the page to show either the updated vote count
     # or the error message
-    redirect_back fallback_location: work_path(@work)
+    redirect_back fallback_location: root_path
   end
 
-private
+  private
   def media_params
     params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
   end
@@ -90,5 +92,10 @@ private
     @work = Work.find_by(id: params[:id])
     render_404 unless @work
     @media_category = @work.category.downcase.pluralize
+  end
+
+  def login_user
+    redirect_to root_path, status: :bad_request if session[:user_id].nil?
+    flash[:error] = "You must log in to do that"
   end
 end
