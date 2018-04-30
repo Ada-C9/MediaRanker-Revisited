@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Media Ranker 2.0</title>
+  <title>Prettier & Ranker</title>
   <%= csrf_meta_tags %>
 
   <%= stylesheet_link_tag 'application', 'https://fonts.googleapis.com/css?family=Gudea:400,700|Hammersmith+One' %>
@@ -13,8 +13,8 @@
 <body>
   <header class="page-header">
     <h2>
-      <%= link_to "Media Ranker", root_path %>
-      <small>Ranking the Best of Everything</small>
+      <%= link_to "Pretty Darned Rank II", root_path %>
+      <small>Judgement-A-Go-Go</small>
     </h2>
 
     <nav>
@@ -25,11 +25,10 @@
         <%= link_to "View all users", users_path, class: "button" %>
       </div>
       <div class="user-nav">
-        <% if @login_user %>
-          <%= link_to "Logged in as #{@login_user.username}", user_path(@login_user), class: "button" %>
-          <%= link_to "Log Out", logout_path, method: :post, class: "button" %>
+        <% if session[:user_id] %>
+          <%= link_to "Log out", logout_path, method: :delete, class: "button"  %>
         <% else %>
-          <%= link_to "Log In", login_path, class: "button" %>
+          <%= link_to "Login with Github", "/auth/github", class: "button" %>
         <% end %>
       </div>
     </nav>

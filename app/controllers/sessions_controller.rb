@@ -1,33 +1,39 @@
 class SessionsController < ApplicationController
-  def login_form
-  end
 
-  def login
-    username = params[:username]
-    if username and user = User.find_by(username: username)
-      session[:user_id] = user.id
-      flash[:status] = :success
-      flash[:result_text] = "Successfully logged in as existing user #{user.username}"
-    else
-      user = User.new(username: username)
-      if user.save
-        session[:user_id] = user.id
-        flash[:status] = :success
-        flash[:result_text] = "Successfully created new user #{user.username} with ID #{user.id}"
+  def create
+    auth_hash = request.env['omniauth.auth']
+    # raise
+    if auth_hash[:uid]
+      @user = User.find_by(uid: auth_hash[:uid], provider: 'github')
+      if @user.nil?
+        @user = User.build_from_github(auth_hash)
+        successful_save = @user.save
+        if successful_save
+          flash[:status] = :success
+          flash[:result_text] = "Successful first login!"
+        else
+          flash[:status] = :failure
+          flash[:result_text] = "An error occurred during User creation."
+          flash[:messages] = @user.errors.messages
+        end
       else
-        flash.now[:status] = :failure
-        flash.now[:result_text] = "Could not log in"
-        flash.now[:messages] = user.errors.messages
-        render "login_form", status: :bad_request
-        return
+        flash[:status] = :success
+        flash[:result_text] = "Logged in successfully"
+        @user.save
       end
+      session[:user_id] = @user.id
+      session_test = session[:user_id]
+    else
+      flash[:status] = :failure
+      flash[:result_text] = "Logging in through Github not successful"
     end
     redirect_to root_path
   end
 
-  def logout
+  def destroy
     session[:user_id] = nil
     flash[:status] = :success
+
     flash[:result_text] = "Successfully logged out"
     redirect_to root_path
   end

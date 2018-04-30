@@ -38,7 +38,6 @@ describe WorksController do
       # Precondition: there is at least one media in two of the categories
 
       @w_movie.destroy
-
       category_total = 0
 
       CATEGORIES_VG.each do |category|
@@ -48,9 +47,7 @@ describe WorksController do
       end
 
       category_total.must_equal 2
-
       get root_path
-
       must_respond_with :success
 
     end

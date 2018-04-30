@@ -23,7 +23,6 @@ describe UsersController do
 
       @user_d.destroy
       @user_k.destroy
-
       get users_path
       must_respond_with :success
 
@@ -32,7 +31,6 @@ describe UsersController do
     it "succeeds when there is one user" do
 
       @user_k.destroy
-
       get users_path
       must_respond_with :success
 
@@ -59,12 +57,8 @@ describe UsersController do
     it "fails when the user doesn't exist" do
 
       bogus_id = 3
-
       User.find_by(id: bogus_id).must_be_nil
-
-
       get user_path(bogus_id)
-
       must_respond_with :not_found
 
     end
