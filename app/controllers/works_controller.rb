@@ -2,6 +2,7 @@ class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
+  before_action :require_login, except: [:root, :index, :show]
 
   def root
     @albums = Work.best_albums
@@ -15,7 +16,7 @@ class WorksController < ApplicationController
   end
 
   def new
-    @work = Work.new
+    @work = Work.new(user_id: session[:user_id])
   end
 
   def create
@@ -31,6 +32,7 @@ class WorksController < ApplicationController
       flash[:messages] = @work.errors.messages
       render :new, status: :bad_request
     end
+
   end
 
   def show
@@ -41,7 +43,15 @@ class WorksController < ApplicationController
   end
 
   def update
+    if session[:user_id] != @work.user_id
+      flash[:status] = :failure
+      flash[:result_test] = "Please only edit your own products"
+      return redirect_to root_path
+    end
+
+
     @work.update_attributes(media_params)
+    @work.user_id = session[:user_id]
     if @work.save
       flash[:status] = :success
       flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
@@ -52,9 +62,11 @@ class WorksController < ApplicationController
       flash.now[:messages] = @work.errors.messages
       render :edit, status: :not_found
     end
+
   end
 
   def destroy
+    @work.user_id = session[:user_id]
     @work.destroy
     flash[:status] = :success
     flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
@@ -81,9 +93,10 @@ class WorksController < ApplicationController
     redirect_back fallback_location: work_path(@work)
   end
 
-private
+  private
   def media_params
     params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
+
   end
 
   def category_from_work

@@ -10,7 +10,9 @@
           <th>Title</th>
           <th>Created By</th>
           <th width=100>Published</th>
+          <% if session[:user_id] %>
           <th width=100>Upvote</th>
+          <% end %>
         </tr>
       </thead>
       <tbody>
@@ -20,7 +22,9 @@
             <td><%= link_to work.title, work_path(work) %></td>
             <td><%= work.creator %></td>
             <td><%= work.publication_year %></td>
+            <% if session[:user_id] %>
             <td><%= link_to "Upvote", upvote_path(work), class: "button upvote", method: :post %></td>
+            <% end %>
           </tr>
         <% end %>
       </tbody>
@@ -29,4 +33,6 @@
 <% end %>
 
 <%= link_to "View top media", root_path, class: "button" %>
+<% if session[:user_id] %>
 <%= link_to "Add a new work", new_work_path, class: "button" %>
+<% end %> 
