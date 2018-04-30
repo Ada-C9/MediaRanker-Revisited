@@ -58,4 +58,7 @@ class SessionsController < ApplicationController
     flash[:result_text] = "Successfully logged out"
     redirect_to root_path
   end
+
+
+  
 end

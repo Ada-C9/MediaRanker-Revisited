@@ -183,7 +183,8 @@ describe WorksController do
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      post login_path, params: { username: users(:kari).username }
+      session[:user_id] = users(:kari).id
+      # post login_path, params: { username: users(:kari).username }
       post upvote_path(works(:movie).id), params: {
         vote: { user: users(:kari), work: works(:movie) }
       }

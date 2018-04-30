@@ -4,10 +4,10 @@ dan:
   username: dan
   provider: github
   uid: 1234567
-  email: testdan@mediaranker.ord
+  email: testdan@mediaranker.org
 
 kari:
   username: kari
   provider: github
   uid: 7654321
-  email: testkari@mediaranker.ord
+  email: testkari@mediaranker.org
