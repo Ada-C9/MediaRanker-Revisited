@@ -11,7 +11,11 @@ class WorksController < ApplicationController
   end
 
   def index
-    @works_by_category = Work.to_category_hash
+    if @login_user.nil?
+      render_404
+    else
+      @works_by_category = Work.to_category_hash
+    end
   end
 
   def new
@@ -81,7 +85,7 @@ class WorksController < ApplicationController
     redirect_back fallback_location: work_path(@work)
   end
 
-private
+  private
   def media_params
     params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
   end
