@@ -51,7 +51,7 @@ describe User do
   describe "info_from_github(auth_hash) method" do
     it "builds user from auth_hash" do
       auth_hash = {
-        info: { username: "test username",
+        info: { nickname: "test username",
         email: "test@ada.com" },
         uid: "124",
         provider: "github"

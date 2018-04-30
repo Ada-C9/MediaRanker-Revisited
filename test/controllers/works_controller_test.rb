@@ -127,8 +127,7 @@ describe WorksController do
         post works_path, params: { work: work_data }
 
         # Assert
-        # TODO: Must fix the respond_with. Might be connected to the issue on sessions controller
-        # must_respond_with :bad_request
+        must_respond_with :bad_request
         Work.count.must_equal old_work_count
       end
 

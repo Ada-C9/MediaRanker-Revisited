@@ -6,19 +6,11 @@ class User < ApplicationRecord
 
 
   def self.info_from_github(auth_hash)
-
-
-    user_data = {
+    return User.new(
       uid: auth_hash[:uid],
-      username: auth_hash[:info][:username],
+      username: auth_hash[:info][:nickname],
       email: auth_hash[:info][:email],
       provider: auth_hash[:provider]
-    }
-
-    user = self.new(user_data)
-    if user.save
-      return user
-    end
-
+    )
   end
 end

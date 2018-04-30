@@ -5,12 +5,11 @@ describe SessionsController do
   describe 'auth_callback' do
 
     it 'creates a DB entry for a new user' do
-      skip
       # Arrange
       user = User.new(
-        username: "test username",
+        username: "test name",
+        uid: "8675309",
         email: "test@ada.com",
-        uid: "124",
         provider: "github"
       )
 
@@ -21,8 +20,8 @@ describe SessionsController do
       login(user)
 
       # Assert
-      # TODO: fix the respond with. Slacked Dan.
-      # must_respond_with :redirect
+      flash[:status].must_equal :success
+      must_respond_with :redirect
       must_redirect_to root_path
       User.count.must_equal old_user_count + 1
       session[:user_id].must_equal User.last.id

@@ -23,8 +23,8 @@ class SessionsController < ApplicationController
         else
 
           # not saved successfully
-          flash[:result_text] = "Could not log in"
           flash[:status] = :failure
+          flash[:result_text] = "Could not log in"
           flash[:messages] = user.errors.messages
           redirect_to root_path
         end
@@ -36,8 +36,8 @@ class SessionsController < ApplicationController
         redirect_to root_path
       end
     else
-      flash[:result_text] = "Could not log in"
       flash[:status] = :failure
+      flash[:result_text] = "Could not log in"
       flash[:messages] = user.errors.messages
       redirect_to root_path
     end

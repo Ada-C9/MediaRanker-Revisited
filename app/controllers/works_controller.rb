@@ -28,7 +28,7 @@ class WorksController < ApplicationController
       redirect_to work_path(@work)
     else
       flash.now[:status] = :failure
-      flash.now[:result_text] = "Could not create #{@media_category.singularize}"
+      flash.now[:result_text] = "Could not create #{@media_category}"
       flash.now[:messages] = @work.errors.messages
       render :new, status: :bad_request
     end
