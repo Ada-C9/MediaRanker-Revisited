@@ -121,42 +121,42 @@ describe WorksController do
 
       media_params = {title: " ", creator: "George Lucas", description: "Luke that is your sister", category: "unicorns", publication_year: "1977"}
 
-            first_media_count = Work.count
+      first_media_count = Work.count
 
-            # Assumption
+      # Assumption
 
-            work = Work.new(media_params)
+      work = Work.new(media_params)
 
-            work.wont_be :valid?
-
-
-            # Act
-            post works_path, params: {work: media_params}
+      work.wont_be :valid?
 
 
-            # Assert
-            must_respond_with :bad_request
+      # Act
+      post works_path, params: {work: media_params}
 
 
-            Work.count.must_equal first_media_count
+      # Assert
+      must_respond_with :bad_request
+
+
+      Work.count.must_equal first_media_count
 
     end
 
     it "renders 400 bad_request for bogus categories" do
       media_params = {title: "Star Wars ep. IV", creator: "George Lucas", category: "random"}
 
-            first_media_count = Work.count
+      first_media_count = Work.count
 
-            # Assumption
+      # Assumption
 
-            # Act
-            post works_path, params: {work: media_params}
+      # Act
+      post works_path, params: {work: media_params}
 
 
-            # Assert
-            must_respond_with :bad_request
+      # Assert
+      must_respond_with :bad_request
 
-            Work.count.must_equal first_media_count
+      Work.count.must_equal first_media_count
 
     end
 
@@ -237,29 +237,80 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+      work_id = Work.first.id
+      work_count = Work.count
+
+      delete work_path(work_id)
+
+      must_respond_with :redirect
+      must_redirect_to root_path
+
+      Work.count.must_equal work_count - 1
+      Work.find_by(id: work_id).must_be_nil
 
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+
+      work_id = Work.last.id + 1
+      work_count = Work.count
+
+      delete work_path(work_id)
+
+      must_respond_with :not_found
+
+      Work.count.must_equal work_count
+      Work.find_by(id: work_id).must_be_nil
+
 
     end
   end
 
   describe "upvote" do
 
+    work = Work.first
+
     it "redirects to the work page if no user is logged in" do
+      post upvote_path(work)
+
+      must_redirect_to work_path
 
     end
 
     it "redirects to the work page after the user has logged out" do
+      username = User.first.username
+
+      get login_path, params: {username: username}
+
+      post logout_path
+
+      must_redirect_to root_path
+
 
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
+      username = User.last.username
+
+      get login_path, params: {username: username}
+
+      post upvote_path(work)
+
+      must_respond_with :redirect
 
     end
 
+
     it "redirects to the work page if the user has already voted for that work" do
+
+      username = User.first.username
+
+      get login_path, params: {username: username}
+
+      post upvote_path(work)
+      post upvote_path(work)
+
+      must_redirect_to work_path(work)
 
     end
   end
