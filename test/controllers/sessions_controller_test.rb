@@ -9,7 +9,7 @@ describe SessionsController do
 
       must_respond_with :redirect
       must_redirect_to root_path
-
+      flash[:result_text].must_equal "Successfully logged in as existing user #{user.username} with ID #{user.id}"
       session[:user_id].must_equal user.id
       User.count.must_equal users_before
     end
@@ -26,7 +26,7 @@ describe SessionsController do
 
       must_respond_with :redirect
       must_redirect_to root_path
-
+      flash[:result_text] = "Successfully logged in as new user #{user.username} with ID #{user.id}"
       session[:user_id].must_equal User.last.id
       User.count.must_equal users_before + 1
     end
