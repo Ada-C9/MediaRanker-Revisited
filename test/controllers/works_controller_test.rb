@@ -194,60 +194,57 @@ describe WorksController do
         Work.count.must_equal original_count
       end
     end
-  end
 
-  describe "upvote" do
-    before do
-      @work = Work.first
-      @username = users(:dan).username
-      @provider = users(:dan).provider
+    describe "upvote" do
+      before do
+        @work = Work.first
+      end
+
+      it "succeeds for a logged-in user and a fresh user-vote pair" do
+        post upvote_path(@work)
+
+        must_respond_with :redirect
+        must_redirect_to work_path(@work)
+        flash[:result_text].must_equal "Successfully upvoted!"
+      end
+
+      it "redirects to the work page and fails for an existing user-vote pair" do
+        # first vote
+        post upvote_path(@work)
+        # attempted second vote
+        post upvote_path(@work)
+
+        old_vote_tot = Vote.where(work_id: @work.id).count
+
+        must_respond_with :redirect
+        must_redirect_to work_path(@work)
+        flash[:result_text].must_equal "Could not upvote this work."
+
+        new_vote_tot = Vote.where(work_id: @work.id).count
+        new_vote_tot.must_equal old_vote_tot
+      end
+
+      it "succeeds when user votes for work that has already been voted for by another user" do
+        # test user votes for work
+        post upvote_path(@work)
+        logout(users(:test))
+
+        # total votes is calculated
+        old_vote_tot = Vote.where(work_id: @work.id).count
+
+        # dan votes for work
+        login(users(:dan))
+        post upvote_path(@work)
+
+        # total votes is re-calculated
+        new_vote_tot = Vote.where(work_id: @work.id).count
+
+        must_respond_with :redirect
+        must_redirect_to work_path(@work)
+        flash[:result_text].must_equal "Successfully upvoted!"
+        new_vote_tot.must_equal old_vote_tot + 1
+      end
     end
-
-    it "redirects to the work page if no user is logged in" do
-      get auth_callback_path @provider
-
-      post upvote_path(@work)
-
-      must_respond_with :redirect
-      must_redirect_to work_path(@work)
-    end
-
-#     it "redirects to the work page after the user has logged out" do
-#       # login
-#       get auth_callback_path @provider
-#
-#       # logout
-#       delete logout_path @provider
-#
-#       # vote
-#       post upvote_path(@work)
-#
-#       must_respond_with :redirect
-#       must_redirect_to work_path(@work)
-#     end
-#
-#     it "succeeds for a logged-in user and a fresh user-vote pair" do
-#       # login
-#       get auth_callback_path @provider
-#
-#       post upvote_path(@work)
-#
-#       must_respond_with :redirect
-#       must_redirect_to work_path(@work)
-#     end
-#
-#     it "redirects to the work page if the user has already voted for that work" do
-#       # login
-#       get auth_callback_path @provider
-#
-#       # first vote
-#       post upvote_path(@work)
-#       # attempted second vote
-#       post upvote_path(@work)
-#
-#       must_respond_with :redirect
-#       must_redirect_to work_path(@work)
-#     end
   end
 
   describe "guest users" do
@@ -283,6 +280,13 @@ describe WorksController do
     it "can access the 'view to media' page" do
       get root_path
       must_respond_with :success
+    end
+
+    it "cannot upvote a work" do
+      post upvote_path(Work.first)
+
+      must_redirect_to root_path
+      flash[:result_text].must_equal "Please log in to do that."
     end
 
     it "cannot access the 'view all media' page" do
