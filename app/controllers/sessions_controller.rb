@@ -1,11 +1,20 @@
 class SessionsController < ApplicationController
   def login_form
+    # take username from login_form and set to the username var
+
+    # flash[:status] = :success
+    # flash[:result_text] = "Successfully logged in"
+    # redirect_to root_path
   end
 
   def create
     # controller responsible for the errors & redirect
+    flash[:result_text] = "USING CREATE"
+
     auth_hash = request.env['omniauth.auth']
+
     if auth_hash['uid']
+      # raise
       @user = User.find_by(uid: auth_hash[:uid], provider: 'github')
       if @user.nil?
         puts "No user found! Creating new username"
@@ -44,4 +53,11 @@ class SessionsController < ApplicationController
     flash[:result_text] = "Successfully logged out"
     redirect_to root_path
   end
+
+  def destroy
+    session[:user_id] = nil
+    redirect_to root_path, notice: 'Logged out!'
+  end
+
+
 end
