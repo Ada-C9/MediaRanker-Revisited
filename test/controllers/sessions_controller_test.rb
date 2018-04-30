@@ -50,25 +50,50 @@ describe SessionsController do
       )
 
       proc {
-      perform_login(new_user) }.must_change 'User.count', 1
+        perform_login(new_user) }.must_change 'User.count', 1
 
+        must_redirect_to root_path
+      end
+
+      it "fails if a user is already logged in and a user attempts to log in" do
+        existing_merchant = users(:grace)
+        perform_login(existing_merchant)
+
+        proc {
+          perform_login(existing_merchant) }.wont_change 'User.count'
+
+          must_redirect_to root_path
+        end
+
+        it "redirects to the root route and doesn't create new user if given invalid user data" do
+          bad_user = User.new(
+            provider: 'github',
+            uid: 666,
+            email: 'test@test.com'
+          )
+
+          proc {
+            perform_login(bad_user) }.must_change 'User.count', 0
+
+            must_redirect_to root_path
+          end
+
+        end
+
+  describe "logout" do
+
+
+    it 'successfully logs out current user' do
+      perform_login(users(:dan))
+
+      delete logout_path
+
+      session["user_id"].must_be_nil
+      must_respond_with :redirect
       must_redirect_to root_path
     end
-
-    it "redirects to the root route and doesn't create new user if given invalid user data" do
-      bad_user = User.new(
-        provider: 'github',
-        uid: 666,
-        email: 'test@test.com'
-      )
-
-      proc {
-      perform_login(bad_user) }.must_change 'User.count', 0
-
-      must_redirect_to root_path
-    end
-
-
   end
+
+
 
 end

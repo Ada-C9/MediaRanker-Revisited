@@ -40,20 +40,27 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      perform_login(users(:dan))
 
       get works_path
       must_respond_with :success
     end
 
     it "succeeds when there are no works" do
-      Work.destroy_all
+      Work.all do |work|
+        work.destroy
+      end
+      perform_login(users(:dan))
+
       get works_path
+
       must_respond_with :success
     end
   end
 
   describe "new" do
     it "succeeds" do
+      perform_login(users(:dan))
       get new_work_path
       must_respond_with :success
     end
@@ -62,38 +69,29 @@ describe WorksController do
   describe "create" do
     it "creates a work with valid data for a real category" do
 
-      proc {
-        post works_path, params: {
-          work: {
-            category: "book",
-            title: "Coraline",
-            creator: "Neil Gaiman"
-          }
-        }
-      }.must_change 'Work.count', 1
+      new_work = {work: {title: 'Coraline', category: 'book'}}
+      perform_login(users(:dan))
 
-      id_of_new_work = Work.find_by(title: "Coraline").id
+      proc { post works_path, params: new_work }.must_change 'Work.count', 1
+
+      new_work_id = Work.find_by(title: 'Coraline').id
 
       must_respond_with :redirect
-      must_redirect_to work_path id_of_new_work
+      must_redirect_to work_path(new_work_id)
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
 
-      proc {
-        post works_path, params: {
-          work: {
-            category: "book"
-          }
-        }
-      }.must_change 'Work.count', 0
+      bad_work = {work: {title: nil, category: 'book'}}
+            perform_login(users(:dan))
 
+            proc { post works_path, params: bad_work }.wont_change 'Work.count'
 
-      post works_path
-      must_respond_with :bad_request
+            must_respond_with 400
     end
 
     it "renders 400 bad_request for bogus categories" do
+      perform_login(users(:grace))
       proc {
         post works_path, params: {
           work: {
@@ -112,12 +110,15 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an existent work ID" do
+      perform_login(users(:grace))
+
       get works_path(works(:poodr).id)
 
       must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      perform_login(users(:grace))
       works(:poodr).id = 'notanid'
 
       get work_path(works(:poodr).id)
@@ -128,12 +129,14 @@ describe WorksController do
 
   describe "edit" do
     it "succeeds for an existent! work ID" do
+      perform_login(users(:grace))
       get edit_work_path works(:poodr).id
 
       must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      perform_login(users(:grace))
 
       works(:poodr).id = 'notanid'
       get work_path(works(:poodr).id)
@@ -144,6 +147,9 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an existent! work ID" do
+
+      perform_login(users(:grace))
+
       put work_path works(:poodr).id, params: {
         work: {
           category: "book",
@@ -160,6 +166,8 @@ describe WorksController do
     end
 
     it "renders not_found for bogus data" do
+      perform_login(users(:grace))
+
       put work_path works(:poodr).id, params: {
         work: {
           category: "nope",
@@ -172,6 +180,8 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      perform_login(users(:grace))
+
       works(:poodr).id = 'notanid'
       put work_path(works(:poodr).id)
 
@@ -181,15 +191,18 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an existent work ID" do
+      poodruby = works(:poodr)
+      perform_login(users(:dan))
 
-      proc {delete work_path(works(:poodr).id) }.must_change 'Work.count', -1
+        proc { delete work_path(poodruby.id) }.must_change "Work.count", -1
 
-      must_respond_with :redirect
-      must_redirect_to root_path
+        must_respond_with :redirect
+        must_redirect_to root_path
 
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      perform_login(users(:grace))
       proc {delete work_path('nope') }.must_change 'Work.count', 0
 
       must_respond_with :not_found
@@ -198,21 +211,18 @@ describe WorksController do
 
   describe "upvote" do
 
-    it "redirects to the work page if no user is logged in" do
+    it "redirects to the root page if no user is logged in" do
+    
+
       post upvote_path(works(:poodr).id)
 
-      must_redirect_to work_path(works(:poodr).id)
+      must_redirect_to root_path
     end
 
-    it "redirects to the work * YOU MEAN ROOT PATH * page after the user has logged out" do
-      post login_path(users(:kari).id)
-      post logout_path(users(:kari).id)
-      must_redirect_to root_path
-      #is this right?!
-    end
+
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      perform_login(users(:kari))
       proc {
         post login_path params: {
           username: users(:kari).username
@@ -229,7 +239,7 @@ describe WorksController do
 
 
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      perform_login(users(:kari))
       proc {
         post login_path params: {
           username: users(:kari).username
