@@ -1,13 +1,14 @@
 require 'test_helper'
+require 'pry'
 
 describe Work do
   describe "relations" do
     it "has a list of votes" do
-       album = works(:album)
-       album.must_respond_to :votes
-       album.votes.each do |vote|
-         vote.must_be_kind_of Vote
-       end
+      album = works(:album)
+      album.must_respond_to :votes
+      album.votes.each do |vote|
+        vote.must_be_kind_of Vote
+      end
     end
 
     it "has a list of voting users" do
@@ -82,12 +83,12 @@ describe Work do
 
     it "tracks the number of votes" do
       work = Work.create!(title: "test title", category: "movie")
-      4.times do |i|
-        user = User.create!(username: "user#{i}")
-        Vote.create!(user: user, work: work)
-      end
-      work.vote_count.must_equal 4
-      Work.find(work.id).vote_count.must_equal 4
+
+      Vote.create!(user: users(:ada), work: work)
+      Vote.create!(user: users(:grace), work: work)
+
+      work.vote_count.must_equal 2
+      Work.find(work.id).vote_count.must_equal 2
     end
   end
 
@@ -97,7 +98,7 @@ describe Work do
       # Create users to do the voting
       test_users = []
       20.times do |i|
-        test_users << User.create!(username: "user#{i}")
+        test_users << User.create!(name: "user#{i}", uid: i, provider: "github")
       end
 
       # Create media to vote upon
