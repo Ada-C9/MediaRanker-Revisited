@@ -54,13 +54,9 @@ describe SessionsController do
     end
 
     it "succeeds as only users" do
-      Vote.all.each do |vote|
-        vote.destroy
-      end
+      Vote.destroy_all
 
-      User.all.each do |person|
-        person.destroy
-      end
+      User.destroy_all
 
       User.count.must_equal 0
 
@@ -76,7 +72,7 @@ describe SessionsController do
   end
 
   describe "logout - OATH" do
-    it "redirects to the work page after the user has logged out" do
+    it "redirects to the root page after the user has logged out" do
       post logout_path, params: {
         user: {
           username: "countess_ada"
@@ -100,9 +96,9 @@ describe SessionsController do
       session[:user_id].must_be_nil
     end
   end
-  
+
   describe "logout - User" do
-    it "redirects to the work page after the user has logged out" do
+    it "redirects to the root page after the user has logged out" do
       post logout_path, params: {
         user: {
           username: "dan"

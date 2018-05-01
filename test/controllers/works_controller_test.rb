@@ -418,7 +418,7 @@ describe WorksController do
   end
 
   describe "upvote" do
-    it "redirects to the work page if no user is logged in" do
+    it "redirects to the root page if no user is logged in" do
       Vote.count.must_equal 4
       post upvote_path(works(:album).id)
 
