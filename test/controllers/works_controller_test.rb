@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'pry'
 
 describe WorksController do
   describe "root" do
@@ -236,7 +237,7 @@ describe WorksController do
 
     it "redirects to the work page if no user is logged in" do
 
-      session[:user_id] = 0
+      @login_user = nil
 
       work = Work.last
 
@@ -252,18 +253,31 @@ describe WorksController do
 
       ending_vote_count.must_equal starting_vote_count
     end
-  #
-  #   it "redirects to the work page after the user has logged out" do
-  #
-  #   end
-  #
+
+
     it "succeeds for a logged-in user and a fresh user-vote pair" do
 
+      work = Work.last
+
+      user = Session.create(name: 'test', email: 'test@test.org', uid: '123454365', provider: 'github')
+
+
+      starting_vote_count = work.vote_count
+
+      post upvote_path(work)
+
+      work.reload
+      ending_vote_count = work.vote_count
+
+      must_respond_with :redirect
+      must_redirect_to work_path(work)
+
+      ending_vote_count.must_equal starting_vote_count + 1
 
     end
   #
-  #   it "redirects to the work page if the user has already voted for that work" do
-  #
-  #   end
+    # it "redirects to the work page if the user has already voted for that work" do
+    #
+    # end
   end
 end
