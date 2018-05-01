@@ -43,6 +43,7 @@ describe SessionsController do
       must_respond_with :redirect
       must_redirect_to root_path
     end
+
      it 'will recognize an existing user' do
        login(@dan)
        session[:user_id].must_equal @dan.id
@@ -53,7 +54,8 @@ describe SessionsController do
        must_respond_with :redirect
        must_redirect_to root_path
      end
-     it 'will not create a user whose uid is non-existant(nil)' do
+     
+     it 'will not create a user whose uid is non-existant (nil)' do
        @bad_git_data = {
          provider: "Github",
          uid: nil,
@@ -72,7 +74,7 @@ describe SessionsController do
      end
 
      it 'will not create a user whose Git profile has missing information' do
-       # Create a new user that does not exist in fixture
+       # Create a new user that does not exist in fixture & whose profile will violate model validation.
 
        @riley_git_hash_no_username = {
          provider: "Github",

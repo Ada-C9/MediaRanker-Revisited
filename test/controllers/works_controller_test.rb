@@ -20,6 +20,7 @@ describe WorksController do
             get root_path
             must_respond_with :success
         end
+
         it "succeeds with one media type absent" do
           # Precondition: there is at least one media in two of the categories
           total_works = Work.all.count
@@ -56,7 +57,7 @@ end
     before do
       @rihanna = users(:rihanna)
       @ada = users(:ada)
-      end
+    end
     describe "Index" do
       it "succeeds when there are all works" do
         login(@rihanna)
@@ -108,7 +109,6 @@ end
 
         must_respond_with :redirect
         must_redirect_to work_path(Work.find_by(title: "a title"))
-
       end
 
 
@@ -145,9 +145,7 @@ end
           assert_operator flash[:messages][:title].size,:>, 0
 
           must_respond_with :bad_request
-
       end
-
     end
 
     describe "Show" do
@@ -156,7 +154,6 @@ end
         session[:user_id].must_equal @rihanna.id
         get work_path(works(:album).id)
         must_respond_with :success
-
       end
 
       it "renders 404 not_found for a bogus work ID" do
@@ -175,7 +172,6 @@ end
         session[:user_id].must_equal @rihanna.id
         get edit_work_path(works(:another_album).id)
         must_respond_with :success
-
       end
 
       it "renders 404 not_found for a bogus work ID" do
@@ -212,7 +208,6 @@ end
 
         must_respond_with :redirect
         must_redirect_to work_path(updated_work.id)
-
       end
 
       it "renders bad_request for bogus data" do
@@ -228,7 +223,6 @@ end
         assert_operator flash[:messages][:title].size,:>, 0
 
         must_respond_with :bad_request
-
       end
 
       it "renders 404 not_found for a bogus work ID" do
@@ -269,8 +263,6 @@ end
     describe "Upvote" do
 
       it "redirects to the homepg (work pg before OAuth) page if no user is logged in" do
-      # A user must be logged in to see upvote pg.
-
       # A user will be redirected to hompepg if they attempt to see a restricted pg or run in to a routing error if they attempt to paste in an upvote path.
 
       proc{
@@ -279,11 +271,10 @@ end
 
         must_respond_with :redirect
         must_redirect_to root_path
-
       end
 
       it "redirects to the work page after the user has logged out" do
-    
+
         # Confirm the user has been logged in
         login(@rihanna)
         session[:user_id].must_equal @rihanna.id
@@ -302,8 +293,6 @@ end
 
         must_respond_with :redirect
         must_redirect_to root_path
-
-
       end
 
       it "succeeds for a logged-in user and a fresh user-vote pair" do
@@ -346,9 +335,7 @@ end
         assert_operator flash[:messages][:user].size,:>, 0
         must_respond_with :redirect
         must_redirect_to work_path(works(:another_album).id)
-
       end
-
     end
   end
 end
