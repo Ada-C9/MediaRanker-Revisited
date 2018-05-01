@@ -47,18 +47,17 @@ describe SessionsController do
     end
 
   end # login
-  #
-  # describe 'logout' do
-  #   before do
-  #     get login_path, params: { username: @user.username }
-  #   end
-  #   it 'responds with success' do
-  #     session[:user_id].must_equal @user.id
-  #     post logout_path
-  #     must_respond_with :redirect
-  #     must_redirect_to root_path
-  #     session[:user_id].must_be_nil
-  #   end
-  # end # logout
+
+  describe 'logout' do
+
+    it 'responds with success' do
+      login(@user)
+      session[:user_id].must_equal @user.id
+      post logout_path
+      must_respond_with :redirect
+      must_redirect_to root_path
+      session[:user_id].must_be_nil
+    end
+  end # logout
 
 end # SessionsController
