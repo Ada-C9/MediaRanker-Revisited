@@ -1,5 +1,4 @@
 require "test_helper"
-require 'pry'
 
 describe SessionsController do
   before do

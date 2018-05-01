@@ -1,44 +1,57 @@
 require 'test_helper'
+require 'pry'
 
 describe UsersController do
 
-  describe 'index' do
-
-    it 'succeeds when there is at least one user' do
-      User.count.must_be :>, 0
-      get users_path
-      must_respond_with :success
+  describe 'logged-in user' do
+    before do
+      @user = User.first
     end
 
-    it 'succeeds when there are no users' do
-      User.delete_all
-      User.count.must_equal 0
+    describe 'index' do
 
-      get users_path
+      it 'succeeds when there is at least one user' do
+        login(@user)
 
-      must_respond_with :success
-    end
+        User.count.must_be :>, 0
+        get users_path
+        must_respond_with :success
+      end
 
-  end # index
+      it 'succeeds when there are no users' do
 
-  describe 'show' do
+        User.delete_all
+        User.count.must_equal 0
 
-    it 'responds with success for an extant user id' do
-      user = User.last
+        login(@user)
+        get users_path
 
-      get user_path(user)
+        must_respond_with :success
+      end
 
-      must_respond_with :success
-    end
+    end # index
 
-    it 'responds with not_found for a user that DNE' do
-      id = User.last.id + 1
+    describe 'show' do
 
-      get user_path(id)
+      it 'responds with success for an extant user id' do
+        login(@user)
+        user = User.last
 
-      must_respond_with :not_found
-    end
+        get user_path(user)
 
-  end # show
+        must_respond_with :success
+      end
+
+      it 'responds with not_found for a user that DNE' do
+        login(@user)
+        id = User.last.id + 1
+
+        get user_path(id)
+
+        must_respond_with :not_found
+      end
+
+    end # show
+  end # logged-in user
 
 end # UsersController

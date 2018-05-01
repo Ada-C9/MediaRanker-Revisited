@@ -17,6 +17,6 @@ private
 
   def require_login
     @user = User.find_by(id: session[:user_id])
-    head :unauthorized unless @user
+    head :unauthorized unless @user 
   end
 end
