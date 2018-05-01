@@ -2,6 +2,9 @@ require 'test_helper'
 require 'pry'
 
 describe WorksController do
+  let(:ada) { users(:ada) }
+  let(:kari) { users(:kari) }
+
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
@@ -35,6 +38,7 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      perform_login(ada)
       get works_path
       must_respond_with :success
     end
@@ -46,6 +50,7 @@ describe WorksController do
       works(:movie).destroy
 
       Work.all.count.must_equal 0
+      perform_login(ada)
       get works_path
       must_respond_with :success
     end
@@ -53,6 +58,7 @@ describe WorksController do
 
   describe "new" do
     it "succeeds" do
+      perform_login(ada)
       get new_work_path
       must_respond_with :success
     end
@@ -60,6 +66,7 @@ describe WorksController do
 
   describe "create" do
     it "creates a work with valid data for a real category" do
+      perform_login(ada)
       proc {
         post works_path, params: {
           work: {
@@ -74,6 +81,7 @@ describe WorksController do
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
+      perform_login(ada)
       proc {
         post works_path, params: {
           work: {
@@ -85,6 +93,7 @@ describe WorksController do
     end
 
     it "renders 400 bad_request for bogus categories" do
+      perform_login(ada)
       post works_path, params: {
         work: {
           category: "play",
@@ -97,6 +106,7 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an extant work ID" do
+      perform_login(ada)
       get work_path(works(:poodr).id)
       must_respond_with :success
     end
@@ -110,6 +120,7 @@ describe WorksController do
 
   describe "edit" do
     it "succeeds for an extant work ID" do
+      perform_login(ada)
       get edit_work_path(works(:movie).id)
       must_respond_with :success
     end
@@ -123,6 +134,7 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      perform_login(ada)
       put work_path works(:album).id, params: {
         work: {
           category: "album",
@@ -138,6 +150,7 @@ describe WorksController do
     end
 
     it "renders not_found for bogus data" do
+      perform_login(ada)
       put work_path works(:another_album).id, params: {
         work: {
           category: "play",
@@ -158,6 +171,7 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+      perform_login(ada)
       proc {
         delete work_path(works(:movie).id)
       }.must_change 'Work.count', -1
@@ -178,25 +192,26 @@ describe WorksController do
   describe "upvote" do
 
     it "redirects to the work page if no user is logged in" do
+      perform_login(ada)
       post upvote_path(works(:poodr).id)
       must_respond_with :redirect
       must_redirect_to work_path(works(:poodr).id)
     end
 
     it "redirects to the work page after the user has logged out" do
-      post logout_path
+      delete logout_path
       must_redirect_to root_path
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      proc {
-        post login_path params: {
-          username: users(:kari).username
-        }
-        work = Work.find_by(id: works(:movie).id)
+      kari = users(:kari)
+      perform_login(kari)
 
+      work = Work.find_by(id: works(:movie).id)
+
+      proc {
         post upvote_path(work.id), params: {
-          vote: { user: users(:kari), work: work }
+          vote: { user: kari, work: work }
         }
       }.must_change 'Vote.count', 1
 
@@ -205,20 +220,14 @@ describe WorksController do
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      proc {
-        post login_path params: {
-          username: users(:kari).username
-        }
-        work = Work.find_by(id: works(:movie).id)
+      perform_login(kari)
+      before_count = Vote.count
+      work = Work.find_by(id: works(:movie).id)
 
-        post upvote_path(work.id), params: {
-          vote: { user: users(:kari), work: work }
-        }
-        post upvote_path(work.id), params: {
-          vote: { user: users(:kari), work: work }
-        }
-      }.must_change 'Vote.count', 1
+      post upvote_path(work.id)
+      post upvote_path(work.id)
 
+      Vote.count.must_equal (before_count + 1)
       must_respond_with :redirect
       must_redirect_to work_path(works(:movie))
     end

@@ -35,20 +35,26 @@
     </nav>
   </header>
 
-  <% if flash[:result_text] or flash[:messages] %>
-    <section class="status <%= flash[:status] %>">
-      <h3><%= flash[:status] == :failure ? "A problem occurred: " : "" %><%= flash[:result_text] %></h3>
-      <% if flash[:messages] %>
-        <ul>
-          <% flash[:messages].each do |name, problems| %>
-            <% problems.each do |problem| %>
-              <li><%= name %>: <%= problem %></li>
-            <% end %>
+  <% flash.each do | name, message | %>
+    <% if name == "error" %>
+    <h4>You're doing something wrong</h4>
+    <dl>
+      <% flash[:error].each do |field, error_messages| %>
+        <dt><strong><%= field.upcase %></strong></dt>
+        <% if error_messages.class == Array %>
+          <% error_messages.each do |error_message| %>
+            <dd> >> <%= error_message %></dd>
           <% end %>
-        </ul>
+        <% else %>
+          <dd> >> <%= error_messages %></dd>
+        <% end %>
+      </li>
       <% end %>
-    </section>
-  <% end %>
+    </dl>
+    <% else %>
+      <h4><%= message %></h4>
+      <% end %>
+    <% end %>
 
   <main>
     <%= yield %>
