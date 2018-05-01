@@ -4,9 +4,7 @@ describe SessionsController do
   describe "login" do
     it "can login" do
       user = User.first
-
-      post login_path, params: { username: user.username }
-      must_respond_with :found
+      login(user)
 
       user_id = session[:user_id]
 
@@ -17,7 +15,7 @@ describe SessionsController do
   describe "logout" do
     it "ends the session" do
       user = User.first
-      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
+      login(user)
 
       user_id = session[:user_id]
 
