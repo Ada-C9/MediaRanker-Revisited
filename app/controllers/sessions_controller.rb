@@ -2,7 +2,7 @@ class SessionsController < ApplicationController
   def login_form
   end
 
-  def create
+  def login
     auth_hash = request.env['omniauth.auth']
 
 
@@ -43,7 +43,7 @@ class SessionsController < ApplicationController
 
     redirect_to root_path
 
-  end # create
+  end # login
 
   def logout
     session.delete(:user_id)
