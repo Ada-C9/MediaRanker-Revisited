@@ -7,6 +7,6 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find_by(id: params[:id])
-    render_404 unless @login_user
+    render_404 unless @user
   end
 end

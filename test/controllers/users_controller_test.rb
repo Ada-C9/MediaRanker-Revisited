@@ -1,39 +1,63 @@
 require 'test_helper'
 
 describe UsersController do
+  before do
+    @user = users(:dan)
+  end
 
   describe 'index' do
-    it 'succeeds when there are users' do
-      User.count.must_be :>,0
+    it 'succeeds for logged in users' do
+      login(@user)
+
       get users_path
       must_respond_with :success
     end
 
-    it 'succeeds when there are no users' do
-      Vote.destroy_all
-      Vote.count.must_equal 0
+    it 'cannot access index for guest users' do
       get users_path
-      must_respond_with :success
+      flash[:status].must_equal :failure
+      flash[:result_text].must_equal "You must be logged in to view this page"
+      must_respond_with :redirect
+      must_redirect_to root_path
     end
   end
 
   describe 'show' do
 
-    it 'succeeds for an extant user ID' do
-      user_id = User.first.id
+    it 'succeeds for logged in user with an extant ID' do
+      login(@user)
 
-      get user_path(user_id)
+      get user_path(users(:dan).id)
 
       must_respond_with :success
     end
 
-    it 'renders 404 not_found for a bogus user ID' do
-      user_id = User.last.id + 1
+    it "renders 404 not_found for a bogus user ID" do
+        login(@user)
 
-      get user_path(user_id)
+        get user_path("baa")
 
-      must_respond_with :not_found
+        must_respond_with :not_found
+      end
+
+    it 'cannot access show page for a guest user with extant ID' do
+      get user_path(users(:dan).id)
+
+      flash[:status].must_equal :failure
+      flash[:result_text].must_equal "You must be logged in to view this page"
+      must_respond_with :redirect
+      must_redirect_to root_path
     end
+
+    it 'cannot access show page for guest user with a bogus user ID' do
+      get user_path(users(:dan).id)
+
+      flash[:status].must_equal :failure
+      flash[:result_text].must_equal "You must be logged in to view this page"
+      must_respond_with :redirect
+      must_redirect_to root_path
+    end
+
 
   end
 end

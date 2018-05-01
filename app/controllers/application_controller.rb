@@ -18,7 +18,7 @@ private
   def require_login
     if @login_user.nil?
       flash[:status] = :failure
-      flash[:result_text] = "You must be logged in to view this section"
+      flash[:result_text] = "You must be logged in to view this page"
       redirect_to root_path
     end
   end
