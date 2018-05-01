@@ -31,7 +31,7 @@ describe UsersController do
       must_respond_with :redirect
       must_redirect_to root_path
     end
-    it 'renders 404 not_found for an invalid work ID' do
+    it 'renders 404 not_found for an invalid user ID' do
       user = users(:dan)
       id = user.id
       user.votes.each {|vote| vote.destroy }
