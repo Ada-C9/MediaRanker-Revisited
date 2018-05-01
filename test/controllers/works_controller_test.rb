@@ -231,26 +231,73 @@ describe WorksController do
       delete work_path(id)
 
       must_respond_with :not_found
-      Work.count.must_equal old_works_count 
+      Work.count.
+      must_equal old_works_count
     end
   end
 
   describe "upvote" do
 
     it "redirects to the work page if no user is logged in" do
+      work = Work.last
+      votes_before = work.votes.count
 
+      post upvote_path(work)
+
+      work.reload
+      must_respond_with :redirect
+      must_redirect_to work_path(work)
+      work.votes.count.must_equal votes_before
     end
 
     it "redirects to the work page after the user has logged out" do
+      work = Work.last
+      votes_before = work.votes.count
+      user = User.last
 
+      post login_path, params: { username: user.username }
+      post logout_path
+
+      post upvote_path(work)
+
+      work.reload
+      must_respond_with :redirect
+      must_redirect_to work_path(work)
+      work.votes.count.must_equal votes_before
     end
 
-    it "succeeds for a logged-in user and a fresh user-vote pair" do
+    describe 'upvotes from a logged-in user' do
+      before do
+        @work = Work.last
+        @votes_before = @work.votes.count
+        @user = User.new(username: 'Thor Odinson')
+        @user.must_be :valid?
+        @user.save
 
-    end
+        post login_path, params: { username: @user.username }
 
-    it "redirects to the work page if the user has already voted for that work" do
+        post upvote_path(@work)
+      end
 
-    end
-  end
-end
+      it "succeeds for a logged-in user and a fresh user-vote pair" do
+        @work.reload
+        must_respond_with :redirect
+        must_redirect_to work_path(@work)
+        @work.votes.count.must_equal @votes_before + 1
+      end
+
+      it "redirects to the work page if the user has already voted for that work" do
+        @work.reload
+        votes_after_first_vote = @work.votes.count
+        post upvote_path(@work)
+        @work.reload
+        must_respond_with :redirect
+        must_redirect_to work_path(@work)
+        @work.votes.count.must_equal votes_after_first_vote
+      end
+
+    end # logged-in user
+
+  end # upvote
+
+end # WorksController
