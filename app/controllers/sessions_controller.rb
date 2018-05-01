@@ -11,6 +11,7 @@ class SessionsController < ApplicationController
         # Attempt to create a new user
         user = User.build_from_github(auth_hash)
         user.save
+        redirect_to root_path
       else
         flash[:success] = "Logged in successfully"
         redirect_to root_path
@@ -25,9 +26,9 @@ class SessionsController < ApplicationController
     # redirect_to root_path
   end
 
-  def index
-    @user = User.find(session[:user_id]) # < recalls the value set in a previous request
-  end
+  # def index
+  #   @user = User.find(session[:user_id]) # < recalls the value set in a previous request
+  # end
 
   def destroy
     session[:user_id] = nil

@@ -1,6 +1,8 @@
 require 'test_helper'
 
 describe WorksController do
+  let (:user) { users(:kari) }
+
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
@@ -36,12 +38,14 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      login(user)
       Work.count.must_be :>, 0
       get works_path
       must_respond_with :success
     end
 
     it "succeeds when there are no works" do
+      login(user)
       Work.destroy_all
       get works_path
       must_respond_with :success
@@ -50,6 +54,7 @@ describe WorksController do
 
   describe "new" do
     it "succeeds" do
+      login(user)
       get new_work_path
       must_respond_with :success
     end
@@ -57,6 +62,7 @@ describe WorksController do
 
   describe "create" do
     it "creates a work with valid data for a real category" do
+      login(user)
       work_data = {
         work: {
           title: "test work"
@@ -76,6 +82,7 @@ describe WorksController do
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
+      login(user)
       work_data = {
         work: {
           title: ""
@@ -94,6 +101,7 @@ describe WorksController do
     end
 
     it "renders 400 bad_request for bogus categories" do
+      login(user)
       work_data = {
         work: {
           title: "test work"
@@ -114,6 +122,7 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an extant work ID" do
+      login(user)
       get work_path(Work.first.id)
       must_respond_with :success
       get work_path(Work.last.id)
@@ -121,6 +130,7 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      login(user)
       work_id = Work.last.id + 1
       get work_path(work_id)
       must_respond_with 404
@@ -129,6 +139,7 @@ describe WorksController do
 
   describe "edit" do
     it "succeeds for an extant work ID" do
+      login(user)
       get edit_work_path(Work.first.id)
       must_respond_with :success
       get edit_work_path(Work.last.id)
@@ -136,6 +147,7 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      login(user)
       work_id = Work.last.id + 1
       get edit_work_path(work_id)
       must_respond_with :not_found
@@ -144,6 +156,7 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      login(user)
       updated_title = "Title"
 
       patch work_path(works(:poodr).id), params: {
@@ -159,6 +172,7 @@ describe WorksController do
     end
 
     it "renders bad_request for bogus data" do
+      login(user)
       updated_title = " "
 
       patch work_path(works(:poodr).id), params: {
@@ -170,6 +184,7 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      login(user)
       work_id = Work.last.id + 1
       get work_path(work_id)
       must_respond_with 404
@@ -178,6 +193,7 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+      login(user)
       work_id = Work.first.id
 
       delete work_path(work_id)
@@ -187,6 +203,7 @@ describe WorksController do
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      login(user)
       start_count = Work.count
 
       work_id = Work.last.id + 1
@@ -199,24 +216,43 @@ describe WorksController do
 
   describe "upvote" do
     let(:work) { Work.first }
-    let(:user) { users(:kari) }
 
+    # it "redirects to the work page if no user is logged in" do
+    #   post upvote_path(work)
+    #   must_respond_with :redirect
+    #   must_redirect_to work_path(work.id)
+    # end
 
-    it "redirects to the work page if no user is logged in" do
+    it "redirects to the main page if no user is logged in" do
       post upvote_path(work)
       must_respond_with :redirect
-      must_redirect_to work_path(work.id)
+      must_redirect_to root_path
     end
 
-    it "redirects to the work page after the user has logged out" do
+    it "redirects to the main page after the user has logged out" do
+      login(user)
+      delete logout_path
+      post upvote_path(work)
+      must_respond_with :redirect
+      must_redirect_to root_path
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-
+      login(user)
+      work = works(:another_album)
+      post upvote_path(work)
+      flash[:status].must_equal :success
+      must_respond_with :redirect
+      must_redirect_to work_path
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-
+      login(user)
+      work = works(:album)
+      post upvote_path(work)
+      flash[:status].must_equal :failure
+      must_respond_with :redirect
+      must_redirect_to work_path
     end
   end
 end
