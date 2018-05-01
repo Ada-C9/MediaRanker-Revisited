@@ -2,6 +2,17 @@ require 'test_helper'
 require 'pry'
 
 describe WorksController do
+  describe 'logged in user' do
+
+    before do
+
+    end
+    it "text" do
+
+    end
+
+  end
+
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
@@ -239,6 +250,41 @@ describe WorksController do
 
       work.vote_count.wont_equal old_vote_count + 1
       must_redirect_to work_path(work.id)
+    end
+  end
+
+  describe 'guest user' do
+    it "rejects requests to upvote a work" do
+
+    end
+    it "rejects requests for new work form" do
+      get new_work_path
+      must_respond_with :unauthorized
+    end
+
+    it "rejects requests to create a work" do
+      work_data = {
+        title: 'controller test book',
+        category: 'book'
+      }
+      old_work_count = Work.count
+
+      Work.new(work_data).must_be :valid?
+
+      post works_path, params: { work: work_data }
+
+      must_respond_with :unauthorized
+      Work.count.must_equal old_work_count
+
+    end
+    it "rejects requests to edit a work" do
+
+    end
+    it "rejects requests to update a work" do
+
+    end
+    it "rejects requests to delete a work" do
+
     end
   end
 end
