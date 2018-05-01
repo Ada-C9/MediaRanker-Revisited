@@ -1,4 +1,5 @@
 ENV["RAILS_ENV"] = "test"
+
 require File.expand_path("../../config/environment", __FILE__)
 require "rails/test_help"
 require "minitest/rails"
@@ -24,41 +25,32 @@ class ActiveSupport::TestCase
   fixtures :all
   # Add more helper methods to be used by all tests here...
   def setup
-      # Once you have enabled test mode, all requests
-      # to OmniAuth will be short circuited to use the mock authentication hash.
-      # A request to /auth/provider will redirect immediately to /auth/provider/callback.
-      OmniAuth.config.test_mode = true
-    end
-    def mock_auth_hash(user)
-      return {
-        provider: user.provider,
-        uid: user.uid,
-        info: {
-          email: user.email,
-          nickname: user.name
-        }
+    # Once you have enabled test mode, all requests
+    # to OmniAuth will be short circuited to use the mock authentication hash.
+    # A request to /auth/provider will redirect immediately to /auth/provider/callback.
+    OmniAuth.config.test_mode = true
+  end
+
+  def mock_auth_hash(user)
+    return {
+      provider: user.provider,
+      uid: user.uid,
+      info: {
+        email: user.email,
+        nickname: user.username
       }
-    end
+    }
+  end
 
-    def login(user)
-      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
+  def login(user)
+    OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
 
-      get auth_callback_path(user.provider)
-    end
+    get auth_callback_path(:github)
+  end
 
-    def logout(user)
-      delete logout_path
-    end
-
-    def mock_auth_hash(user)
-      return {
-        provider: user.provider,
-        uid: user.uid,
-        info: {
-          email: user.email,
-          nickname: user.username
-        }
-      }
-    end
+  def logout(user)
+    OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
+    delete logout_path
+  end
 
 end
