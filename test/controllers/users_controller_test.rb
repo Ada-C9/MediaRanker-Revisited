@@ -22,6 +22,23 @@ describe UsersController do
   end # index
 
   describe 'show' do
+
+    it 'responds with success for an extant user id' do
+      user = User.last
+
+      get user_path(user)
+
+      must_respond_with :success
+    end
+
+    it 'responds with not_found for a user that DNE' do
+      id = User.last.id + 1
+
+      get user_path(id)
+
+      must_respond_with :not_found
+    end
+
   end # show
 
 end # UsersController
