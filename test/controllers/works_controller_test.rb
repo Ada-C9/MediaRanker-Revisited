@@ -214,11 +214,24 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+      old_works_count = Work.count
+      work = Work.last
 
+      delete work_path(work)
+
+      must_respond_with :redirect
+      must_redirect_to :root
+      Work.count.must_equal old_works_count - 1
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      old_works_count = Work.count
+      id = Work.last.id + 1
 
+      delete work_path(id)
+
+      must_respond_with :not_found
+      Work.count.must_equal old_works_count 
     end
   end
 
