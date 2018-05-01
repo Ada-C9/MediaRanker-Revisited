@@ -1,7 +1,13 @@
 <% if @best_work %>
   <section class="spotlight">
     <div>
-      <h3><span class="media-spotlight-header">Media Spotlight</span> <%= link_to @best_work.title, work_path(@best_work) %> by <%= @best_work.creator %></h3>
+      <h3><span class="media-spotlight-header">Media Spotlight</span>
+        <%if session[:user_id] %>
+         <%= link_to @best_work.title, work_path(@best_work) %> by <%= @best_work.creator %></h3>
+         <% else %>
+         <%= @best_work.title %> by <%= @best_work.creator %></h3>
+         <% end %>
+
       <p><%= @best_work.vote_count %> votes - <%= @best_work.description %></p>
     </div>
   </section>

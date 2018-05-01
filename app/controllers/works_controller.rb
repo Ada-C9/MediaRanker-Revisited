@@ -16,21 +16,24 @@ class WorksController < ApplicationController
   end
 
   def new
-    @work = Work.new(user_id: session[:user_id])
+    @work = Work.new
   end
 
   def create
-    @work = Work.new(media_params)
-    @media_category = @work.category
-    if @work.save
-      flash[:status] = :success
-      flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
-      redirect_to work_path(@work)
-    else
-      flash[:status] = :failure
-      flash[:result_text] = "Could not create #{@media_category.singularize}"
-      flash[:messages] = @work.errors.messages
-      render :new, status: :bad_request
+    if session[:user_id]
+      @work = Work.new(media_params)
+      @work.creator = session[:username]
+      @media_category = @work.category
+      if @work.save
+        flash[:status] = :success
+        flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
+        redirect_to work_path(@work)
+      else
+        flash[:status] = :failure
+        flash[:result_text] = "Could not create #{@media_category.singularize}"
+        flash[:messages] = @work.errors.messages
+        render :new, status: :bad_request
+      end
     end
 
   end
@@ -43,34 +46,31 @@ class WorksController < ApplicationController
   end
 
   def update
-    if session[:user_id] != @work.user_id
-      flash[:status] = :failure
-      flash[:result_test] = "Please only edit your own products"
-      return redirect_to root_path
+
+    if session[:user_id]
+
+      @work.update_attributes(media_params)
+
+      if @work.save
+        flash[:status] = :success
+        flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
+        redirect_to work_path(@work)
+      else
+        flash.now[:status] = :failure
+        flash.now[:result_text] = "Could not update #{@media_category.singularize}"
+        flash.now[:messages] = @work.errors.messages
+        render :edit, status: :not_found
+      end
     end
-
-
-    @work.update_attributes(media_params)
-    @work.user_id = session[:user_id]
-    if @work.save
-      flash[:status] = :success
-      flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
-      redirect_to work_path(@work)
-    else
-      flash.now[:status] = :failure
-      flash.now[:result_text] = "Could not update #{@media_category.singularize}"
-      flash.now[:messages] = @work.errors.messages
-      render :edit, status: :not_found
-    end
-
   end
 
   def destroy
-    @work.user_id = session[:user_id]
-    @work.destroy
-    flash[:status] = :success
-    flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
-    redirect_to root_path
+    if session[:user_id]
+      @work.destroy
+      flash[:status] = :success
+      flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
+      redirect_to root_path
+    end
   end
 
   def upvote

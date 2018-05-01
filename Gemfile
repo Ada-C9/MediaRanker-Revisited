@@ -7,6 +7,7 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+gem "binding_of_caller"
 gem "omniauth"
 gem "omniauth-github"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'

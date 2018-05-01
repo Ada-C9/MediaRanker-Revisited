@@ -2,6 +2,14 @@
 
 dan:
   username: dan
+  provider: github
+  email: dan@dan.com
+  username: danman
+
+
 
 kari:
   username: kari
+  provider: github
+  email: kari@kari.com
+  username: karibari

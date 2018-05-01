@@ -19,9 +19,10 @@
 
     <nav>
       <div class="site-nav">
+        <% if session[:user_id] %>
         <%= link_to "View top media", root_path, class: "button" %>
         <%= link_to "View all media", works_path, class: "button" %>
-        <% if session[:user_id] %>
+
         <%= link_to "Add a new work", new_work_path, class: "button" %>
         <%= link_to "View all users", users_path, class: "button" %>
         <% end %>

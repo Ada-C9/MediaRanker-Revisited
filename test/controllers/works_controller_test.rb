@@ -131,12 +131,16 @@ describe WorksController do
 
   describe "edit" do
     it "succeeds for an extant work ID" do
-      get edit_work_path(Work.first)
+      user = User.first
+      login(user)
+      get edit_work_path(Work.first.id)
 
       must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      user = User.first
+      login(user)
       work_id = Work.last.id + 1
       get edit_work_path(work_id)
 
@@ -146,6 +150,10 @@ describe WorksController do
   end
 
   describe "update" do
+    before do
+      user = User.first
+      login(user)
+    end 
     it "succeeds for valid data and an extant work ID" do
       work = Work.first
       work_data = work.attributes
@@ -169,7 +177,6 @@ describe WorksController do
       work = Work.last
       work_data = work.attributes
       work_data[:title] = ''
-
 
       # Assumptions
       work.assign_attributes(work_data)
