@@ -9,9 +9,7 @@ class ApplicationController < ActionController::Base
 
 private
   def find_user
-    puts "hellooooooo*************"
     @login_user = User.find_by(id: session[:user_id])
-    puts @login_user.inspect
     render_404 unless @login_user
   end
 
