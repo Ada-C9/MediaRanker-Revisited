@@ -20,7 +20,7 @@ describe SessionsController do
   describe 'logout' do
 
     it 'sends success when user logged out' do
-      
+
     end
 
   end
