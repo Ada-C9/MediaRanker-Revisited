@@ -220,7 +220,7 @@ describe WorksController do
       delete work_path(work)
 
       must_respond_with :redirect
-      must_redirect_to :root
+      must_redirect_to root_path
       Work.count.must_equal old_works_count - 1
     end
 
