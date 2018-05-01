@@ -236,6 +236,8 @@ describe WorksController do
 
     it "redirects to the work page if no user is logged in" do
 
+      session[:user_id] = 0
+
       work = Work.last
 
       starting_vote_count = work.vote_count
