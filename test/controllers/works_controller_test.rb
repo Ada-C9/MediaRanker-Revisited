@@ -283,12 +283,7 @@ end
       end
 
       it "redirects to the work page after the user has logged out" do
-        # # if user
-        # if @user
-        #   @login_user = User.find_by(id: session[:user_id])
-        # end
-
-
+    
         # Confirm the user has been logged in
         login(@rihanna)
         session[:user_id].must_equal @rihanna.id
@@ -308,12 +303,7 @@ end
         must_respond_with :redirect
         must_redirect_to root_path
 
-        # must_respond_with :found
-        # method is a protected page - once logged out the user
-        # binding.pry
-        # flash[:result_text].must_equal "You must log in to do that"
-        # must_respond_with :redirect
-        # must_redirect_to work_path(works(:album).id)
+
       end
 
       it "succeeds for a logged-in user and a fresh user-vote pair" do
