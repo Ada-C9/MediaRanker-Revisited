@@ -5,31 +5,42 @@ describe SessionsController do
   describe "login" do
 
     it "logs in returning user" do
-      user = User.first.username
+      user = User.first
 
       user_count = User.count
 
-      get login_path, params: {username: user}
+       login(user)
 
       must_respond_with :success
 
       User.count.must_equal user_count
+      session[:user_id].must_equal user.id
 
     end
 
-    # it "creates a new session with valid data" do
-    #
-    #   # would this even be a separate test from login?
-    #
-    # end
+    it "creates a new session with valid data" do
 
-    it "does not create a new session with invalid data" do
-
-      username = ""
-
-      get login_path, params: {username: username}
+      user = User.new(provider: 'github', uid: 76107, email: 'mail4@me.org', username: 'Jinny Larrimer')
 
       user_count = User.count
+
+       login(user)
+
+      must_respond_with :success
+
+      User.count.must_equal user_count + 1
+      session[:user_id].must_equal user.id
+
+    end
+
+    it "does not create a new session with invalid data" do
+      user = User.new(provider: 'github', uid: nil , email: 'mail@me.org', username: 'Stokely Corrimer')
+
+      user_count = User.count
+      user.wont_be :valid?
+
+      login_path(user)
+
 
       must_respond_with :bad_request
 
@@ -41,17 +52,13 @@ describe SessionsController do
   end
 
 
-  describe "destroy" do
+  describe "logout" do
 
     it "destroys session on logout" do
 
-      user = User.first
+      login(User.first)
 
-      username = user.username
-
-      get login_path, params: {username: username}
-
-      post logout_path
+     logout_path
 
       session[:user_id].must_equal nil
 

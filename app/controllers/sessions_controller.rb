@@ -1,8 +1,11 @@
 class SessionsController < ApplicationController
   # def login_form
   # end
+  def index
+    @user = User.find(session[:user_id])
+  end
 
-  def login
+  def create
     auth_hash = request.env['omniauth.auth']
 
     if auth_hash[:uid]
@@ -20,12 +23,11 @@ class SessionsController < ApplicationController
       flash[:status] = :success
       flash[:result_text] = "Successfully logged in as existing user #{user.username}"
     else
-        flash.now[:status] = :failure
-        flash.now[:result_text] = "Could not log in"
-        flash.now[:messages] = user.errors.messages
-        render :root, status: :bad_request
-        return
-      end
+      flash.now[:status] = :failure
+      flash.now[:result_text] = "Could not log in"
+      flash.now[:messages] = user.errors.messages
+      render :root, status: :bad_request
+      return
     end
     redirect_to root_path
   end
