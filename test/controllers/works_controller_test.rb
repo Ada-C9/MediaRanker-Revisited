@@ -222,26 +222,27 @@ login(User.first)
 
     describe "upvote" do
 
-      it "redirects to the work page if no user is logged in" do
+      it "succeeds for a logged-in user and a fresh user-vote pair" do
+        login(User.first)
+        Vote.destroy_all
+
         work = Work.first
         vote_count = work.vote_count
 
         post upvote_path(work.id)
-        must_respond_with :unauthorized
-        # must_redirect_to work_path(work)
-
-      end
-
-      it "redirects to the work page after the user has logged out" do
-
-      end
-
-      it "succeeds for a logged-in user and a fresh user-vote pair" do
-
+        work.vote_count.must_equal vote_count + 1
       end
 
       it "redirects to the work page if the user has already voted for that work" do
+        login(User.first)
+        Vote.destroy_all
+        work = Work.first
 
+        post upvote_path(work.id)
+        vote_count = work.vote_count
+        post upvote_path(work)
+        must_respond_with :redirect
+        work.vote_count.must_equal vote_count
       end
     end
   end
@@ -249,7 +250,7 @@ login(User.first)
   describe 'guest user' do
     it 'rejects requests for new book form' do
       get new_work_path
-      must_respond_with :unauthorized
+      must_respond_with :redirect
     end
 
     it 'rejects requests to create a book' do
@@ -268,14 +269,14 @@ login(User.first)
 
       #assert
       #check http response
-      must_respond_with :unauthorized
+      must_respond_with :redirect
       #check database
       Work.count.must_equal old_work_count
     end
 
     it 'rejects requests for the edit form' do
       get edit_work_path(Work.first)
-      must_respond_with :unauthorized
+      must_respond_with :redirect
     end
 
     it 'rejects requests to update a book' do
@@ -288,7 +289,7 @@ login(User.first)
 
       patch work_path(work), params: {work: work_data}
 
-      must_respond_with :unauthorized
+      must_respond_with :redirect
     end
 
     it 'rejects requests to destroy a book' do
@@ -298,7 +299,7 @@ login(User.first)
       # must_respond_with :success
       #
       # must_redirect_to root_path
-      must_respond_with :unauthorized
+      must_respond_with :redirect
       Work.count.must_equal old_count
     end
   end

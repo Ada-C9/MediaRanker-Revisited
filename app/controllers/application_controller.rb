@@ -9,8 +9,11 @@ class ApplicationController < ActionController::Base
   end
 
   def require_login
-    @user = User.find_by(id: session[:user_id])
-    head :unauthorized unless @user
+    if @login_user.nil?
+      flash[:status] = :error
+      flash[:result_text] = "You must be logged in to view this section"
+      redirect_to root_path
+    end
   end
 
 
