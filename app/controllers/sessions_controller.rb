@@ -28,7 +28,7 @@ class SessionsController < ApplicationController
     end
   end
 
-  # def logout
+  # def logout # Personal choice. Can go back to logout. Must change route though
   def destroy
     session[:user_id] = nil
     flash[:status] = :success
