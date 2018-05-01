@@ -76,6 +76,7 @@ describe WorksController do
         }
       }.must_change 'Work.count', 1
 
+      flash[:status].must_equal :success
       must_respond_with :redirect
       must_redirect_to work_path(Work.last)
     end
@@ -107,6 +108,7 @@ describe WorksController do
   describe "show" do
     it "succeeds for an extant work ID" do
       perform_login(ada)
+      session[:user_id].must_equal ada.id
       get work_path(works(:poodr).id)
       must_respond_with :success
     end
@@ -191,11 +193,10 @@ describe WorksController do
 
   describe "upvote" do
 
-    it "redirects to the work page if no user is logged in" do
-      perform_login(ada)
+    it "redirects to the works page if no user is logged in" do
       post upvote_path(works(:poodr).id)
       must_respond_with :redirect
-      must_redirect_to work_path(works(:poodr).id)
+      must_redirect_to root_path
     end
 
     it "redirects to the work page after the user has logged out" do
