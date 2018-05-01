@@ -56,34 +56,39 @@ describe WorksController do
   CATEGORIES = %w(albums books movies)
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
-  describe "with logged in users" do
-    # before do
-    #   user = User.first
-    #   OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
-    # end
 
-    describe "index" do
-      it "succeeds when there are works" do
-        Work.any?.must_equal true
+  describe "index" do
+    it "succeeds when there are works" do
+      user = User.first
+      login(user)
 
-        get works_path
+      Work.any?.must_equal true
 
-        must_respond_with :success
-      end
+      get works_path
 
-      it "succeeds when there are no works" do
+      must_respond_with :success
+    end
 
-        works = Work.all
-        works.each { |work| work.destroy }
+    it "succeeds when there are no works" do
+      user = User.first
+      login(user)
 
-        #test precondition
-        Work.count.must_equal 0
+      works = Work.all
+      works.each { |work| work.destroy }
 
-        get works_path
+      #test precondition
+      Work.count.must_equal 0
 
-        must_respond_with :success
+      get works_path
 
-      end
+      must_respond_with :success
+
+    end
+  end
+  describe "with users" do
+    before do
+      user = User.first
+      login(user)
     end
 
     describe "new" do
@@ -185,6 +190,8 @@ describe WorksController do
 
     describe "edit" do
       it "succeeds for an extant work ID" do
+        user = users(:dan)
+        login(user)
         work = Work.first
 
         get edit_work_path(work)
@@ -281,7 +288,7 @@ describe WorksController do
 
       post upvote_path(work)
 
-      must_redirect_to work_path(work)
+      must_redirect_to root_path
     end
 
     it "redirects to the work page after the user has logged out" do
@@ -289,16 +296,16 @@ describe WorksController do
       work = Work.first
       user = User.first
 
-      post login_path, params: { username: user.username }
+      login(user)
       must_respond_with :found
 
-      post logout_path, params: { username: user.username }
+      post logout_path(user)
       must_respond_with :found
 
       original_vote = work.vote_count
       post upvote_path(work)
 
-      must_redirect_to work_path(work)
+      must_redirect_to root_path
       Work.first.vote_count.must_equal original_vote
 
     end
@@ -306,9 +313,7 @@ describe WorksController do
     it "succeeds for a logged-in user and a fresh user-vote pair" do
       user = User.first
       work = Work.first
-
-      post login_path, params: { username: user.username }
-      must_respond_with :found
+      login(user)
 
       old_vote_count = work.vote_count
 
@@ -327,9 +332,7 @@ describe WorksController do
       user = User.first
       work = Work.first
 
-      post login_path, params: { username: user.username }
-      must_respond_with :found
-
+      login(user)
       old_vote_count = work.vote_count
 
       post upvote_path(work), params: {user_id: user.id}

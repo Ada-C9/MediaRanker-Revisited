@@ -11,10 +11,7 @@ class ApplicationController < ActionController::Base
 private
   def find_user
     if session[:user_id]
-      puts "session[:user_id] is #{session[:user_id]}"
       @login_user = User.find_by(id: session[:user_id])
-      puts "Got login user:"
-      puts @login_user
     end
   end
 end

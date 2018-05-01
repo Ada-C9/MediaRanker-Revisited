@@ -38,22 +38,34 @@ class ActiveSupport::TestCase
     # to OmniAuth will be short circuited to use the mock authentication hash.
     # A request to /auth/provider will redirect immediately to /auth/provider/callback.
     OmniAuth.config.test_mode = true
-  end
 
-  def mock_auth_hash(user)
-    return {
-      provider: user.provider,
-      uid: user.uid,
-      info: {
-        email: user.email,
-        name: user.username
+    # OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new({
+    #   :provider => 'github',
+    #   :uid => '123545',
+    #   info: {
+    #     :nickname => 'test',
+    #   :email => 'test@somewhere.com',
+    # }
+    #   # etc.
+    #   })
+
+
+    end
+
+    def login(user)
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
+      get auth_callback_path(:github)
+    end
+
+    def mock_auth_hash(user)
+      return {
+        provider: user.provider,
+        uid: user.uid,
+        info: {
+          email: user.email,
+          name: user.username
+        }
       }
-    }
-  end
+    end
 
-  def login(user)
-    OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
-    get auth_callback_path(:github)
   end
-
-end

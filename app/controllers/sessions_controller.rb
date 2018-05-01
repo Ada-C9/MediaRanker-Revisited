@@ -8,7 +8,6 @@ class SessionsController < ApplicationController
     auth_hash = request.env['omniauth.auth']
 
     if auth_hash[:uid]
-      puts "there is a uid, it is: #{auth_hash[:uid]}"
       user = User.find_by(uid: auth_hash[:uid], provider: 'github')
       if user.nil?
         # User doesn't match anything in the DB
@@ -20,13 +19,11 @@ class SessionsController < ApplicationController
       end
 
       # If we get here, we have the user instance
-      puts "Login attempt from user #{user.username} successful"
       session[:user_id] = user.id
       flash[:status] = :success
       flash[:result_text] = "Logged in successfully"
       redirect_to root_path
     else
-      puts "Login attempt failed"
       flash[:status] = :failure
       flash[:result_text] = "Could not log in"
       flash[:messages] = user.errors.messages

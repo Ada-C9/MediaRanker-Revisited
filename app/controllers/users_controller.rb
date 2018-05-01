@@ -12,8 +12,6 @@ before_action :check_user, only: [:show, :index]
   private
   def check_user
     unless @login_user
-      puts ">>>> DPR"
-      puts "Login user not found"
       flash[:status] = :failure
       flash[:result_text] = "You must log in to see this content"
       redirect_to root_path

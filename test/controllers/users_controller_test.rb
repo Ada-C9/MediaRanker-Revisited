@@ -18,23 +18,19 @@ describe UsersController do
 
   describe "show" do
     before do
-      user = User.first
-      login(user)
-      must_respond_with :redirect
-      session[:user_id].must_equal user.id
-      puts "Logged in as #{user.username}"
+      OmniAuth.config.mock_auth[:github] = nil
     end
 
     it "displays a user with existant id" do
       user = User.first
-      # login(user)
+      login(user)
 
       get user_path(user)
       must_respond_with :success
     end
 
     it "renders missing for a bogus id" do
-      # login(User.first)
+      login(User.first)
 
       user_id = User.last.id + 1
 
@@ -50,9 +46,7 @@ describe UsersController do
       start_count = User.count
 
       user = users(:dan)
-
-      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
-      get auth_callback_path(:github)
+      login(user)
 
       must_redirect_to root_path
 
@@ -81,13 +75,13 @@ describe UsersController do
       new_user_count.must_equal old_user_count + 1
     end
 
-    it "redirects and gives failure status if given invalid user data" do
-      user = User.new(provider: "github", uid: nil, email: "test@test.com", username: nil)
+    it "responds if given invalid user data" do
+      OmniAuth.config.mock_auth[:github] = :invalid_credentials
+      get auth_callback_path(:github)
 
-      login(user)
 
-      must_redirect_to root_path
-      flash[:status].must_equal :failure
+      must_respond_with 302
+
     end
   end
 end
