@@ -1,6 +1,11 @@
 require 'test_helper'
 
 describe UsersController do
+  before do
+    user = users(:dan)
+    login(user)
+  end
+    
   describe 'index' do
     it 'must respond with success if there is more than one user' do
       get users_path
