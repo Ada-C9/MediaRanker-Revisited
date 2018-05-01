@@ -3,6 +3,8 @@ class SessionsController < ApplicationController
   end
 
   def login
+    auth_hash = request.env['omniauth.auth']
+    
     username = params[:username]
     if username and user = User.find_by(username: username)
       session[:user_id] = user.id
