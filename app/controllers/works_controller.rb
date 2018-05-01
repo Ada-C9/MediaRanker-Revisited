@@ -1,6 +1,8 @@
 class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
+  before_action :block_guest, except: [:root]
+
   before_action :category_from_work, except: [:root, :index, :new, :create]
 
   def root
@@ -38,6 +40,10 @@ class WorksController < ApplicationController
   end
 
   def edit
+    work = Work.find_by(id: params[:id])
+    if work.nil?
+      render :edit, status: :not_found
+    end
   end
 
   def update

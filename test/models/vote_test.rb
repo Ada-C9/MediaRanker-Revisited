@@ -16,8 +16,19 @@ describe Vote do
   end
 
   describe "validations" do
-    let (:user1) { User.new(username: 'chris') }
-    let (:user2) { User.new(username: 'chris') }
+    let (:user1) { User.new({
+      username: 'chris',
+      uid: 123,
+      email: "chris1@gmail.com",
+      provider: "github"
+      }) }
+
+    let (:user2) { User.new({
+      username: 'chris',
+      uid: 112,
+      email: "chris2@gmail.com",
+      provider: "github"
+      }) }
     let (:work1) { Work.new(category: 'book', title: 'House of Leaves') }
     let (:work2) { Work.new(category: 'book', title: 'For Whom the Bell Tolls') }
 
@@ -29,10 +40,12 @@ describe Vote do
     end
 
     it "allows multiple users to vote for a work" do
-      vote1 = Vote.new(user: user1, work: work1)
-      vote1.save!
-      vote2 = Vote.new(user: user2, work: work1)
-      vote2.valid?.must_equal true
+      proc {
+        vote1 = Vote.new(user: user1, work: work1)
+        vote1.save!
+        vote2 = Vote.new(user: user2, work: work1)
+        vote2.save!
+      }.must_change "Vote.count", 2
     end
 
     it "doesn't allow the same user to vote for the same work twice" do

@@ -1,12 +1,8 @@
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
-  get "/auth/:provider/callback", to: "sessions#create"
+  get "/auth/:provider/callback", to: "sessions#create", as: "login"
   delete "/logout", to: "sessions#destroy", as: "logout"
-
   root 'works#root'
-  get '/login', to: 'sessions#login_form', as: 'login'
-  post '/login', to: 'sessions#login'
-  post '/logout', to: 'sessions#logout', as: 'logout'
 
   resources :works
   post '/works/:id/upvote', to: 'works#upvote', as: 'upvote'

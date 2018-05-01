@@ -1,6 +1,7 @@
 require "test_helper"
 
 describe SessionsController do
+
   describe "login_form" do
     it "succeeds" do
       get login_path
@@ -13,7 +14,12 @@ describe SessionsController do
 
       user = users(:dan)
 
-      post login_path, params: { username: user.username }
+      post login_path, params: {
+          username: user.username,
+          uid: user.uid,
+          provider: user.provider,
+          email: user.email
+        }
 
       session[:user_id].must_equal user.id
 
@@ -23,7 +29,12 @@ describe SessionsController do
 
     it "can login non-existing user by creating a new user with valid input and redirect to root" do
       proc {
-        post login_path, params: { username: "new_user" }
+        post login_path, params: {
+          username: "new_user",
+          uid: 9999,
+          provider: "github",
+          email: "new@gmail.com"
+        }
       }.must_change 'User.count', 1
 
       user = User.last
@@ -35,7 +46,12 @@ describe SessionsController do
 
     it "cannot login non-existing user by creating a new user with invalid input and render bad_request" do
       proc {
-        post login_path, params: { username: nil }
+        post login_path, params: {
+          username: nil,
+          uid: 9999,
+          provider: "github",
+          email: "new@gmail.com"
+        }
       }.must_change 'User.count', 0
 
       must_respond_with :bad_request
@@ -45,9 +61,19 @@ describe SessionsController do
     it "can login another user while initial user is still logged on" do
       user1 = users(:dan)
       user2 = users(:kari)
-      post login_path, params: { username: user1.username }
+      post login_path, params: {
+        username: user1.username,
+        uid: user1.uid,
+        provider: user1.provider,
+        email: user1.email
+      }
 
-      post login_path, params: { username: user2.username }
+      post login_path, params: {
+        username: user2.username,
+        uid: user2.uid,
+        provider: user2.provider,
+        email: user2.email
+      }
 
       session[:user_id].must_equal user2.id
 
@@ -59,7 +85,12 @@ describe SessionsController do
   describe "logout" do
     it "can logout a logged in user" do
       user = users(:kari)
-      post login_path, params: { username: user.username }
+      post login_path, params: {
+        username: user.username,
+        uid: user.uid,
+        provider: user.provider,
+        email: user.email
+      }
 
       session[:user_id].must_equal user.id
 
