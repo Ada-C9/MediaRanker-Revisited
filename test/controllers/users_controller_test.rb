@@ -62,7 +62,7 @@ describe UsersController do
 
     it "creates an account for a new user and redirects to the root route" do
       old_user_count = User.count
-      user = User.new(provider: "github", uid: 123123, email: "test@test.com", username: "Test User 1")
+      user = User.new(provider: "github", uid: 123123, email: "someone@somewhere.com", username: "Evangeline")
       login(user)
       must_redirect_to root_path
 
