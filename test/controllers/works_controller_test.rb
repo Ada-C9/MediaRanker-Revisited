@@ -127,25 +127,88 @@ describe WorksController do
 
   describe "edit" do
     it "succeeds for an extant work ID" do
+      work = Work.last
 
+      get work_path(work)
+
+      must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      id = Work.last.id + 1
 
+      get work_path(id)
+
+      must_respond_with :not_found
     end
   end
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      old_works_count = Work.count
+      work = Work.last
+      work_data = {
+        title: 'Gladiator',
+        category: 'movie',
+        description: 'testing update action'
+      }
 
+      patch work_path(work), params: { work: work_data }
+
+      must_respond_with :redirect
+      must_redirect_to work_path(work)
+      work.reload
+      work.title.must_equal work_data[:title]
+      work.category.must_equal work_data[:category]
+      work.description.must_equal work_data[:description]
+      Work.count.must_equal old_works_count
     end
 
     it "renders bad_request for bogus data" do
+      old_works_count = Work.count
+      work = Work.last
+      work_data = {
+        title: '',
+        category: 'movie',
+        description: 'testing update action'
+      }
 
+      patch work_path(work), params: { work: work_data }
+
+      must_respond_with :bad_request
+      work.reload
+      work.title.wont_equal work_data[:title]
+      Work.count.must_equal old_works_count
+    end
+
+    it "renders bad_request for a bogus category" do
+      old_works_count = Work.count
+      work = Work.last
+      work_data = {
+        title: 'Gladiator',
+        category: INVALID_CATEGORIES.sample,
+        description: 'testing update action'
+      }
+
+      patch work_path(work), params: { work: work_data }
+
+      must_respond_with :bad_request
+      work.reload
+      work.category.wont_equal work_data[:category]
+      Work.count.must_equal old_works_count
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      id = Work.last.id + 1
+      work_data = {
+        title: 'Gladiator',
+        category: 'movie',
+        description: 'testing update action'
+      }
 
+      patch work_path(id), params: { work: work_data }
+
+      must_respond_with :not_found
     end
   end
 
