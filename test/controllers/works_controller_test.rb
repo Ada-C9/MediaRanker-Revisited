@@ -16,6 +16,9 @@ describe WorksController do
   describe "root" do
     it "succeeds with all media types" do
       # Precondition: there is at least one media of each category
+      Work.where(category: "book").count.must_be :>, 0
+      Work.where(category: "movie").count.must_be :>, 0
+      Work.where(category: "album").count.must_be :>, 0
       get root_path
 
       must_respond_with :success
@@ -44,6 +47,7 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      Work.count.must_be :>, 0
       get works_path
 
       must_respond_with :success
@@ -51,6 +55,8 @@ describe WorksController do
 
     it "succeeds when there are no works" do
       Work.destroy_all
+
+      Work.all.count.must_equal 0
 
       get works_path
 
@@ -71,7 +77,7 @@ describe WorksController do
       # Arrange
       work_data = {
         title: 'controller test book',
-        category: 'book'
+        category: CATEGORIES.sample
       }
 
       old_count = Work.count
@@ -223,14 +229,27 @@ describe WorksController do
 
       post upvote_path(work_id)
 
-      vote_count.must_equal vote_count
+      must_respond_with :redirect
       must_redirect_to work_path(work_id)
+      vote_count.must_equal vote_count
+    end
+
+    it "redirects to the work page after the user has logged out" do
+      work = Work.first
+      user = User.first
+      login(user)
+
+      post upvote_path(work)
+      must_respond_with :redirect
+      must_redirect_to work_path(work)
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      user = User.last
-      post login_path, params: { username: user.username}
       work = Work.first
+      user = User.last
+
+      login(user)
+      # post login_path, params: { username: user.username}
       old_vote_count = work.votes.count
 
       post upvote_path(work.id)
@@ -241,13 +260,14 @@ describe WorksController do
 
     it "redirects to the work page if the user has already voted for that work" do
       user = User.first
-      post login_path, params: { username: user.username}
+      login(user)
       work = Work.first
       old_vote_count = Work.first.votes.count
 
       post upvote_path(work.id)
       post upvote_path(work.id)
 
+      must_respond_with :redirect
       work.vote_count.wont_equal old_vote_count + 1
       must_redirect_to work_path(work.id)
     end
