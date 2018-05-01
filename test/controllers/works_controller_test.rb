@@ -21,9 +21,7 @@ describe WorksController do
     end
 
     it "succeeds with no media" do
-      Work.all.each do |work|
-        work.destroy
-      end
+      Work.destroy_all
 
       Work.count.must_equal 0
       get root_path
@@ -54,9 +52,7 @@ describe WorksController do
 
     it "succeeds for OATH users when there are no works" do
       perform_login(users(:ada))
-      Work.all.each do |work|
-        work.destroy
-      end
+      Work.destroy_all
       Work.count.must_equal 0
       get works_path
 
@@ -67,9 +63,7 @@ describe WorksController do
       post login_path, params: {
         username: "dan"
       }
-      Work.all.each do |work|
-        work.destroy
-      end
+      Work.destroy_all
       Work.count.must_equal 0
       get works_path
 
@@ -424,6 +418,15 @@ describe WorksController do
   end
 
   describe "upvote" do
+    it "redirects to the work page if no user is logged in" do
+      Vote.count.must_equal 4
+      post upvote_path(works(:album).id)
+
+      must_respond_with :redirect
+      must_redirect_to root_path
+      Vote.count.must_equal 4
+    end
+
     it "succeeds for a logged-in user and a fresh user-vote pair - OATH" do
       proc {
         perform_login(users(:ada))
@@ -454,18 +457,18 @@ describe WorksController do
       must_redirect_to work_path(works(:poodr).id)
     end
 
-    # it "redirects to the work page if the user has already voted for that work - OATH" do
-    #   proc {
-    #     perform_login(users(:ada))
-    #
-    #     post upvote_path(works(:album).id), params: {
-    #       user: users(:ada),
-    #       work: works(:album)
-    #     }
-    #   }.must_change "Vote.count", 0
-    #   # must_respond_with :redirect
-    #   # must_redirect_to work_path(works(:album).id)
-    # end
+    it "redirects to the work page if the user has already voted for that work - OATH" do
+      proc {
+        perform_login(users(:ada))
+
+        post upvote_path(works(:album).id), params: {
+          user: users(:ada),
+          work: works(:album)
+        }
+      }.must_change "Vote.count", 0
+      must_respond_with :redirect
+      must_redirect_to work_path(works(:album).id)
+    end
 
     it "redirects to the work page if the user has already voted for that work - User" do
       proc {
@@ -481,13 +484,6 @@ describe WorksController do
       must_redirect_to work_path(works(:album).id)
     end
 
-    it "redirects to the work page if no user is logged in" do
-      Vote.count.must_equal 3
-      post upvote_path(works(:album).id)
-    
-      must_respond_with :redirect
-      must_redirect_to root_path
-      Vote.count.must_equal 3
-    end
+
   end
 end
