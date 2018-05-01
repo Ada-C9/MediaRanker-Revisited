@@ -42,10 +42,8 @@ class ActiveSupport::TestCase
 
   def login(user)
     OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
-    # binding.pry
+
     get auth_callback_path
-    # binding.pry
-    must_redirect_to root_path
   end
 
 end
