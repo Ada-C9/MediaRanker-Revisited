@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'pry'
 
 describe WorksController do
   describe "root" do
@@ -55,22 +56,57 @@ describe WorksController do
   describe "new" do
     it "succeeds" do
       work = Work.first
-      get new_work_path, params: {work: work}
+      get new_work_path, params: { work: work }
       must_respond_with :success
     end
   end
 
   describe "create" do
     it "creates a work with valid data for a real category" do
+      old_works_count = Work.all.count
+      work_data = {
+        title: 'Gladiator',
+        category: 'movie'
+      }
 
+      Work.new(work_data).must_be :valid?
+
+      post works_path, params: { work: work_data }
+      must_respond_with :redirect
+      must_redirect_to work_path(Work.last)
+
+      Work.count.must_equal old_works_count + 1
+      CATEGORIES.must_include Work.last.category.pluralize
+      INVALID_CATEGORIES.wont_include Work.last.category
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
+      old_works_count = Work.all.count
+      work_data = {
+        category: 'movie'
+      }
 
+      Work.new(work_data).wont_be :valid?
+
+      post works_path, params: { work: work_data }
+      must_respond_with :bad_request
+
+      Work.count.must_equal old_works_count
     end
 
     it "renders 400 bad_request for bogus categories" do
+      old_works_count = Work.all.count
+      work_data = {
+        title: 'Gladiator',
+        category: INVALID_CATEGORIES.sample
+      }
 
+      Work.new(work_data).wont_be :valid?
+
+      post works_path, params: { work: work_data }
+      must_respond_with :bad_request
+
+      Work.count.must_equal old_works_count
     end
 
   end
