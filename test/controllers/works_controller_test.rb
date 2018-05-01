@@ -3,11 +3,9 @@ require 'test_helper'
 describe WorksController do
   # LOGGED IN ------------------------------------------------------------------
   describe "Logged in users" do
-
     describe "show" do
-
       before do
-        login(users(:kari))
+        login_for_test(users(:kari))
       end
 
       # Just the standard show tests
@@ -26,9 +24,8 @@ describe WorksController do
 
     # root -----------------------------------------------------------------------
     describe "root" do
-
       before do
-        login(users(:kari))
+        login_for_test(users(:kari))
       end
 
       it "succeeds with all media types" do
@@ -58,7 +55,7 @@ describe WorksController do
     # index ----------------------------------------------------------------------
     describe "index" do
       before do
-        login(users(:kari))
+        login_for_test(users(:kari))
       end
 
       it "succeeds when there are works" do
@@ -77,7 +74,7 @@ describe WorksController do
     # new ------------------------------------------------------------------------
     describe "new" do
       before do
-        login(users(:kari))
+        login_for_test(users(:kari))
       end
 
       it "succeeds" do
@@ -89,7 +86,7 @@ describe WorksController do
     # create ---------------------------------------------------------------------
     describe "create" do
       before do
-        login(users(:kari))
+        login_for_test(users(:kari))
       end
 
       it "creates a work with valid data for a real category" do
@@ -132,7 +129,7 @@ describe WorksController do
     # show -----------------------------------------------------------------------
     describe "show" do
       before do
-        login(users(:kari))
+        login_for_test(users(:kari))
       end
 
       it "succeeds for an extant work ID" do
@@ -149,7 +146,7 @@ describe WorksController do
     # edit -----------------------------------------------------------------------
     describe "edit" do
       before do
-        login(users(:kari))
+        login_for_test(users(:kari))
       end
 
       it "succeeds for an extant work ID" do
@@ -166,7 +163,7 @@ describe WorksController do
     # update ---------------------------------------------------------------------
     describe "update" do
       before do
-        login(users(:kari))
+        login_for_test(users(:kari))
       end
 
       it "succeeds for valid data and an extant work ID" do
@@ -198,7 +195,7 @@ describe WorksController do
     # destroy --------------------------------------------------------------------
     describe "destroy" do
       before do
-        login(users(:kari))
+        login_for_test(users(:kari))
       end
 
       it "succeeds for an extant work ID" do
@@ -216,11 +213,11 @@ describe WorksController do
     # upvote ---------------------------------------------------------------------
     describe "upvote" do
       before do
-        login(users(:kari))
+        login_for_test(users(:kari))
       end
 
       it "redirects to the work page if no user is logged in" do
-        post logout_path, params: { username: users(:kari).username }
+        delete logout_path, params: { username: users(:kari).username }
         post upvote_path(works(:movie).id), params: {
           vote: { user: users(:kari), work: works(:movie).id }
         }
@@ -233,7 +230,7 @@ describe WorksController do
       it "redirects to the work page after the user has logged out" do
         user = users(:kari)
         OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
-        post logout_path, params: { username: users(:kari).username }
+        delete logout_path, params: { username: users(:kari).username }
         post upvote_path(works(:movie).id), params: {
           vote: { user: users(:kari), work: works(:movie).id }
         }
