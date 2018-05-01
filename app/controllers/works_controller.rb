@@ -74,8 +74,8 @@ class WorksController < ApplicationController
         flash[:result_text] = "Could not upvote"
         flash[:messages] = vote.errors.messages
       end
-    else
-      flash[:result_text] = "You must log in to do that"
+    # else
+    #   flash[:result_text] = "You must log in to do that"
     end
 
     # Refresh the page to show either the updated vote count
