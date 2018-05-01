@@ -3,6 +3,30 @@ require 'pry'
 
 describe UsersController do
 
+  describe 'guest user' do
+
+    describe 'index' do
+      it 'responds with unauthorized for a guest user' do
+        User.count.must_be :>, 0
+        get users_path
+        must_respond_with :unauthorized
+      end
+
+    end # index
+
+    describe 'show' do
+
+      it 'responds with unauthorized for a guest user' do
+        User.count.must_be :>, 0
+        user = User.last
+        get user_path(user)
+        must_respond_with :unauthorized
+      end
+
+    end
+
+  end # guest user
+
   describe 'logged-in user' do
     before do
       @user = User.first
