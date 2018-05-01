@@ -44,4 +44,31 @@ describe UsersController do
 
   end
 
+  describe "auth_callback" do
+
+    it "logs in an existing user and redirects to root_path" do
+      start_count = User.count
+      user = users(:dan)
+
+      login(user)
+
+      must_redirect_to root_path
+      session[:user_id].must_equal user.id
+      User.count.must_equal start_count
+    end
+
+    it "creates a new user" do
+      start_count = User.count
+      user = User.new(provider: "github", uid: 12345)
+
+      login(user)
+
+      must_redirect_to root_path
+
+      User.count.must_equal start_count + 1
+      session[:user_id].must_equal User.last.id
+    end
+
+  end
+
 end
