@@ -2,271 +2,358 @@ require 'test_helper'
 require 'pry'
 
 describe WorksController do
-  describe "root" do
-    it "succeeds with all media types" do
-      # Precondition: there is at least one media of each category
-      categories = Work.all.map { |work| work.category.pluralize }
-      (categories - CATEGORIES).must_be :empty?
-      get root_path
-      must_respond_with :success
-    end
-
-    it "succeeds with one media type absent" do
-      # Precondition: there is at least one media in two of the categories
-      works = Work.all
-      old_works_count = Work.count
-      movies_count = 0
-      works.each do |work|
-        if work.category == 'movie'
-          works.delete(work)
-          movies_count += 1
-        end
-      end
-      Work.count.must_equal old_works_count - movies_count
-      get root_path
-      must_respond_with :success
-    end
-
-    it "succeeds with no media" do
-      Work.delete_all
-      Work.count.must_equal 0
-      get root_path
-      must_respond_with :success
-    end
-  end
-
   CATEGORIES = %w(albums books movies)
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
-  describe "index" do
-    it "succeeds when there are works" do
-      Work.all.count.must_be :>, 0
-      get works_path
-      must_respond_with :success
+  describe 'guest user' do
+
+    describe "root" do
+      it "succeeds with all media types" do
+        # Precondition: there is at least one media of each category
+        categories = Work.all.map { |work| work.category.pluralize }
+        (categories - CATEGORIES).must_be :empty?
+        get root_path
+        must_respond_with :success
+      end
+
+      it "succeeds with one media type absent" do
+        # Precondition: there is at least one media in two of the categories
+        works = Work.all
+        old_works_count = Work.count
+        movies_count = 0
+        works.each do |work|
+          if work.category == 'movie'
+            works.delete(work)
+            movies_count += 1
+          end
+        end
+        Work.count.must_equal old_works_count - movies_count
+        get root_path
+        must_respond_with :success
+      end
+
+      it "succeeds with no media" do
+        Work.delete_all
+        Work.count.must_equal 0
+        get root_path
+        must_respond_with :success
+      end
+    end # root
+
+    describe 'index' do
+      it 'responds with unauthorized for a guest user' do
+        Work.all.count.must_be :>, 0
+        get works_path
+        must_respond_with :unauthorized
+      end
+    end # index
+
+    describe 'new' do
+      it 'responds with unauthorized for a guest user' do
+        work = Work.first
+        get new_work_path(work)
+        must_respond_with :unauthorized
+      end
+    end # new
+
+    describe 'create' do
+      it 'responds with unauthorized for a guest user' do
+        old_works_count = Work.all.count
+        work_data = {
+          title: 'Gladiator',
+          category: 'movie'
+        }
+        Work.new(work_data).must_be :valid?
+
+        post works_path, params: { work: work_data }
+        must_respond_with :unauthorized
+        Work.count.must_equal old_works_count
+      end
+    end # create
+
+    describe 'show' do
+      it 'responds with unauthorized for a guest user' do
+        work = Work.last
+        get work_path(work)
+        must_respond_with :unauthorized
+      end
+    end # show
+
+    describe 'edit' do
+      it 'responds with unauthorized for a guest user' do
+        work = Work.last
+        get work_path(work)
+        must_respond_with :unauthorized
+      end
+    end # edit
+
+    describe 'update' do
+      it 'responds with unauthorized for a guest user' do
+        old_works_count = Work.count
+        work = Work.last
+        work_data = {
+          title: 'Gladiator',
+          category: 'movie',
+          description: 'testing update action'
+        }
+
+        patch work_path(work), params: { work: work_data }
+
+        must_respond_with :unauthorized
+        Work.count.must_equal old_works_count
+      end
+    end # update
+
+    describe 'destroy' do
+      it 'responds with unauthorized for a guest user' do
+        old_works_count = Work.count
+        work = Work.last
+
+        delete work_path(work)
+
+        must_respond_with :unauthorized
+        Work.count.must_equal old_works_count
+      end
+    end # destroy
+
+    describe 'upvote' do
+      it 'responds with unauthorized for a guest user' do
+        work = Work.last
+        votes_before = work.votes.count
+        post upvote_path(work)
+        must_respond_with :unauthorized
+        work.votes.count.must_equal votes_before
+      end
+    end # upvote
+
+  end # guest user
+
+  describe 'logged-in user' do
+    before do
+      @user = User.first
     end
 
-    it "succeeds when there are no works" do
-      Work.delete_all
-      Work.count.must_equal 0
-      get works_path
-      must_respond_with :success
-    end
-  end
+    describe "index" do
 
-  describe "new" do
-    it "succeeds" do
-      work = Work.first
-      get new_work_path, params: { work: work }
-      must_respond_with :success
-    end
-  end
+      it "succeeds when there are works" do
+        login(@user)
+        Work.all.count.must_be :>, 0
+        get works_path
+        must_respond_with :success
+      end
 
-  describe "create" do
-    it "creates a work with valid data for a real category" do
-      old_works_count = Work.all.count
-      work_data = {
-        title: 'Gladiator',
-        category: 'movie'
-      }
-
-      Work.new(work_data).must_be :valid?
-
-      post works_path, params: { work: work_data }
-      must_respond_with :redirect
-      must_redirect_to work_path(Work.last)
-
-      Work.count.must_equal old_works_count + 1
-      CATEGORIES.must_include Work.last.category.pluralize
-      INVALID_CATEGORIES.wont_include Work.last.category
+      it "succeeds when there are no works" do
+        login(@user)
+        Work.delete_all
+        Work.count.must_equal 0
+        get works_path
+        must_respond_with :success
+      end
     end
 
-    it "renders bad_request and does not update the DB for bogus data" do
-      old_works_count = Work.all.count
-      work_data = {
-        category: 'movie'
-      }
+    describe "new" do
 
-      Work.new(work_data).wont_be :valid?
-
-      post works_path, params: { work: work_data }
-      must_respond_with :bad_request
-
-      Work.count.must_equal old_works_count
+      it "succeeds" do
+        login(@user)
+        work = Work.first
+        get new_work_path, params: { work: work }
+        must_respond_with :success
+      end
     end
 
-    it "renders 400 bad_request for bogus categories" do
-      old_works_count = Work.all.count
-      work_data = {
-        title: 'Gladiator',
-        category: INVALID_CATEGORIES.sample
-      }
+    describe "create" do
 
-      Work.new(work_data).wont_be :valid?
+      it "creates a work with valid data for a real category" do
+        login(@user)
+        old_works_count = Work.all.count
+        work_data = {
+          title: 'Gladiator',
+          category: 'movie'
+        }
 
-      post works_path, params: { work: work_data }
-      must_respond_with :bad_request
+        Work.new(work_data).must_be :valid?
 
-      Work.count.must_equal old_works_count
-    end
+        post works_path, params: { work: work_data }
+        must_respond_with :redirect
+        must_redirect_to work_path(Work.last)
 
-  end
+        Work.count.must_equal old_works_count + 1
+        CATEGORIES.must_include Work.last.category.pluralize
+        INVALID_CATEGORIES.wont_include Work.last.category
+      end
 
-  describe "show" do
-    it "succeeds for an extant work ID" do
-      work = Work.last
-      get work_path(work)
-      must_respond_with :success
-    end
+      it "renders bad_request and does not update the DB for bogus data" do
+        login(@user)
+        old_works_count = Work.all.count
+        work_data = {
+          category: 'movie'
+        }
 
-    it "renders 404 not_found for a bogus work ID" do
-      id = Work.last.id + 1
-      get work_path(id)
-      must_respond_with :not_found
-    end
-  end
+        Work.new(work_data).wont_be :valid?
 
-  describe "edit" do
-    it "succeeds for an extant work ID" do
-      work = Work.last
+        post works_path, params: { work: work_data }
+        must_respond_with :bad_request
 
-      get work_path(work)
+        Work.count.must_equal old_works_count
+      end
 
-      must_respond_with :success
-    end
+      it "renders 400 bad_request for bogus categories" do
+        login(@user)
+        old_works_count = Work.all.count
+        work_data = {
+          title: 'Gladiator',
+          category: INVALID_CATEGORIES.sample
+        }
 
-    it "renders 404 not_found for a bogus work ID" do
-      id = Work.last.id + 1
+        Work.new(work_data).wont_be :valid?
 
-      get work_path(id)
+        post works_path, params: { work: work_data }
+        must_respond_with :bad_request
 
-      must_respond_with :not_found
-    end
-  end
+        Work.count.must_equal old_works_count
+      end
 
-  describe "update" do
-    it "succeeds for valid data and an extant work ID" do
-      old_works_count = Work.count
-      work = Work.last
-      work_data = {
-        title: 'Gladiator',
-        category: 'movie',
-        description: 'testing update action'
-      }
+    end # create
 
-      patch work_path(work), params: { work: work_data }
+    describe "show" do
 
-      must_respond_with :redirect
-      must_redirect_to work_path(work)
-      work.reload
-      work.title.must_equal work_data[:title]
-      work.category.must_equal work_data[:category]
-      work.description.must_equal work_data[:description]
-      Work.count.must_equal old_works_count
-    end
+      it "succeeds for an extant work ID" do
+        login(@user)
+        work = Work.last
+        get work_path(work)
+        must_respond_with :success
+      end
 
-    it "renders bad_request for bogus data" do
-      old_works_count = Work.count
-      work = Work.last
-      work_data = {
-        title: '',
-        category: 'movie',
-        description: 'testing update action'
-      }
+      it "renders 404 not_found for a bogus work ID" do
+        login(@user)
+        id = Work.last.id + 1
+        get work_path(id)
+        must_respond_with :not_found
+      end
+    end # show
 
-      patch work_path(work), params: { work: work_data }
+    describe "edit" do
+      it "succeeds for an extant work ID" do
+        login(@user)
+        work = Work.last
 
-      must_respond_with :bad_request
-      work.reload
-      work.title.wont_equal work_data[:title]
-      Work.count.must_equal old_works_count
-    end
+        get work_path(work)
 
-    it "renders bad_request for a bogus category" do
-      old_works_count = Work.count
-      work = Work.last
-      work_data = {
-        title: 'Gladiator',
-        category: INVALID_CATEGORIES.sample,
-        description: 'testing update action'
-      }
+        must_respond_with :success
+      end
 
-      patch work_path(work), params: { work: work_data }
+      it "renders 404 not_found for a bogus work ID" do
+        login(@user)
+        id = Work.last.id + 1
 
-      must_respond_with :bad_request
-      work.reload
-      work.category.wont_equal work_data[:category]
-      Work.count.must_equal old_works_count
-    end
+        get work_path(id)
 
-    it "renders 404 not_found for a bogus work ID" do
-      id = Work.last.id + 1
-      work_data = {
-        title: 'Gladiator',
-        category: 'movie',
-        description: 'testing update action'
-      }
+        must_respond_with :not_found
+      end
+    end # edit
 
-      patch work_path(id), params: { work: work_data }
+    describe "update" do
 
-      must_respond_with :not_found
-    end
-  end
+      it "succeeds for valid data and an extant work ID" do
+        login(@user)
+        old_works_count = Work.count
+        work = Work.last
+        work_data = {
+          title: 'Gladiator',
+          category: 'movie',
+          description: 'testing update action'
+        }
 
-  describe "destroy" do
-    it "succeeds for an extant work ID" do
-      old_works_count = Work.count
-      work = Work.last
+        patch work_path(work), params: { work: work_data }
 
-      delete work_path(work)
+        must_respond_with :redirect
+        must_redirect_to work_path(work)
+        work.reload
+        work.title.must_equal work_data[:title]
+        work.category.must_equal work_data[:category]
+        work.description.must_equal work_data[:description]
+        Work.count.must_equal old_works_count
+      end
 
-      must_respond_with :redirect
-      must_redirect_to root_path
-      Work.count.must_equal old_works_count - 1
-    end
+      it "renders bad_request for bogus data" do
+        login(@user)
+        old_works_count = Work.count
+        work = Work.last
+        work_data = {
+          title: '',
+          category: 'movie',
+          description: 'testing update action'
+        }
 
-    it "renders 404 not_found and does not update the DB for a bogus work ID" do
-      old_works_count = Work.count
-      id = Work.last.id + 1
+        patch work_path(work), params: { work: work_data }
 
-      delete work_path(id)
+        must_respond_with :bad_request
+        work.reload
+        work.title.wont_equal work_data[:title]
+        Work.count.must_equal old_works_count
+      end
 
-      must_respond_with :not_found
-      Work.count.
-      must_equal old_works_count
-    end
-  end
+      it "renders bad_request for a bogus category" do
+        login(@user)
+        old_works_count = Work.count
+        work = Work.last
+        work_data = {
+          title: 'Gladiator',
+          category: INVALID_CATEGORIES.sample,
+          description: 'testing update action'
+        }
 
-  describe "upvote" do
+        patch work_path(work), params: { work: work_data }
 
-    it "redirects to the work page if no user is logged in" do
-      work = Work.last
-      votes_before = work.votes.count
+        must_respond_with :bad_request
+        work.reload
+        work.category.wont_equal work_data[:category]
+        Work.count.must_equal old_works_count
+      end
 
-      post upvote_path(work)
+      it "renders 404 not_found for a bogus work ID" do
+        login(@user)
+        id = Work.last.id + 1
+        work_data = {
+          title: 'Gladiator',
+          category: 'movie',
+          description: 'testing update action'
+        }
 
-      work.reload
-      must_respond_with :redirect
-      must_redirect_to work_path(work)
-      work.votes.count.must_equal votes_before
-    end
+        patch work_path(id), params: { work: work_data }
 
-    it "redirects to the work page after the user has logged out" do
-      work = Work.last
-      votes_before = work.votes.count
-      user = User.last
+        must_respond_with :not_found
+      end
+    end # update
 
-      login(user)
-      post logout_path
+    describe "destroy" do
 
-      post upvote_path(work)
+      it "succeeds for an extant work ID" do
+        login(@user)
+        old_works_count = Work.count
+        work = Work.last
 
-      work.reload
-      must_respond_with :redirect
-      must_redirect_to work_path(work)
-      work.votes.count.must_equal votes_before
-    end
+        delete work_path(work)
 
-    describe 'upvotes from a logged-in user' do
+        must_respond_with :redirect
+        must_redirect_to root_path
+        Work.count.must_equal old_works_count - 1
+      end
+
+      it "renders 404 not_found and does not update the DB for a bogus work ID" do
+        login(@user)
+        old_works_count = Work.count
+        id = Work.last.id + 1
+
+        delete work_path(id)
+
+        must_respond_with :not_found
+        Work.count.
+        must_equal old_works_count
+      end
+    end # destroy
+
+    describe "upvote" do
       before do
         @work = Work.last
         @votes_before = @work.votes.count
@@ -296,8 +383,11 @@ describe WorksController do
         @work.votes.count.must_equal votes_after_first_vote
       end
 
-    end # logged-in user
+      describe 'upvotes from a logged-in user' do
 
-  end # upvote
+      end # logged-in user
+
+    end # upvote
+  end # logged-in user
 
 end # WorksController
