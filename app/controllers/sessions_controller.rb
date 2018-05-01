@@ -9,9 +9,9 @@ class SessionsController < ApplicationController
       @user = User.find_by(uid: auth_hash[:uid], provider: auth_hash[:provider])
       if @user.nil?
         @user = User.new(
-          username: auth_hash[:name],
+          username: auth_hash[:info][:name],
           uid: auth_hash[:uid],
-          email: auth_hash[:email],
+          email: auth_hash[:info][:email],
           provider: auth_hash[:provider]
         )
 
