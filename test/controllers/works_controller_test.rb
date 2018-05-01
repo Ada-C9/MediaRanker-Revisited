@@ -2,282 +2,363 @@ require 'test_helper'
 require 'pry'
 
 describe WorksController do
-  describe "root" do
-    it "succeeds with all media types" do
-      # Precondition: there is at least one media of each category
 
-      Work.where(category: 'album').length.must_be :>, 0
-      Work.where(category: 'book').length.must_be :>, 0
-      Work.where(category: 'movie').length.must_be :>, 0
+  describe 'guest user' do
+    describe 'root' do
+      it "succeeds with all media types" do
+        # Precondition: there is at least one media of each category
 
-      get root_path
+        Work.where(category: 'album').length.must_be :>, 0
+        Work.where(category: 'book').length.must_be :>, 0
+        Work.where(category: 'movie').length.must_be :>, 0
 
-      must_respond_with :success
-    end
+        get root_path
 
-    it "succeeds with one media type absent" do
-      # Precondition: there is at least one media in two of the categories
-
-      movies = Work.where(category: 'movie')
-      movies.each do |movie|
-        movie.delete
+        must_respond_with :success
       end
 
-      Work.where(category: 'movie').length.must_be :<, 1
+      it "succeeds with one media type absent" do
+        # Precondition: there is at least one media in two of the categories
 
-      get root_path
+        movies = Work.where(category: 'movie')
+        movies.each do |movie|
+          movie.delete
+        end
 
-      must_respond_with :success
-    end
+        Work.where(category: 'movie').length.must_be :<, 1
 
-    it "succeeds with one media type absent" do
-      # Precondition: there is at least one media in two of the categories
+        get root_path
 
-      movies = Work.where(category: 'movie')
-      movies.each do |movie|
-        movie.delete
+        must_respond_with :success
       end
 
-      Work.where(category: 'movie').length.must_be :<, 1
+      it "succeeds with one media type absent" do
+        # Precondition: there is at least one media in two of the categories
 
-      get root_path
+        movies = Work.where(category: 'movie')
+        movies.each do |movie|
+          movie.delete
+        end
 
-      must_respond_with :success
+        Work.where(category: 'movie').length.must_be :<, 1
+
+        get root_path
+
+        must_respond_with :success
+
+      end
+    end
+
+    describe 'upvote' do
+
+      it "redirects to the work page if no user is logged in" do
+
+        @login_user = nil
+
+        work = Work.last
+
+        starting_vote_count = work.vote_count
+
+        post upvote_path(work)
+
+        work.reload
+        ending_vote_count = work.vote_count
+
+        must_respond_with :redirect
+        must_redirect_to work_path(work)
+
+        ending_vote_count.must_equal starting_vote_count
+      end
+    end
+
+    describe "index" do
 
     end
+
+    describe "new" do
+
+    end
+
+    describe "create" do
+
+    end
+
+    describe "show" do
+
+    end
+
+    describe "edit" do
+
+    end
+
+    describe "update" do
+      
+    end
+
+    describe "delete" do
+
+    end
+
   end
 
-  CATEGORIES = %w(albums books movies)
-  INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
+  describe 'logged in user' do
+    describe "root" do
+      it "succeeds with all media types" do
+        # Precondition: there is at least one media of each category
 
-  describe "index" do
-    it "succeeds when there are works" do
-      get works_path
+        Work.where(category: 'album').length.must_be :>, 0
+        Work.where(category: 'book').length.must_be :>, 0
+        Work.where(category: 'movie').length.must_be :>, 0
 
-      must_respond_with :success
-    end
+        get root_path
 
-    it "succeeds when there are no works" do
-
-      @albums = []
-      @books = []
-      @movies = []
-
-      get works_path
-
-      must_respond_with :success
-    end
-
-    it "succeeds with one media type absent" do
-
-      movies = Work.where(category: 'movie')
-      movies.each do |movie|
-        movie.delete
+        must_respond_with :success
       end
 
-      Work.where(category: 'movie').length.must_be :<, 1
+      it "succeeds with one media type absent" do
+        # Precondition: there is at least one media in two of the categories
 
-      get works_path
+        movies = Work.where(category: 'movie')
+        movies.each do |movie|
+          movie.delete
+        end
 
-      must_respond_with :success
-    end
-  end
+        Work.where(category: 'movie').length.must_be :<, 1
 
-  describe "new" do
-    it "succeeds" do
+        get root_path
 
-      get new_work_path
+        must_respond_with :success
+      end
 
-      must_respond_with :success
-    end
-  end
+      it "succeeds with one media type absent" do
+        # Precondition: there is at least one media in two of the categories
 
-  describe "create" do
-    it "creates a work with valid data for a real category" do
-      work_data = {
-        title: "OMG best book",
-        category: "movies"
-      }
-      work_count = Work.count
+        movies = Work.where(category: 'movie')
+        movies.each do |movie|
+          movie.delete
+        end
 
-      Work.new(work_data).must_be :valid?
+        Work.where(category: 'movie').length.must_be :<, 1
 
-      post works_path, params: {work: work_data}
+        get root_path
 
-      must_respond_with :redirect
-      must_redirect_to work_path(Work.last.id)
+        must_respond_with :success
 
-      Work.count.must_equal work_count + 1
-      Work.last.title.must_equal work_data[:title]
-
+      end
     end
 
-    it "renders bad_request and does not update the DB for bogus data" do
+    CATEGORIES = %w(albums books movies)
+    INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
-      work_data = {
-        category: "movies"
-      }
-      work_count = Work.count
+    describe "index" do
+      it "succeeds when there are works" do
+        get works_path
 
-      Work.new(work_data).wont_be :valid?
+        must_respond_with :success
+      end
 
-      post works_path, params: {work: work_data}
+      it "succeeds when there are no works" do
 
-      must_respond_with :bad_request
+        @albums = []
+        @books = []
+        @movies = []
 
-      Work.count.must_equal work_count
+        get works_path
+
+        must_respond_with :success
+      end
+
+      it "succeeds with one media type absent" do
+
+        movies = Work.where(category: 'movie')
+        movies.each do |movie|
+          movie.delete
+        end
+
+        Work.where(category: 'movie').length.must_be :<, 1
+
+        get works_path
+
+        must_respond_with :success
+      end
+    end
+
+    describe "new" do
+      it "succeeds" do
+
+        get new_work_path
+
+        must_respond_with :success
+      end
+    end
+
+    describe "create" do
+      it "creates a work with valid data for a real category" do
+        work_data = {
+          title: "OMG best book",
+          category: "movies"
+        }
+        work_count = Work.count
+
+        Work.new(work_data).must_be :valid?
+
+        post works_path, params: {work: work_data}
+
+        must_respond_with :redirect
+        must_redirect_to work_path(Work.last.id)
+
+        Work.count.must_equal work_count + 1
+        Work.last.title.must_equal work_data[:title]
+
+      end
+
+      it "renders bad_request and does not update the DB for bogus data" do
+
+        work_data = {
+          category: "movies"
+        }
+        work_count = Work.count
+
+        Work.new(work_data).wont_be :valid?
+
+        post works_path, params: {work: work_data}
+
+        must_respond_with :bad_request
+
+        Work.count.must_equal work_count
+
+      end
+
+      it "renders 400 bad_request for bogus categories" do
+
+        work_data = {
+          title: "hot new stuff",
+          category: " "
+        }
+        work_count = Work.count
+
+        Work.new(work_data).wont_be :valid?
+
+        post works_path, params: {work: work_data}
+
+        must_respond_with :bad_request
+
+        Work.count.must_equal work_count
+
+      end
 
     end
 
-    it "renders 400 bad_request for bogus categories" do
+    describe "show" do
+      it "succeeds for an extant work ID" do
+        get work_path(Work.first)
+        must_respond_with :success
 
-      work_data = {
-        title: "hot new stuff",
-        category: " "
-      }
-      work_count = Work.count
+      end
 
-      Work.new(work_data).wont_be :valid?
-
-      post works_path, params: {work: work_data}
-
-      must_respond_with :bad_request
-
-      Work.count.must_equal work_count
-
+      it "renders 404 not_found for a bogus work ID" do
+        get work_path(Work.last.id + 1)
+        must_respond_with :not_found
+      end
     end
 
-  end
+    describe "edit" do
+      it "succeeds for an extant work ID" do
+        get edit_work_path(Work.first)
+        must_respond_with :success
+      end
 
-  describe "show" do
-    it "succeeds for an extant work ID" do
-      get work_path(Work.first)
-      must_respond_with :success
-
+      it "renders 404 not_found for a bogus work ID" do
+        get edit_work_path(Work.last.id + 1)
+        must_respond_with :not_found
+      end
     end
 
-    it "renders 404 not_found for a bogus work ID" do
-      get work_path(Work.last.id + 1)
-      must_respond_with :not_found
-    end
-  end
+    describe "update" do
+      it "succeeds for valid data and an extant work ID" do
 
-  describe "edit" do
-    it "succeeds for an extant work ID" do
-      get edit_work_path(Work.first)
-      must_respond_with :success
-    end
+        work = Work.first
+        work_data = work.attributes
+        work_data[:title] = "So Updated, Much Change"
+        work.assign_attributes(work_data)
+        work.must_be :valid?
 
-    it "renders 404 not_found for a bogus work ID" do
-      get edit_work_path(Work.last.id + 1)
-      must_respond_with :not_found
-    end
-  end
+        patch work_path(work), params: { work: work_data}
 
-  describe "update" do
-    it "succeeds for valid data and an extant work ID" do
+        work.reload
+        work.title.must_equal work_data[:title]
 
-      work = Work.first
-      work_data = work.attributes
-      work_data[:title] = "So Updated, Much Change"
-      work.assign_attributes(work_data)
-      work.must_be :valid?
+      end
 
-      patch work_path(work), params: { work: work_data}
+      it "renders 404 not_found for bogus data" do
+        work = Work.first
+        work_data = work.attributes
+        work_data[:title] = nil
+        work.assign_attributes(work_data)
+        work.wont_be :valid?
 
-      work.reload
-      work.title.must_equal work_data[:title]
+        patch work_path(work), params: { work: work_data}
 
-    end
+        must_respond_with :not_found
+      end
 
-    it "renders 404 not_found for bogus data" do
-      work = Work.first
-      work_data = work.attributes
-      work_data[:title] = nil
-      work.assign_attributes(work_data)
-      work.wont_be :valid?
-
-      patch work_path(work), params: { work: work_data}
-
-      must_respond_with :not_found
+      it "renders 404 not_found for a bogus work ID" do
+        work_id = Work.last.id + 1
+        patch work_path(work_id)
+        must_respond_with :not_found
+      end
     end
 
-    it "renders 404 not_found for a bogus work ID" do
-      work_id = Work.last.id + 1
-      patch work_path(work_id)
-      must_respond_with :not_found
-    end
-  end
+    describe "destroy" do
+      it "succeeds for an extant work ID" do
+        work_id = Work.first.id
+        work_count = Work.count
 
-  describe "destroy" do
-    it "succeeds for an extant work ID" do
-      work_id = Work.first.id
-      work_count = Work.count
+        delete work_path(work_id)
 
-      delete work_path(work_id)
+        must_respond_with :redirect
+        must_redirect_to root_path
 
-      must_respond_with :redirect
-      must_redirect_to root_path
+        Work.count.must_equal work_count - 1
+        Work.find_by(id: work_id).must_be_nil
+      end
 
-      Work.count.must_equal work_count - 1
-      Work.find_by(id: work_id).must_be_nil
-    end
+      it "renders 404 not_found and does not update the DB for a bogus work ID" do
+        work_id = Work.last.id + 1
+        work_count = Work.count
 
-    it "renders 404 not_found and does not update the DB for a bogus work ID" do
-      work_id = Work.last.id + 1
-      work_count = Work.count
-
-      delete work_path(work_id)
-      must_respond_with :not_found
-      Work.count.must_equal work_count
-    end
-  end
-
-  describe "upvote" do
-
-    it "redirects to the work page if no user is logged in" do
-
-      @login_user = nil
-
-      work = Work.last
-
-      starting_vote_count = work.vote_count
-
-      post upvote_path(work)
-
-      work.reload
-      ending_vote_count = work.vote_count
-
-      must_respond_with :redirect
-      must_redirect_to work_path(work)
-
-      ending_vote_count.must_equal starting_vote_count
+        delete work_path(work_id)
+        must_respond_with :not_found
+        Work.count.must_equal work_count
+      end
     end
 
+    describe "upvote" do
 
-    it "succeeds for a logged-in user and a fresh user-vote pair" do
+      it "succeeds for a logged-in user and a fresh user-vote pair" do
 
-      work = Work.last
+        work = Work.last
 
-      user = Session.create(name: 'test', email: 'test@test.org', uid: '123454365', provider: 'github')
+        user = Session.create(name: 'test', email: 'test@test.org', uid: '123454365', provider: 'github')
 
 
-      starting_vote_count = work.vote_count
+        starting_vote_count = work.vote_count
 
-      post upvote_path(work)
+        post upvote_path(work)
 
-      work.reload
-      ending_vote_count = work.vote_count
+        work.reload
+        ending_vote_count = work.vote_count
 
-      must_respond_with :redirect
-      must_redirect_to work_path(work)
+        must_respond_with :redirect
+        must_redirect_to work_path(work)
 
-      ending_vote_count.must_equal starting_vote_count + 1
+        ending_vote_count.must_equal starting_vote_count + 1
 
+      end
+      #
+      # it "redirects to the work page if the user has already voted for that work" do
+      #
+      # end
     end
-  #
-    # it "redirects to the work page if the user has already voted for that work" do
-    #
-    # end
   end
 end
