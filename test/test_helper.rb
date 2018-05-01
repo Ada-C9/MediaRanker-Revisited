@@ -4,6 +4,7 @@ require "rails/test_help"
 require "minitest/rails"
 require "minitest/skip_dsl"
 require "minitest/reporters"  # for Colorized output
+require 'pry'
 
 #  For colorful output!
 Minitest::Reporters.use!(
@@ -41,7 +42,10 @@ class ActiveSupport::TestCase
 
   def login(user)
     OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
-    get auth_callback_path(:github)
+    # binding.pry
+    get auth_callback_path
+    # binding.pry
+    must_redirect_to root_path
   end
 
 end

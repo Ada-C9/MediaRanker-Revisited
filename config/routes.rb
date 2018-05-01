@@ -3,7 +3,8 @@ Rails.application.routes.draw do
   root 'works#root'
   get '/login', to: 'sessions#login_form', as: 'login'
   # post '/login', to: 'sessions#login'
-  get "/auth/:provider/callback", to: "sessions#login"
+  get "/auth/github"
+  get "/auth/github/callback", to: "sessions#create", as: "auth_callback"
   post '/logout', to: 'sessions#logout', as: 'logout'
 
   resources :works

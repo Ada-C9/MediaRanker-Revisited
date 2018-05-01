@@ -2,11 +2,11 @@ class SessionsController < ApplicationController
   def login_form
   end
 
-  def login
+  def create
     auth_hash = request.env['omniauth.auth']
 
     if auth_hash['uid']
-      @user = User.find_by(uid: auth_hash[:uid], provider: auth_hash[:provider])
+      @user = User.find_by(uid: auth_hash[:uid], provider: 'github')
       if @user.nil?
         @user = User.new(
           username: auth_hash[:info][:name],
