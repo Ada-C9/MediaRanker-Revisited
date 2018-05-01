@@ -167,13 +167,10 @@ describe WorksController do
       end
 
       it "succeeds for valid data and an extant work ID" do
-        put work_path(works(:poodr).id), params: { work:
-          { category: "movie", title: "foo" }
-        }
+        put work_path(works(:poodr).id), params: { work: { title: "foo" } }
 
         updated_work = Work.find(works(:poodr).id)
         updated_work.title.must_equal "foo"
-        updated_work.category.must_equal "movie"
 
         must_respond_with :redirect
         must_redirect_to work_path(works(:poodr))

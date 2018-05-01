@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
-  before_action :find_user, except: [:root, :login, :upvote]
+  before_action :find_user, except: [:root, :upvote]
 
   before_action :find_user_no_error, only: [:upvote]
 
