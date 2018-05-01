@@ -16,7 +16,6 @@ class User < ApplicationRecord
         email: data_hash['info']['email']
       }
       user = User.new(user_data)
-      raise
       return user.save ? user : nil
     end
     return user

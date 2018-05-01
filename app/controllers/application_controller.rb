@@ -1,4 +1,3 @@
-
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
@@ -8,7 +7,6 @@ class ApplicationController < ActionController::Base
     # DPR: this will actually render a 404 page in production
     raise ActionController::RoutingError.new('Not Found')
   end
-
 
 
 private

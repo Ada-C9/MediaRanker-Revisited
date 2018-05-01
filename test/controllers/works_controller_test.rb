@@ -29,7 +29,7 @@ describe WorksController do
 
   describe 'logged in user' do
     before do
-      user = User.first
+      user = users(:dan)
       login(user)
       puts session[:user_id]
     end

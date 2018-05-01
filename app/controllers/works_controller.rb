@@ -94,6 +94,7 @@ private
     @media_category = @work.category.downcase.pluralize
   end
 
+
   def page_access
     unless session[:user_id]
       redirect_to root_path
