@@ -1,10 +1,8 @@
 class UsersController < ApplicationController
+  before_action :require_login
+
   def index
-    if @login_user.nil?
-      render_404
-    else
-      @users = User.all
-    end
+    @users = User.all
   end
 
   def show
