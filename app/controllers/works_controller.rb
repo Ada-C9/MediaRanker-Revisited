@@ -3,6 +3,8 @@ class WorksController < ApplicationController
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
 
+  before_action :page_access, except: [:root]
+
   def root
     @albums = Work.best_albums
     @books = Work.best_books
@@ -90,5 +92,11 @@ private
     @work = Work.find_by(id: params[:id])
     render_404 unless @work
     @media_category = @work.category.downcase.pluralize
+  end
+
+  def page_access
+    unless session[:user_id]
+      redirect_to root_path
+    end
   end
 end

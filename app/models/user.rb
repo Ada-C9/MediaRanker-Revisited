@@ -7,7 +7,7 @@ class User < ApplicationRecord
   validates :email, presence: true # might be redundant with github needing an email
 
   def self.get_user(data_hash)
-    user = User.find_by(uid: data_hash[:uid], provider: data_hash['provider'])
+    user = User.find_by(uid: data_hash[:uid], provider: data_hash[:provider])
     if user.nil?
       user_data = {
         uid: data_hash['uid'],
@@ -16,6 +16,7 @@ class User < ApplicationRecord
         email: data_hash['info']['email']
       }
       user = User.new(user_data)
+      raise
       return user.save ? user : nil
     end
     return user
