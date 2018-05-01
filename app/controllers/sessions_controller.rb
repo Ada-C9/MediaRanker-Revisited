@@ -1,8 +1,8 @@
 class SessionsController < ApplicationController
-  def login_form
-  end
 
-  def create
+  before_action :require_login, except: [:login]
+
+  def login
     auth_hash = request.env['omniauth.auth']
 
     if auth_hash['uid']
@@ -39,7 +39,7 @@ class SessionsController < ApplicationController
 
   end
 
-  def destroy
+  def logout
     session[:user_id] = nil
     flash[:status] = :success
     flash[:result_text] = "Successfully logged out"
@@ -51,11 +51,7 @@ class SessionsController < ApplicationController
     @user = User.new
   end
 
-  def destroy
-    session[:user_id] = nil
-    flash[:success] = "Successfully logged out"
-    redirect_to root_path
-  end
+
 
   private
 
