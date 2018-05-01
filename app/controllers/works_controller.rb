@@ -3,6 +3,8 @@ class WorksController < ApplicationController
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
 
+  before_action :require_login, except: [:root]
+
   def root
     @albums = Work.best_albums
     @books = Work.best_books
@@ -11,7 +13,21 @@ class WorksController < ApplicationController
   end
 
   def index
-    @works_by_category = Work.to_category_hash
+    # if current_user
+    #     flash[:status] = :failure
+    #     flash[:result_text] = "This isn't your product!"
+    #     redirect_to product_path(@product.id)
+    #   else
+    #     flash[:status] = :failure
+    #     flash[:result_text] = "You need to log in to edit!"
+    #     redirect_to user_path(@product.id)
+    #   end
+    if session[@user].nil?
+      flash[:status] = :failure
+      flash[:result_text] = "You must log in!"
+    else
+      @works_by_category = Work.to_category_hash
+    end
   end
 
   def new
@@ -81,7 +97,7 @@ class WorksController < ApplicationController
     redirect_back fallback_location: work_path(@work)
   end
 
-private
+  private
   def media_params
     params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
   end
@@ -90,5 +106,10 @@ private
     @work = Work.find_by(id: params[:id])
     render_404 unless @work
     @media_category = @work.category.downcase.pluralize
+  end
+
+  def require_login
+    redirect_to root_path, status: :bad_request if session[:user_id].nil?
+    flash[:error] = "Log in to see that"
   end
 end
