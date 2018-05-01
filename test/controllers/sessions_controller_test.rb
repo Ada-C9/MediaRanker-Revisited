@@ -71,13 +71,16 @@ describe SessionsController do
 	end
 
 	describe "destroy" do
-		user = users(:dan)
+		it "destroys the session" do
+			user = users(:dan)
+			login_for_test(user)
+			session[:user_id].must_equal user.id # just checking to be sure
 
-		login_for_test(user)
-		logout_for_test(user)
+			logout_for_test(user)
 
-		must_redirect_to logout_path
-
+			must_redirect_to root_path
+			session[:user_id].must_be_nil
+		end
 	end
 
 end
