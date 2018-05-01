@@ -13,21 +13,7 @@ class WorksController < ApplicationController
   end
 
   def index
-    # if current_user
-    #     flash[:status] = :failure
-    #     flash[:result_text] = "This isn't your product!"
-    #     redirect_to product_path(@product.id)
-    #   else
-    #     flash[:status] = :failure
-    #     flash[:result_text] = "You need to log in to edit!"
-    #     redirect_to user_path(@product.id)
-    #   end
-    if session[@user].nil?
-      flash[:status] = :failure
-      flash[:result_text] = "You must log in!"
-    else
-      @works_by_category = Work.to_category_hash
-    end
+    @works_by_category = Work.to_category_hash
   end
 
   def new
