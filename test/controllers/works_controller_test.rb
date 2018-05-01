@@ -255,7 +255,7 @@ describe WorksController do
       votes_before = work.votes.count
       user = User.last
 
-      post login_path, params: { username: user.username }
+      login(user)
       post logout_path
 
       post upvote_path(work)
@@ -270,11 +270,11 @@ describe WorksController do
       before do
         @work = Work.last
         @votes_before = @work.votes.count
-        @user = User.new(username: 'Thor Odinson')
+        @user = User.new(username: 'Thor Odinson', uid: 3, email: 'thor@hammer.asgard', provider: 'github')
         @user.must_be :valid?
         @user.save
 
-        post login_path, params: { username: @user.username }
+        login(@user)
 
         post upvote_path(@work)
       end
