@@ -16,6 +16,7 @@ describe UsersController do
 
 
   describe 'show' do
+
     it 'sends success if the user extant' do
       get user_path(User.first)
       must_respond_with :success
