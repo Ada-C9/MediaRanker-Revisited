@@ -5,6 +5,7 @@ dan:
   provider: github
   email: dan@dan.com
   username: danman
+  uid: 666666
 
 
 
@@ -13,3 +14,4 @@ kari:
   provider: github
   email: kari@kari.com
   username: karibari
+  uid: 777777

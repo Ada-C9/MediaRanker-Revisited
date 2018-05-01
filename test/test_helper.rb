@@ -42,7 +42,7 @@ class ActiveSupport::TestCase
     OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
 
     get auth_callback_path(:github)
-    session[:user_id] = user.id
+    
 
     must_redirect_to root_path
 
