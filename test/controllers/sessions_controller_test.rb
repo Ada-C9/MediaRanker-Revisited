@@ -31,7 +31,7 @@ describe SessionsController do
       must_redirect_to root_path
     end
   end
-  
+
   describe "login" do
     it "succeeds with new user" do
       proc {
@@ -75,7 +75,33 @@ describe SessionsController do
     end
   end
 
-  describe "logout" do
+  describe "logout - OATH" do
+    it "redirects to the work page after the user has logged out" do
+      post logout_path, params: {
+        user: {
+          username: "countess_ada"
+        }
+      }
+
+      must_respond_with :redirect
+      must_redirect_to root_path
+    end
+
+    it "reverts the session[:user_id] to nil" do
+      perform_login(users(:ada))
+
+      session[:user_id].must_equal User.find_by(username: "countess_ada").id
+
+      post logout_path, params: {
+        user: {
+          username: "countess_ada"
+        }
+      }
+      session[:user_id].must_be_nil
+    end
+  end
+  
+  describe "logout - User" do
     it "redirects to the work page after the user has logged out" do
       post logout_path, params: {
         user: {

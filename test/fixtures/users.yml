@@ -2,14 +2,10 @@
 
 dan:
   username: dan
-  # provider: github
-  # oauth_uid: 123456
-  # email: dan@adadevelopersacademy.org
+  
 kari:
   username: kari
-  # provider: github
-  # oauth_uid: 012345
-  # email: ada@adadevelopersacademy.org
+
 ada:
   provider: github
   uid: 12345
