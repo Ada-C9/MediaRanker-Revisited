@@ -1,7 +1,6 @@
 class SessionsController < ApplicationController
   def login_form
-    # take username from login_form and set to the username var
-
+    # login through internal site using this method, not login
     # flash[:status] = :success
     # flash[:result_text] = "Successfully logged in"
     # redirect_to root_path
@@ -9,8 +8,6 @@ class SessionsController < ApplicationController
 
   def create
     # controller responsible for the errors & redirect
-    flash[:result_text] = "USING CREATE"
-
     auth_hash = request.env['omniauth.auth']
 
     if auth_hash['uid']
