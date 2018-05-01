@@ -2,7 +2,7 @@ require "test_helper"
 
 describe SessionsController do
 
-  describe 'login' do
+  describe 'create' do
     it 'logs in a user who already exists' do
 
     end
@@ -17,10 +17,10 @@ describe SessionsController do
 
   end
 
-  describe 'logout' do
+  describe 'destroy' do
 
     it 'sends success when user logged out' do
-
+      
     end
 
   end

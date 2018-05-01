@@ -39,7 +39,7 @@ describe UsersController do
 
         get user_path(user_id)
 
-        must_render :not_found
+        must_respond_with :not_found
       end
   end
 
