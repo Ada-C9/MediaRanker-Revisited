@@ -80,20 +80,20 @@ describe SessionsController do
 
         end
 
-  describe "logout" do
+        describe "logout" do
 
 
-    it 'successfully logs out current user' do
-      perform_login(users(:dan))
+          it 'successfully logs out current user' do
+            perform_login(users(:dan))
 
-      delete logout_path
+            delete logout_path
 
-      session["user_id"].must_be_nil
-      must_respond_with :redirect
-      must_redirect_to root_path
-    end
-  end
+            session["user_id"].must_be_nil
+            must_respond_with :redirect
+            must_redirect_to root_path
+          end
+        end
 
 
 
-end
+      end
