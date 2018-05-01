@@ -149,7 +149,6 @@ describe WorksController do
     end
   end
 
-  # REVIEW: HAVE CHARLES WALK ME THROUGH THE BELOW TEST
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
       work = works(:album)
@@ -284,3 +283,5 @@ describe WorksController do
 end
 
 # TODO: GO BACK AND UPDATE USING FIXTURES
+# TODO: Wave 2, OAuth login code.
+# TODO: Wave 3, restriction logic and code for limited user view and access
