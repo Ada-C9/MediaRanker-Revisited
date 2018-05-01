@@ -50,7 +50,6 @@ describe WorksController do
   describe "index" do
     it "succeeds for signed in user when there are works" do
       perform_login(users(:dan))
-      binding.pry
       get works_path
       must_respond_with :success
     end
