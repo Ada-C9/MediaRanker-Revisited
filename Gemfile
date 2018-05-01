@@ -56,6 +56,7 @@ group :test do
   gem 'minitest-reporters'
   gem 'minitest-spec-rails'
   gem 'minitest-skip'
+  gem 'simplecov', require: false
 end
 
 group :development do
@@ -74,3 +75,5 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem "omniauth"
 gem "omniauth-github"
+
+# gem 'simplecov', require: false, group: :test

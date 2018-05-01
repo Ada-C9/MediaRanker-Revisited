@@ -28,11 +28,10 @@ class SessionsController < ApplicationController
   private
   def create_new_user
       auth_hash = request.env['omniauth.auth']
-      new_user = User.new(username: auth_hash['info']['nickname'], email: auth_hash['info']['email'], uid: auth_hash['uid'], provider: 'Github')
-      # binding.pry
-      if new_user.save
+      @user = User.new(username: auth_hash['info']['nickname'], email: auth_hash['info']['email'], uid: auth_hash['uid'], provider: 'Github')
+      if @user.save
         flash[:status] = :success
-        flash[:result_text] = "Your account has been generated #{new_user.username}!"
+        flash[:result_text] = "Your account has been generated #{@user.username}!"
       else
         flash[:status] = :failure
         flash[:result_text] = "Something has gone wrong in the account generation process."
