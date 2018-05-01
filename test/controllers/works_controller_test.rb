@@ -23,6 +23,18 @@ describe WorksController do
           must_redirect_to root_path
         end
       end
+
+      describe 'upvote' do
+        it "redirects to the work page if no user is logged in" do
+          work = Work.first
+          old_count = work.vote_count
+
+          post upvote_path(work.id)
+
+          must_redirect_to root_path
+          Work.first.vote_count.must_equal old_count
+        end
+      end
     end
 
   end
@@ -259,16 +271,6 @@ describe WorksController do
     end
 
     describe "upvote" do
-
-      it "redirects to the work page if no user is logged in" do
-        work = Work.first
-        old_count = work.vote_count
-
-        post upvote_path(work.id)
-
-        must_redirect_to work_path(work.id)
-        Work.first.vote_count.must_equal old_count
-      end
 
       it "succeeds for a logged-in user and a fresh user-vote pair" do
         user = User.first
