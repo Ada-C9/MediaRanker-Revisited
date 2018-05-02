@@ -1,6 +1,7 @@
 class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
+
   before_action :block_guest, except: [:root]
 
   before_action :category_from_work, except: [:root, :index, :new, :create]
@@ -36,7 +37,10 @@ class WorksController < ApplicationController
   end
 
   def show
-    @votes = @work.votes.order(created_at: :desc)
+    find_work
+    if @work
+      @votes = @work.votes.order(created_at: :desc)
+    end
   end
 
   def edit

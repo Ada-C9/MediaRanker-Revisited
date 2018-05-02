@@ -9,14 +9,14 @@ class ApplicationController < ActionController::Base
   end
 
   def block_guest
-    if @login_user
+    if @login_user == nil
       flash[:result_text] = "You must be logged in to do that"
       redirect_to :root
     end
   end
 
 
-private
+  private
   def find_user
     if session[:user_id]
       @login_user = User.find_by(id: session[:user_id])

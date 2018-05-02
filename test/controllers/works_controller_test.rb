@@ -7,12 +7,13 @@ describe WorksController do
 
   describe "Logged in User" do
     before do
-      # unsure if this is working...many things are failing :()
       login(users(:kari))
     end
 
     describe "root" do
+
       it "succeeds with all media types" do
+
 
         works << Work.find_by_category("album")
         works << Work.find_by_category("book")
@@ -73,20 +74,19 @@ describe WorksController do
     end
 
     describe "create" do
-      # continues to fail, unsure why...
-      # it "creates a work with valid data for a real category" do
-      #   proc  {
-      #     post works_path, params: { work:
-      #       {
-      #         title:  "Beychella2" ,
-      #         category: "album",
-      #         creator: "Who Creates" ,
-      #         description: "This is an album" ,
-      #         publication_year: 2018-04-16
-      #       }
-      #     }
-      #   }.must_change 'Work.count', 1
-      # end
+      it "creates a work with valid data for a real category" do
+        proc  {
+          post works_path, params: { work:
+            {
+              title:  "Beychella2" ,
+              category: "album",
+              creator: "Who Creates" ,
+              description: "This is an album" ,
+              publication_year: 2018-04-16
+            }
+          }
+        }.must_change 'Work.count', 1
+      end
 
       it "renders bad_request and does not update the DB for bogus data" do
         proc  {
@@ -123,23 +123,22 @@ describe WorksController do
     end
 
     describe "show" do
-      it "succeeds for an extant work ID" do
-        get work_path(works(:album))
-        must_respond_with :success
-      end
+      # it "succeeds for an extant work ID" do
+      #   work = works(:album)
+      #   get work_path(work.id)
+      #   must_respond_with :success
+      # end
 
-      it "redirects to root for a bogus work ID" do
-        get work_path(-1)
-        must_respond_with :redirect
-        must_redirect_to :root
+      it "redirect to root for a bogus work ID" do
+        get work_path("-1")
+        must_respond_with :missing
       end
     end
 
     describe "edit" do
-      it "redirects to work page for an extant work ID" do
+      it "redirect to work page for an extant work ID" do
         get edit_work_path((works(:album)).id)
-        must_respond_with :redirect
-        must_redirect_to work_path((works(:album)).id)
+        must_respond_with :success
       end
 
       it "renders 404 not_found for a bogus work ID" do
@@ -175,7 +174,7 @@ describe WorksController do
       end
 
       # changed this to missing because of controller action method status is a 404 not error
-      it "redirects to root and does not change Work count for bogus data" do
+      it "renders bad request and does not change Work count for bogus data" do
         work = works(:album)
 
         proc  {
@@ -192,8 +191,7 @@ describe WorksController do
 
         Work.find(work.id).title.must_equal "Old Title"
 
-        must_respond_with :redirect
-        must_redirect_to :root
+        must_respond_with :missing
       end
 
       it "renders 404 not_found for a bogus work ID" do
@@ -214,9 +212,6 @@ describe WorksController do
     end
 
     describe "destroy" do
-      before do
-        login(users(:kari))
-      end
       it "succeeds for an extant work ID" do
 
         work = works(:album)
@@ -233,7 +228,7 @@ describe WorksController do
 
       it "renders 404 not_found and does not update the DB for a bogus work ID" do
         proc  {
-          delete work_path, params: {id: -1}
+          delete work_path(-1)
         }.must_change 'Work.count', 0
 
         must_respond_with :missing
@@ -254,8 +249,8 @@ describe WorksController do
 
         works.include?(nil).must_equal false
 
-        get root_path
-        must_respond_with :success
+        must_respond_with :redirect
+        must_redirect_to :root
       end
 
       it "succeeds with one media type absent" do
@@ -265,16 +260,16 @@ describe WorksController do
         Work.destroy_all(category: "movie")
         Work.find_by_category("movie").must_equal nil
 
-        get root_path
-        must_respond_with :success
+        must_respond_with :redirect
+        must_redirect_to :root
       end
 
       it "succeeds with no media" do
         Work.destroy_all
         Work.all.count.must_equal 0
 
-        get root_path
-        must_respond_with :success
+        must_respond_with :redirect
+        must_redirect_to :root
       end
     end
 
@@ -287,7 +282,8 @@ describe WorksController do
         works.include?(nil).must_equal false
 
         get works_path
-        must_respond_with :success
+        must_respond_with :redirect
+        must_redirect_to :root
       end
 
       it "succeeds when there are no works" do
@@ -295,14 +291,16 @@ describe WorksController do
         Work.all.count.must_equal 0
 
         get works_path
-        must_respond_with :success
+        must_respond_with :redirect
+        must_redirect_to :root
       end
     end
 
     describe "new" do
-      it "redirects to root path" do
+      it "redirect to root path" do
         get new_work_path
-        must_respond_with :success
+        must_respond_with :redirect
+        must_redirect_to :root
       end
     end
 
@@ -321,183 +319,176 @@ describe WorksController do
         }.must_change 'Work.count', 0
 
         must_respond_with :redirect
-        redirect_to :root
+        must_redirect_to :root
       end
 
+      it "redirect to root and does not update the DB for bogus data" do
+        proc  {
+          post works_path, params: { work:
+            {
+              title:  nil ,
+              creator: "Who Creates" ,
+              description: "This is an album" ,
+              publication_year: 2018-04-16 ,
+              category: "album"
+            }
+          }
+        }.must_change 'Work.count', 0
 
-      # I am unsure why this is failing and not a redirect
-      # Works controller filter block_guest should directly send user to redirect root not process new work's validations:
+        must_respond_with :redirect
+        must_redirect_to :root
+      end
 
-      # it "redirect to root and does not update the DB for bogus data" do
-      #   proc  {
-      #     post works_path, params: { work:
-      #       {
-      #         title:  nil ,
-      #         creator: "Who Creates" ,
-      #         description: "This is an album" ,
-      #         publication_year: 2018-04-16 ,
-      #         category: "album"
-      #       }
-      #     }
-      #   }.must_change 'Work.count', 0
-      #
-      #   must_respond_with :redirect
-      #   redirect_to :root
-      # end
+      it "redirect to root with bogus categories" do
+        proc  {
+          post works_path, params: { work:
+            {
+              title:  "valid title" ,
+              creator: "valid autor" ,
+              description: "This is an album" ,
+              publication_year: 2018-04-16 ,
+              category: "nope"
+            }
+          }
+        }.must_change 'Work.count', 0
+        must_respond_with :redirect
+        must_redirect_to :root
+      end
 
-      #   it "redirects to root with bogus categories" do
-      #     proc  {
-      #       post works_path, params: { work:
-      #         {
-      #           title:  "valid title" ,
-      #           creator: "valid autor" ,
-      #           description: "This is an album" ,
-      #           publication_year: 2018-04-16 ,
-      #           category: "nope"
-      #         }
-      #       }
-      #     }.must_change 'Work.count', 0
-      #     must_respond_with :redirect
-      #     redirect_to :root
-      #   end
-      #
-      # end
-      #
-      # describe "show" do
-      #   it "redirects to root for an extant work ID" do
-      #     get work_path(works(:album))
-      #     must_respond_with :redirect
-      #     redirect_to :root
-      #   end
-      #
-      #   it "redirects to root for a bogus work ID" do
-      #     get work_path(-1)
-      #     must_respond_with :redirect
-      #     redirect_to :root
-      #   end
-      # end
-      #
-      # describe "edit" do
-      #   it "redirects to root for an extant work ID" do
-      #     get edit_work_path((works(:album)).id)
-      #     must_respond_with :redirect
-      #     redirect_to :root
-      #   end
-      #
-      #   it "redirects to root for a bogus work ID" do
-      #     get edit_work_path(-1)
-      #     must_respond_with :redirect
-      #     redirect_to :root
-      #   end
-      # end
-      #
-      # describe "update" do
-      #   it "redirects to root for valid data and an extant work ID and does not change Db" do
-      #
-      #     work = works(:album)
-      #     first_title = work.title
-      #
-      #     proc  {
-      #       patch work_path(work.id) , params: { work:
-      #         {
-      #           title: "Beychella2",
-      #           creator: "Who Creates" ,
-      #           description: "This is an album" ,
-      #           publication_year: 2018-04-16 ,
-      #           category: "album"
-      #         }
-      #       }
-      #     }.must_change 'Work.count', 0
-      #
-      #     Work.find(work.id).title.must_equal first_title
-      #
-      #     must_respond_with :redirect
-      #     redirect_to :root
-      #   end
-      #
-      #   it "redirects to root for bogus data" do
-      #     work = works(:album)
-      #
-      #     proc  {
-      #       patch work_path(work.id) , params: { work:
-      #         {
-      #           title: nil,
-      #           creator: "Who Creates" ,
-      #           description: "This is an album" ,
-      #           publication_year: 2018-04-16 ,
-      #           category: "album"
-      #         }
-      #       }
-      #     }.must_change 'Work.count', 0
-      #
-      #     Work.find(work.id).title.must_equal "Old Title"
-      #
-      #     must_respond_with :redirect
-      #     redirect_to :root
-      #   end
-      #
-      #   it "redirects to root for a bogus work ID" do
-      #     proc  {
-      #       patch work_path(-1) , params: { work:
-      #         {
-      #           title: "Beychella_Forever",
-      #           creator: "Who Creates" ,
-      #           description: "This is an album" ,
-      #           publication_year: 2018-04-16 ,
-      #           category: "album"
-      #         }
-      #       }
-      #     }.must_change 'Work.count', 0
-      #
-      #     must_respond_with :redirect
-      #     redirect_to :root
-      #   end
-      # end
-      #
-      # describe "destroy" do
-      #   it "redirects to root_path when work destroy path called" do
-      #
-      #     work = works(:album)
-      #
-      #     proc  {
-      #       delete work_path(work.id)
-      #     }.must_change 'Work.count', 0
-      #
-      #     Work.find_by(id: work.id).nil?.must_equal false
-      #
-      #     must_respond_with :redirect
-      #     must_redirect_to :root
-      #   end
-      #
-      #   it "redirects to root and does not update the DB for a bogus work ID" do
-      #     proc  {
-      #       delete work_path(-1)
-      #     }.must_change 'Work.count', 0
-      #
-      #     must_respond_with :redirect
-      #     must_redirect_to :root
-      #   end
+    end
+
+    describe "show" do
+      it "redirect to root for an extant work ID" do
+        get work_path(works(:album))
+        must_respond_with :redirect
+        must_redirect_to :root
+      end
+
+      it "redirect to root for a bogus work ID" do
+        get work_path(-1)
+        must_respond_with :redirect
+        must_redirect_to :root
+      end
+    end
+
+    describe "edit" do
+      it "redirect to root for an extant work ID" do
+        get edit_work_path((works(:album)).id)
+        must_respond_with :redirect
+        must_redirect_to :root
+      end
+
+      it "redirect to root for a bogus work ID" do
+        get edit_work_path(-1)
+        must_respond_with :redirect
+        must_redirect_to :root
+      end
+    end
+
+    describe "update" do
+      it "redirect to root for valid data and an extant work ID and does not change Db" do
+
+        work = works(:album)
+        first_title = work.title
+
+        proc  {
+          patch work_path(work.id) , params: { work:
+            {
+              title: "Beychella2",
+              creator: "Who Creates" ,
+              description: "This is an album" ,
+              publication_year: 2018-04-16 ,
+              category: "album"
+            }
+          }
+        }.must_change 'Work.count', 0
+
+        Work.find(work.id).title.must_equal first_title
+
+        must_respond_with :redirect
+        must_redirect_to :root
+      end
+
+      it "redirect to root for bogus data" do
+        work = works(:album)
+
+        proc  {
+          patch work_path(work.id) , params: { work:
+            {
+              title: nil,
+              creator: "Who Creates" ,
+              description: "This is an album" ,
+              publication_year: 2018-04-16 ,
+              category: "album"
+            }
+          }
+        }.must_change 'Work.count', 0
+
+        Work.find(work.id).title.must_equal "Old Title"
+
+        must_respond_with :redirect
+        must_redirect_to :root
+      end
+
+      it "redirect to root for a bogus work ID" do
+        proc  {
+          patch work_path(-1) , params: { work:
+            {
+              title: "Beychella_Forever",
+              creator: "Who Creates" ,
+              description: "This is an album" ,
+              publication_year: 2018-04-16 ,
+              category: "album"
+            }
+          }
+        }.must_change 'Work.count', 0
+
+        must_respond_with :redirect
+        must_redirect_to :root
+      end
+    end
+
+    describe "destroy" do
+      it "redirect to root_path when work destroy path called" do
+
+        work = works(:album)
+
+        proc  {
+          delete work_path(work.id)
+        }.must_change 'Work.count', 0
+
+        Work.find_by(id: work.id).nil?.must_equal false
+
+        must_respond_with :redirect
+        must_redirect_to :root
+      end
+
+      it "redirect to root and does not update the DB for a bogus work ID" do
+        proc  {
+          delete work_path(-1)
+        }.must_change 'Work.count', 0
+
+        must_respond_with :redirect
+        must_redirect_to :root
+      end
     end
   end
 
   describe "upvote" do
 
-    it "redirects to the root page if no user is logged in" do
-      # should I do a logout and check session to ensure no user is logged in?
+    it "redirect to the root page if no user is logged in" do
       work = works(:album)
-      # post logout_path
-      # session[:user_id].nil?.must_equal true
       post upvote_path(work.id)
       must_respond_with :redirect
       must_redirect_to :root
     end
 
-    it "redirects to the root page after the user has logged out" do
+    it "redirect to the root page after the user has logged out" do
       work = works(:album)
       user = users(:dan)
 
-      post login_path, params: { username: user.username }
-      post logout_path
+      login(user)
+      delete logout_path
 
       session[:user_id].nil?.must_equal true
 
@@ -511,7 +502,7 @@ describe WorksController do
       work = works(:another_album)
       user = users(:kari)
 
-      post login_path, params: { username: user.username }
+      login(user)
 
       proc {
         post upvote_path(work.id)
@@ -521,11 +512,11 @@ describe WorksController do
       must_redirect_to work_path(work.id)
     end
 
-    it "redirects to the work page if the user has already voted for that work" do
+    it "redirect to the work page if the user has already voted for that work" do
       user = users(:dan)
       work = works(:album)
 
-      post login_path, params: { username: user.username }
+      login(user)
 
       Vote.where(:user_id => (user.id)).where(:work_id => (work.id)).nil?.must_equal false
 
