@@ -3,7 +3,8 @@ class WorksController < ApplicationController
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
   # in application controller (inherits from this)
-  # before_action :require_login, except: [:index, :show]
+  before_action :require_login, except: [:root]
+  before_action :find_user
 
   def root
     @albums = Work.best_albums
