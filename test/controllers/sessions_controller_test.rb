@@ -14,6 +14,7 @@ describe SessionsController do
     end
 
     it "succeeds with new valid username and redirects to root path" do
+      #not sure why these tests don't work!
       new_user = User.new(
         provider: 'githib',
         uid: 999,

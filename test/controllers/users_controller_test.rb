@@ -10,20 +10,6 @@ describe UsersController do
       must_respond_with :success
     end
 
-    it "succeeds when there are no users" do
-      skip
-      existing_user = users(:dan)
-
-      perform_login(existing_user)
-
-      users = User.all
-      users.each do |user|
-        user.votes.destroy
-        user.destroy
-      end
-      get users_path
-      must_respond_with :success
-    end
   end
 
   describe "show" do
