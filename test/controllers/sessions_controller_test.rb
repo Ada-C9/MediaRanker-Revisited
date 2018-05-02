@@ -2,31 +2,29 @@ require "test_helper"
 
 describe SessionsController do
 
-  describe "login" do
+  describe "create" do
 
     it "logs in returning user" do
       user = User.first
 
       user_count = User.count
 
-       login(user)
-
-      must_respond_with :success
+      login(user)
 
       User.count.must_equal user_count
       session[:user_id].must_equal user.id
 
     end
 
-    it "creates a new session with valid data" do
+    it "creates a new user with valid data" do
 
       user = User.new(provider: 'github', uid: 76107, email: 'mail4@me.org', username: 'Jinny Larrimer')
 
       user_count = User.count
+      user.must_be :valid?
 
-       login(user)
+      login(user)
 
-      must_respond_with :success
 
       User.count.must_equal user_count + 1
       session[:user_id].must_equal user.id
@@ -52,13 +50,13 @@ describe SessionsController do
   end
 
 
-  describe "logout" do
+  describe "destroy" do
 
     it "destroys session on logout" do
 
       login(User.first)
 
-     logout_path
+      User.first.destroy
 
       session[:user_id].must_equal nil
 
