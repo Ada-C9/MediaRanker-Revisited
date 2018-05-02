@@ -47,25 +47,34 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
-      Work.count.must_be :>, 0
+      user = User.first
+
+      login(user)
+
       get works_path
 
       must_respond_with :success
     end
 
     it "succeeds when there are no works" do
+      user = User.first
       Work.destroy_all
 
-      Work.all.count.must_equal 0
+      login(user)
 
       get works_path
 
       must_respond_with :success
+      Work.all.count.must_equal 0
     end
   end
 
   describe "new" do
     it "succeeds" do
+      user = User.first
+
+      login(user)
+
       get new_work_path
 
       must_respond_with :success
@@ -75,11 +84,14 @@ describe WorksController do
   describe "create" do
     it "creates a work with valid data for a real category" do
       # Arrange
+      user = User.first
+
       work_data = {
         title: 'controller test book',
         category: CATEGORIES.sample
       }
 
+      login(user)
       old_count = Work.count
 
       # Assumptions
@@ -97,10 +109,15 @@ describe WorksController do
 
     it "renders bad_request and does not update the DB for bogus data" do
       # Arrange
+
+      user = User.first
       work_data = {
         category: 'movie'
       }
+
+      login(user)
       old_count = Work.count
+
       # Assumptions
       Work.new(work_data).wont_be :valid?
       # Act
@@ -129,11 +146,19 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an extant work ID" do
+      user = User.first
+
+      login(user)
+
       get work_path(Work.first)
       must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      user = User.first
+
+      login(user)
+
       work_id = Work.last.id + 1
 
       get work_path(work_id)
@@ -144,6 +169,10 @@ describe WorksController do
 
   describe "edit" do
     it "succeeds for an extant work ID" do
+      user = User.first
+
+      login(user)
+
       get edit_work_path(Work.first)
 
       must_respond_with :success
@@ -203,7 +232,10 @@ describe WorksController do
   describe "destroy" do
     it "succeeds for an extant work ID" do
       work_id = Work.first.id
+      user = User.first
       count = Work.count
+
+      login(user)
 
       delete work_path(work_id)
 
@@ -223,16 +255,6 @@ describe WorksController do
   end
 
   describe "upvote" do
-    it "redirects to the work page if no user is logged in" do
-      work_id = Work.first.id
-      vote_count = Work.first.votes.count
-
-      post upvote_path(work_id)
-
-      must_respond_with :redirect
-      must_redirect_to work_path(work_id)
-      vote_count.must_equal vote_count
-    end
 
     it "redirects to the work page after the user has logged out" do
       work = Work.first

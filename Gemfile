@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-
+gem 'simplecov', require: false, group: :test
 ruby '2.5.0'
 
 git_source(:github) do |repo_name|

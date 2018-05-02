@@ -1,8 +1,4 @@
 class SessionsController < ApplicationController
-  def login_form
-  end
-
-
   def create
     auth_hash = request.env['omniauth.auth']
     # TODO: dry up controller code and verify application view wrt flash messages
