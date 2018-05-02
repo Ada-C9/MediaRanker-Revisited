@@ -123,11 +123,11 @@ describe WorksController do
     end
 
     describe "show" do
-      # it "succeeds for an extant work ID" do
-      #   work = works(:album)
-      #   get work_path(work.id)
-      #   must_respond_with :success
-      # end
+      it "succeeds for an extant work ID" do
+        work = works(:album)
+        get work_path(work.id)
+        must_respond_with :success
+      end
 
       it "redirect to root for a bogus work ID" do
         get work_path("-1")

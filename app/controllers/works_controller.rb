@@ -37,7 +37,6 @@ class WorksController < ApplicationController
   end
 
   def show
-    find_work
     if @work
       @votes = @work.votes.order(created_at: :desc)
     end
