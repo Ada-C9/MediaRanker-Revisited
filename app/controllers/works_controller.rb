@@ -94,8 +94,4 @@ class WorksController < ApplicationController
     @media_category = @work.category.downcase.pluralize
   end
 
-  def require_login
-    redirect_to root_path, status: :bad_request if session[:user_id].nil?
-    flash[:error] = "Log in to see that"
-  end
 end
