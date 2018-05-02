@@ -1,80 +1,49 @@
 class SessionsController < ApplicationController
-  def login_form
-  end
+  before_action :require_login, except: [:login]
 
-
-  def create
+  def login
     auth_hash = request.env['omniauth.auth']
 
-    if auth_hash['uid']
-      @user = User.find_by(uid: auth_hash[:uid], provider: 'github')
+    if auth_hash[:uid]
+      # @user = User.find_by(uid: auth_hash[:uid], provider: 'github')
+      @user = User.find_by(uid: auth_hash[:uid], provider: params[:provider])
+
       if @user.nil?
-        # User doesn't match anything in the DB
-        # Attempt to create a new user
-        @user = User.build_from_github(auth_hash[:uid])
-        good_save = @user.save
+        @user = User.build_from_provider(auth_hash)
+        successful_save = @user.save
 
-        if good_save
-
-          flash[:success] = "Logged in successfully"
+        if successful_save
           session[:user_id] = @user.id
+          flash[:status] = :success
+          flash[:result_text] = "Successfully created new user #{@user.username} with ID #{@user.id}"
           redirect_to root_path
         else
-          flash[:error] = "Something happened in user creation"
-          redirect_to root_path
+          flash.now[:status] = :failure
+          flash.now[:result_text] = "Could not log in"
+          flash.now[:messages] = user.errors.messages
+          redirect_back fallback_location: auth_callback_path
         end
+
       else
-        flash[:success] = "logged in successfully"
         session[:user_id] = @user.id
+        flash[:status] = :success
+        flash[:result_text] = "Successfully logged in as existing user #{@user.username}"
         redirect_to root_path
       end
 
     else
-      flash[:error] = "Something happened in user creation"
-      redirect_to root_path
-
+      flash.now[:status] = :failure
+      flash.now[:result_text] = "Logging in through GitHub not successful"
+      redirect_back fallback_location: auth_callback_path
     end
 
 
-    def index
-      @user = User.find(session[:user_id]) # < recalls the value set in a previous request
-    end
   end
 
-  def destroy
+  def logout
     session[:user_id] = nil
-    flash[:success] = "Successfully logged out!"
-
+    flash[:status] = :success
+    flash[:result_text] = "Successfully logged out"
     redirect_to root_path
   end
-end
-
-def login
-  username = params[:username]
-  if username and user = User.find_by(username: username)
-    session[:user_id] = user.id
-    flash[:status] = :success
-    flash[:result_text] = "Successfully logged in as existing user #{user.username}"
-  else
-    user = User.new(username: username)
-    if user.save
-      session[:user_id] = user.id
-      flash[:status] = :success
-      flash[:result_text] = "Successfully created new user #{user.username} with ID #{user.id}"
-    else
-      flash.now[:status] = :failure
-      flash.now[:result_text] = "Could not log in"
-      flash.now[:messages] = user.errors.messages
-      render "login_form", status: :bad_request
-      return
-    end
-  end
-  redirect_to root_path
-end
-
-def logout
-  session[:user_id] = nil
-  flash[:status] = :success
-  flash[:result_text] = "Successfully logged out"
-  redirect_to root_path
 end
