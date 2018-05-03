@@ -16,9 +16,7 @@ class Work < ApplicationRecord
 
   def self.to_category_hash
     data = {}
-    CATEGORIES.each do |cat|
-      data[cat] = by_category(cat)
-    end
+    CATEGORIES.each { |cat| data[cat] = by_category(cat) }
     return data
   end
 

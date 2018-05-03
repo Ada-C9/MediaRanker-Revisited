@@ -1,17 +1,23 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
-  before_action :find_user
+  before_action :find_user, except: [:root, :upvote]
+
+  before_action :find_user_no_error, only: [:upvote]
 
   def render_404
-    # DPR: this will actually render a 404 page in production
-    raise ActionController::RoutingError.new('Not Found')
+     raise ActionController::RoutingError.new('Not Found')
   end
 
 private
   def find_user
-    if session[:user_id]
-      @login_user = User.find_by(id: session[:user_id])
-    end
+    # @login_user = User.find_by(id: session[:user_id])
+    find_user_no_error
+    render_404 unless @login_user
   end
+
+  def find_user_no_error
+    @login_user = User.find_by(id: session[:user_id])
+  end
+
 end

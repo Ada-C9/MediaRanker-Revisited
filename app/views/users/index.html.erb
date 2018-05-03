@@ -12,7 +12,7 @@
       <tr>
         <td><%= link_to user.username, user_path(user) %></td>
         <td><%= user.votes.count %></td>
-        <td><%= render_date user.created_at %></td>
+        <td><%= readable_date(render_date user.created_at) %></td>
       </tr>
     <% end %>
   </tbody>
