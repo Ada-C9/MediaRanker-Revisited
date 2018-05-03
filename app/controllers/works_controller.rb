@@ -2,6 +2,9 @@ class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
+  # in application controller (inherits from this)
+  before_action :require_login, except: [:root]
+  before_action :find_user
 
   def root
     @albums = Work.best_albums
@@ -50,7 +53,7 @@ class WorksController < ApplicationController
       flash.now[:status] = :failure
       flash.now[:result_text] = "Could not update #{@media_category.singularize}"
       flash.now[:messages] = @work.errors.messages
-      render :edit, status: :not_found
+      render :edit, status: :bad_request
     end
   end
 

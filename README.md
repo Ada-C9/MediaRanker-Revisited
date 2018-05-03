@@ -79,7 +79,7 @@ Create advanced authorization logic to enforce rules that govern what _changes_ 
 ### Tasks
 - Modify the edit and delete functionality to ensure that users can only change works they are associated with.
   - Consider how this could be implemented at the model layer.
-- Do some research into how to use Google or another OAuth provider for authentication and use that provider. -->
+- Do some research into how to use Google or another OAuth provider for authentication and use that provider.
 
 ## Due Date
 This project is due before class May 1 via PR against Ada-C9/MediaRanker-Revisited.

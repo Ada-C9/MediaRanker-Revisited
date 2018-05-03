@@ -8,10 +8,16 @@ class ApplicationController < ActionController::Base
     raise ActionController::RoutingError.new('Not Found')
   end
 
-private
+  private
   def find_user
     if session[:user_id]
       @login_user = User.find_by(id: session[:user_id])
     end
+  end
+
+  def require_login
+    @user = User.find_by(id: session[:user_id])
+    # head is sort of like render except doesn't take html just sends back status code
+    head :unauthorized unless @user
   end
 end
