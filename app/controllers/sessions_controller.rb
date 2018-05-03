@@ -1,34 +1,56 @@
 class SessionsController < ApplicationController
-  def login_form
-  end
+
+  before_action :require_login, except: [:login]
 
   def login
-    username = params[:username]
-    if username and user = User.find_by(username: username)
-      session[:user_id] = user.id
-      flash[:status] = :success
-      flash[:result_text] = "Successfully logged in as existing user #{user.username}"
-    else
-      user = User.new(username: username)
-      if user.save
-        session[:user_id] = user.id
-        flash[:status] = :success
-        flash[:result_text] = "Successfully created new user #{user.username} with ID #{user.id}"
+    auth_hash = request.env['omniauth.auth']
+
+    if auth_hash[:uid]
+      @user = User.find_by(uid: auth_hash[:uid], provider: params[:provider])
+
+      if @user.nil?
+
+        @user = User.get_from_github(auth_hash)
+        successfull_save = @user.save
+
+        if successfull_save
+          flash[:status] = :success
+          flash[:result_text] = "Logged in new user successfully"
+          session[:user_id] = @user.id
+
+          redirect_to root_path
+        else
+          flash.now[:status] = :failure
+          flash[:result_text] = "Could not log in"
+          flash.now[:messages] = user.errors.messages
+          redirect_back fallback_location: auth_callback_path
+        end
+
       else
-        flash.now[:status] = :failure
-        flash.now[:result_text] = "Could not log in"
-        flash.now[:messages] = user.errors.messages
-        render "login_form", status: :bad_request
-        return
+        session[:user_id] = @user.id
+        flash[:status] = :success
+        flash[:result_text] = "Logged in existing user successfully"
+        redirect_to root_path
       end
+    else
+      flash.now[:status] = :failure
+      flash[:error] = "Logging in through GitHub not successful"
+      redirect_back fallback_location: root_path
     end
-    redirect_to root_path
+
   end
 
-  def logout
+  def destroy
     session[:user_id] = nil
     flash[:status] = :success
     flash[:result_text] = "Successfully logged out"
     redirect_to root_path
+  end
+
+
+  private
+
+  def user_params
+    params.require(:user).permit(:name)
   end
 end

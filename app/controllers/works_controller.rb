@@ -1,6 +1,7 @@
 class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
+  before_action :require_login, except: [:root]
   before_action :category_from_work, except: [:root, :index, :new, :create]
 
   def root
@@ -59,6 +60,7 @@ class WorksController < ApplicationController
     flash[:status] = :success
     flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
     redirect_to root_path
+
   end
 
   def upvote
@@ -72,8 +74,8 @@ class WorksController < ApplicationController
         flash[:result_text] = "Could not upvote"
         flash[:messages] = vote.errors.messages
       end
-    else
-      flash[:result_text] = "You must log in to do that"
+    # else
+    #   flash[:result_text] = "You must log in to do that"
     end
 
     # Refresh the page to show either the updated vote count
@@ -81,7 +83,7 @@ class WorksController < ApplicationController
     redirect_back fallback_location: work_path(@work)
   end
 
-private
+  private
   def media_params
     params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
   end
