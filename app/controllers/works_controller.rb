@@ -1,6 +1,7 @@
 class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
+  skip_before_action :require_login, only: [:root]
   before_action :category_from_work, except: [:root, :index, :new, :create]
 
   def root
@@ -34,7 +35,11 @@ class WorksController < ApplicationController
   end
 
   def show
-    @votes = @work.votes.order(created_at: :desc)
+    if @work
+      @votes = @work.votes.order(created_at: :desc)
+    else
+      render_404
+    end
   end
 
   def edit
@@ -50,7 +55,7 @@ class WorksController < ApplicationController
       flash.now[:status] = :failure
       flash.now[:result_text] = "Could not update #{@media_category.singularize}"
       flash.now[:messages] = @work.errors.messages
-      render :edit, status: :not_found
+      render :edit, status: :bad_request
     end
   end
 
@@ -81,7 +86,7 @@ class WorksController < ApplicationController
     redirect_back fallback_location: work_path(@work)
   end
 
-private
+  private
   def media_params
     params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
   end

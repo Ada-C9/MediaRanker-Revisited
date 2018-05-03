@@ -2,6 +2,13 @@
 
 dan:
   username: dan
+  email: fake@gmail.com
+  uid: 12345678
+  provider: github
+
 
 kari:
   username: kari
+  email: faker@gmail.com
+  uid: 87654321
+  provider: github
