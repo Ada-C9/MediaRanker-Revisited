@@ -39,6 +39,9 @@ describe User do
       user2.errors.messages.must_include :username
     end
 
+    describe "login" do
+      
+    end
 
   end
 end
