@@ -1,6 +1,7 @@
 class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
+  before_action :require_login, except: [:root]
   before_action :category_from_work, except: [:root, :index, :new, :create]
 
   def root
@@ -11,7 +12,7 @@ class WorksController < ApplicationController
   end
 
   def index
-    @works_by_category = Work.to_category_hash
+      @works_by_category = Work.to_category_hash
   end
 
   def new
@@ -26,9 +27,9 @@ class WorksController < ApplicationController
       flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
       redirect_to work_path(@work)
     else
-      flash[:status] = :failure
-      flash[:result_text] = "Could not create #{@media_category.singularize}"
-      flash[:messages] = @work.errors.messages
+      flash.now[:status] = :failure
+      flash.now[:result_text] = "Could not create #{@media_category}"
+      flash.now[:messages] = @work.errors.messages
       render :new, status: :bad_request
     end
   end
@@ -37,8 +38,7 @@ class WorksController < ApplicationController
     @votes = @work.votes.order(created_at: :desc)
   end
 
-  def edit
-  end
+  def edit; end
 
   def update
     @work.update_attributes(media_params)
