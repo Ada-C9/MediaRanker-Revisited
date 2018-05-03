@@ -4,7 +4,11 @@
     <% data.each do |datum| %>
       <li>
         <h4>
+          <%if session[:user_id] %>
           <%= link_to datum.title, work_path(datum) %>
+          <% else %>
+          <%= datum.title %>
+          <% end %> 
           <small>by <%= datum.creator %></small>
         </h4>
         <p><%= datum.vote_count %> votes</p>
