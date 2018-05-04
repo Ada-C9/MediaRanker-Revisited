@@ -3,6 +3,8 @@ class WorksController < ApplicationController
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
 
+  before_action :require_login, except: [:root]
+
   def root
     @albums = Work.best_albums
     @books = Work.best_books
@@ -91,4 +93,12 @@ private
     render_404 unless @work
     @media_category = @work.category.downcase.pluralize
   end
+
+  def require_login
+    unless session[:user_id]
+      flash[:failure] = 'You must be logged in to do that'
+      redirect_to root_path
+    end
+  end
+
 end

@@ -1,116 +1,307 @@
 require 'test_helper'
 
 describe WorksController do
-  describe "root" do
-    it "succeeds with all media types" do
-      # Precondition: there is at least one media of each category
+  describe 'guest user' do
+    describe 'root' do
+      it 'succeeds with all media types' do
+        albums = Work.where(category: 'album')
+        books = Work.where(category: 'book')
+        movies = Work.where(category: 'movie')
 
-    end
+        albums.count.must_be :>, 0
+        books.count.must_be :>, 0
+        movies.count.must_be :>, 0
 
-    it "succeeds with one media type absent" do
-      # Precondition: there is at least one media in two of the categories
+        get root_path
 
-    end
+        must_respond_with :success
+      end
+      describe 'show' do
+        it 'redirects back to root if user is not logged in' do
+          get work_path(Work.first.id)
 
-    it "succeeds with no media" do
+          must_redirect_to root_path
+        end
+      end
 
-    end
-  end
+      describe 'upvote' do
+        it "redirects to the work page if no user is logged in" do
+          work = Work.first
+          old_count = work.vote_count
 
-  CATEGORIES = %w(albums books movies)
-  INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
+          post upvote_path(work.id)
 
-  describe "index" do
-    it "succeeds when there are works" do
-
-    end
-
-    it "succeeds when there are no works" do
-
-    end
-  end
-
-  describe "new" do
-    it "succeeds" do
-
-    end
-  end
-
-  describe "create" do
-    it "creates a work with valid data for a real category" do
-
-    end
-
-    it "renders bad_request and does not update the DB for bogus data" do
-
-    end
-
-    it "renders 400 bad_request for bogus categories" do
-
+          must_redirect_to root_path
+          Work.first.vote_count.must_equal old_count
+        end
+      end
     end
 
   end
 
-  describe "show" do
-    it "succeeds for an extant work ID" do
+  describe 'logged in user' do
+    before do
+      user = users(:dan)
+      login(user)
+      puts session[:user_id]
+    end
+
+    describe "root" do
+      it "succeeds with all media types" do
+        # Precondition: there is at least one media of each category
+
+        albums = Work.where(category: 'album')
+        books = Work.where(category: 'book')
+        movies = Work.where(category: 'movie')
+
+        albums.count.must_be :>, 0
+        books.count.must_be :>, 0
+        movies.count.must_be :>, 0
+
+        get root_path
+
+        must_respond_with :success
+
+      end
+
+      it "succeeds with one media type absent" do
+        # Precondition: there is at least one media in two of the categories
+        albums = Work.where(category: 'album')
+        albums.destroy_all
+
+        albums.count.must_equal 0
+
+        get root_path
+
+        must_respond_with :success
+
+      end
+
+      it "succeeds with no media" do
+        Work.destroy_all
+
+        get root_path
+
+        must_respond_with :success
+      end
+    end
+
+    CATEGORIES = %w(albums books movies)
+    INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
+
+    describe "index" do
+      it "succeeds when there are works" do
+        Work.count.must_be :>, 0
+
+        get works_path
+
+        must_respond_with :success
+      end
+
+      it "succeeds when there are no works" do
+        Work.destroy_all
+
+        Work.count.must_equal 0
+
+        get works_path
+
+        must_respond_with :success
+      end
+    end
+
+    describe "new" do
+      it "succeeds" do
+        get new_work_path
+
+        must_respond_with :success
+      end
+    end
+
+    describe "create" do
+      it "creates a work with valid data for a real category" do
+        work_data = {
+          title: 'A Test Title',
+          category: 'albums'
+        }
+
+        before_count = Work.count
+        Work.new(work_data).must_be :valid?
+
+        post works_path, params: {work: work_data}
+
+        work = Work.last
+        must_redirect_to work_path(work.id)
+        Work.count.must_equal before_count + 1
+      end
+
+      it "renders bad_request and does not update the DB for bogus data" do
+        work_data = {
+          title: nil,
+          category: 'albums'
+        }
+
+        before_count = Work.count
+        Work.new(work_data).wont_be :valid?
+
+        post works_path, params: {work: work_data}
+
+        must_respond_with :bad_request
+        Work.count.must_equal before_count
+      end
+
+      it "renders 400 bad_request for bogus categories" do
+        work_data = {
+          title: 'Test Title',
+          category: INVALID_CATEGORIES[0]
+        }
+
+        before_count = Work.count
+
+        post works_path, params: {work: work_data}
+
+        must_respond_with :bad_request
+        Work.count.must_equal before_count
+      end
 
     end
 
-    it "renders 404 not_found for a bogus work ID" do
+    describe "show" do
+      it "succeeds for an extant work ID" do
+        work = Work.first
 
-    end
-  end
+        get work_path(work.id)
 
-  describe "edit" do
-    it "succeeds for an extant work ID" do
+        must_respond_with :success
+      end
 
-    end
+      it "renders 404 not_found for a bogus work ID" do
+        work_id = Work.last.id + 1
 
-    it "renders 404 not_found for a bogus work ID" do
+        get work_path(work_id)
 
-    end
-  end
-
-  describe "update" do
-    it "succeeds for valid data and an extant work ID" do
-
+        must_respond_with :not_found
+      end
     end
 
-    it "renders bad_request for bogus data" do
+    describe "edit" do
+      it "succeeds for an extant work ID" do
+        work = Work.first
 
+        get edit_work_path(work.id)
+
+        must_respond_with :success
+      end
+
+      it "renders 404 not_found for a bogus work ID" do
+        work_id = Work.last.id + 1
+
+        get work_path(work_id)
+
+        must_respond_with :not_found
+      end
     end
 
-    it "renders 404 not_found for a bogus work ID" do
+    describe "update" do
+      let (:work) { Work.first }
 
+      it "succeeds for valid data and an extant work ID" do
+        work_params = {
+          title: 'my_title'
+        }
+        work.assign_attributes(work_params)
+
+        work.valid?.must_equal true
+
+        patch work_path(work.id), params: {work: work_params}
+
+        must_redirect_to work_path(work.id)
+        Work.first.title.must_equal 'my_title'
+      end
+
+      it "renders not_found for bogus data" do
+        work_params = {
+          category: INVALID_CATEGORIES[-1]
+        }
+
+        work.assign_attributes(work_params)
+
+        work.valid?.must_equal false
+
+        patch work_path(work.id), params: {work: work_params}
+
+        must_respond_with :not_found
+        work.category.must_equal work_params[:category]
+        work.errors.messages.must_include :category
+      end
+
+      it "renders 404 not_found for a bogus work ID" do
+        work_id = Work.last.id + 1
+        work_params = {
+          title: 'my_title'
+        }
+        work.assign_attributes(work_params)
+
+        patch work_path(work_id), params: {work: work_params}
+
+        must_respond_with :not_found
+      end
     end
-  end
 
-  describe "destroy" do
-    it "succeeds for an extant work ID" do
+    describe "destroy" do
+      it "succeeds for an extant work ID" do
+        work = Work.first
+        old_count = Work.count
 
+        delete work_path(work.id)
+
+        must_redirect_to root_path
+        Work.count.must_equal old_count - 1
+      end
+
+      it "renders 404 not_found and does not update the DB for a bogus work ID" do
+        work_id = Work.last.id + 1
+        old_count = Work.count
+
+        delete work_path(work_id)
+
+        must_respond_with :not_found
+        Work.count.must_equal old_count
+
+      end
     end
 
-    it "renders 404 not_found and does not update the DB for a bogus work ID" do
+    describe "upvote" do
 
-    end
-  end
+      it "succeeds for a logged-in user and a fresh user-vote pair" do
+        user = User.first
+        work = Work.create!(title: 'A new work', category: 'books')
 
-  describe "upvote" do
+        login(user)
+        session[:user_id].must_equal user.id
 
-    it "redirects to the work page if no user is logged in" do
+        post upvote_path(work.id)
 
-    end
+        must_redirect_to work_path(work.id)
+        work.reload
+        work.vote_count.must_equal 1
+      end
 
-    it "redirects to the work page after the user has logged out" do
+      it "redirects to the work page if the user has already voted for that work" do
+        work = works(:another_album)
+        user = users(:dan)
 
-    end
+        login(user)
+        session[:user_id].must_equal user.id
 
-    it "succeeds for a logged-in user and a fresh user-vote pair" do
+        old_vote_count = work.vote_count
 
-    end
+        # Act
+        post upvote_path(work.id)
 
-    it "redirects to the work page if the user has already voted for that work" do
-
+        # Assert
+        works(:another_album).vote_count.must_equal old_vote_count
+        must_redirect_to work_path(work.id)
+      end
     end
   end
 end
