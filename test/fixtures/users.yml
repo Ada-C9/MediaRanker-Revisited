@@ -1,7 +1,14 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 dan:
+  provider: github
+  uid: 1337
   username: dan
+  email: dan@adadevelopersacademy.org
+
 
 kari:
+  provider: github
+  uid: 12345
   username: kari
+  email: kari@adadevelopersacademy.org
