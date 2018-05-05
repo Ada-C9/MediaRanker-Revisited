@@ -3,17 +3,17 @@ require 'test_helper'
 describe User do
   describe "relations" do
     it "has a list of votes" do
-      dan = users(:dan)
-      dan.must_respond_to :votes
-      dan.votes.each do |vote|
+      user = users(:ari)
+      user.must_respond_to :votes
+      user.votes.each do |vote|
         vote.must_be_kind_of Vote
       end
     end
 
     it "has a list of ranked works" do
-      dan = users(:dan)
-      dan.must_respond_to :ranked_works
-      dan.ranked_works.each do |work|
+      user = users(:ari)
+      user.must_respond_to :ranked_works
+      user.ranked_works.each do |work|
         work.must_be_kind_of Work
       end
     end
@@ -38,7 +38,5 @@ describe User do
       result.must_equal false
       user2.errors.messages.must_include :username
     end
-
-
   end
 end

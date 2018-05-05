@@ -2,6 +2,7 @@ class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
+  before_action :require_login, except: [:root]
 
   def root
     @albums = Work.best_albums
@@ -24,11 +25,12 @@ class WorksController < ApplicationController
     if @work.save
       flash[:status] = :success
       flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
+
       redirect_to work_path(@work)
     else
       flash[:status] = :failure
       flash[:result_text] = "Could not create #{@media_category.singularize}"
-      flash[:messages] = @work.errors.messages
+      # flash[:messages] = @work.errors.messages
       render :new, status: :bad_request
     end
   end
@@ -49,7 +51,7 @@ class WorksController < ApplicationController
     else
       flash.now[:status] = :failure
       flash.now[:result_text] = "Could not update #{@media_category.singularize}"
-      flash.now[:messages] = @work.errors.messages
+      # flash.now[:messages] = @work.errors.messages
       render :edit, status: :not_found
     end
   end
@@ -68,6 +70,7 @@ class WorksController < ApplicationController
       if vote.save
         flash[:status] = :success
         flash[:result_text] = "Successfully upvoted!"
+        redirect_to work_path(@work)
       else
         flash[:result_text] = "Could not upvote"
         flash[:messages] = vote.errors.messages
