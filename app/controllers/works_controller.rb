@@ -1,3 +1,4 @@
+require 'pry'
 class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
@@ -50,7 +51,7 @@ class WorksController < ApplicationController
       flash.now[:status] = :failure
       flash.now[:result_text] = "Could not update #{@media_category.singularize}"
       flash.now[:messages] = @work.errors.messages
-      render :edit, status: :not_found
+      render :edit, status: :bad_request
     end
   end
 

@@ -93,7 +93,6 @@ describe Work do
 
   describe "top_ten" do
     before do
-      # TODO DPR: This runs pretty slow. Fixtures?
       # Create users to do the voting
       test_users = []
       20.times do |i|
