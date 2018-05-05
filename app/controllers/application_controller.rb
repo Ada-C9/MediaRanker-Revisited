@@ -14,4 +14,14 @@ private
       @login_user = User.find_by(id: session[:user_id])
     end
   end
+
+  def logged_in?
+    !@login_user.nil?
+  end
+
+  def must_login_mssg
+    flash[:status] = :failure
+    flash[:result_text] = "Please log in to do that."
+    redirect_to root_path
+  end
 end

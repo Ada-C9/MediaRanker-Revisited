@@ -35,6 +35,7 @@ class Work < ApplicationRecord
     top_ten("book")
   end
 
+  # top ten in best_movies calls self.top_ten below it
   def self.best_movies
     top_ten("movie")
   end
