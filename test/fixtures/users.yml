@@ -11,3 +11,9 @@ kari:
   email: kari@adadev.org
   uid: 01234567
   provider: github
+
+melissa:
+  username: melissa
+  email: melissa@adadev.org
+  uid: 072205
+  provider: github

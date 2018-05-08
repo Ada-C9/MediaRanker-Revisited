@@ -1,7 +1,11 @@
 class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
+  #TODO review these before actions in octos-library - Dan added a bunch on April 18th
   before_action :category_from_work, except: [:root, :index, :new, :create]
+
+
+
 
   def root
     @albums = Work.best_albums

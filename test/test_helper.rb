@@ -4,7 +4,7 @@ SimpleCov.start 'rails' do
   add_filter '/db/'
   add_filter '/spec/'
   add_filter '/test/'
-end 
+end
 
 ENV["RAILS_ENV"] = "test"
 require File.expand_path("../../config/environment", __FILE__)
@@ -52,8 +52,8 @@ class ActiveSupport::TestCase
   # This method DRYs up the tests in the sessions_controller_test
   def login(user)
     OmniAuth.config.mock_auth[:github]= OmniAuth::AuthHash.new(mock_auth_hash(user))
-
-   get auth_callback_path(user.provider)
-
+    puts ""
+   get auth_callback_path(:github)
+   must_redirect_to root_path
   end
 end

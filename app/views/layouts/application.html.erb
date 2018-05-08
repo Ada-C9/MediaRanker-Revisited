@@ -26,7 +26,6 @@
       </div>
       <div class="user-nav">
         <% if session[:user_id] %>
-          <%= link_to "Logged in as #{@login_user.username}", user_path(@login_user), class: "button" %>
           <%= link_to "Log Out", logout_path, method: :post, class: "button" %>
         <% else %>
           <%= link_to "Log In", "/auth/github", class: "button" %>

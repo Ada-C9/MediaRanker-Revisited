@@ -39,8 +39,8 @@ class Work < ApplicationRecord
     top_ten("movie")
   end
 
-  def self.top_ten(category)
-    where(category: category).order(vote_count: :desc).limit(10)
+  def self.top_ten(c)
+    where(category: c).order(vote_count: :desc).limit(10)
   end
 
 private
