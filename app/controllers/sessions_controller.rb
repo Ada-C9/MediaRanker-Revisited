@@ -23,7 +23,6 @@ class SessionsController < ApplicationController
             flash[:error] = "Could not log in"
             redirect_to root_path
         end
-
       else
           session[:user_id] = @user.id
           flash[:success] = "Logged in successfully"
