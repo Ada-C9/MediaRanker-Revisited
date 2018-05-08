@@ -55,10 +55,12 @@ group :development, :test do
 end
 
 group :test do
+  gem 'minitest', '5.10.1'
   gem 'minitest-rails'
   gem 'minitest-reporters'
   gem 'minitest-spec-rails'
   gem 'minitest-skip'
+  gem 'simplecov'
 end
 
 group :development do
