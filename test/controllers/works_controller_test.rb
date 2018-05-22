@@ -3,16 +3,26 @@ require 'test_helper'
 describe WorksController do
   describe "root" do
     it "succeeds with all media types" do
-      # Precondition: there is at least one media of each category
-
+      get root_path
+      must_respond_with :success
     end
 
     it "succeeds with one media type absent" do
       # Precondition: there is at least one media in two of the categories
+      Work.find(works(:poodr).id).destroy
+
+
+     get root_path
+     must_respond_with :success
 
     end
 
     it "succeeds with no media" do
+      Work.destroy_all
+
+      get root_path
+
+      must_respond_with :success
 
     end
   end
@@ -22,22 +32,38 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
-
+      get works_path
+      must_respond_with :success
     end
 
     it "succeeds when there are no works" do
-
+      works.each do |work|
+      work.destroy
+    end
+      get works_path
+      must_respond_with :success
     end
   end
 
   describe "new" do
     it "succeeds" do
+      get new_work_path
+      must_respond_with :success
 
     end
   end
 
   describe "create" do
     it "creates a work with valid data for a real category" do
+
+      new_work = {work: {title: 'Some Book', category: 'book'}}
+
+    proc { post works_path, params: new_work }.must_change 'Work.count', 1
+
+    new_work_id = Work.find_by(title: 'Some Book').id
+
+    must_respond_with :redirect
+    must_redirect_to work_path(new_work_id)
 
     end
 
